@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/route_constants.dart';
 import '../../../core/constants/theme_constants.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -66,6 +67,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.light_mode),
+                      const SizedBox(width: 8),
+                      Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, child) {
+                          return Switch(
+                            value: themeProvider.isDarkMode,
+                            onChanged: (value) {
+                              themeProvider.toggleTheme();
+                            },
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.dark_mode),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,

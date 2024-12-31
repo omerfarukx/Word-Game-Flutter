@@ -15,28 +15,23 @@ import 'presentation/screens/exercises/word_pairs_screen.dart';
 import 'presentation/screens/exercises/letter_search_screen.dart';
 import 'presentation/screens/exercises/speed_reading_exercise_screen.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/providers/speed_reading_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupServiceLocator();
   final prefs = await SharedPreferences.getInstance();
-  runApp(MyApp(prefs: prefs));
-}
-
-class MyApp extends StatelessWidget {
-  final SharedPreferences prefs;
-
-  const MyApp({super.key, required this.prefs});
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
+  runApp(
+    MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => getIt<AuthProvider>(),
         ),
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(prefs),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SpeedReadingProvider()..initialize(),
         ),
       ],
       child: Consumer<ThemeProvider>(
@@ -65,6 +60,6 @@ class MyApp extends StatelessWidget {
           );
         },
       ),
-    );
-  }
+    ),
+  );
 }
