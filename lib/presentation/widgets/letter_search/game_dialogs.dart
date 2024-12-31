@@ -76,30 +76,40 @@ class GameDialogs {
   static void showHelpDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Nasıl Oynanır?'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('1. Yukarıda verilen kelimeleri bulmaya çalışın.'),
-            SizedBox(height: 8),
-            Text('2. Harfleri tek tek seçerek kelimeyi oluşturun.'),
-            SizedBox(height: 8),
-            Text('3. Harfler yan yana, alt alta veya çapraz olabilir.'),
-            SizedBox(height: 8),
-            Text('4. Doğru kelimeyi bulduğunuzda puan kazanırsınız.'),
-            SizedBox(height: 8),
-            Text('5. Tüm kelimeleri bulduğunuzda oyun yenilenir.'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Anladım'),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Nasıl Oynanır?'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('1. Yukarıda verilen kelimeleri bulmaya çalışın.'),
+              SizedBox(height: 8),
+              Text(
+                  '2. Kelimeleri fare ile sürükleyerek veya harflere tıklayarak seçin.'),
+              SizedBox(height: 8),
+              Text('3. Harfler yan yana, alt alta veya çapraz olabilir.'),
+              SizedBox(height: 8),
+              Text('4. Doğru kelimeyi bulduğunuzda +10 puan kazanırsınız.'),
+              SizedBox(height: 8),
+              Text('5. Yanlış kelime seçtiğinizde -10 puan kaybedersiniz.'),
+              SizedBox(height: 8),
+              Text('6. İpucu kullandığınızda -5 puan kaybedersiniz.'),
+              SizedBox(height: 8),
+              Text(
+                  '7. Her 3 kelimeyi bulduğunuzda yeni kelimeler gelir ve süre yenilenir.'),
+              SizedBox(height: 8),
+              Text('8. Süre bitmeden önce kelimeleri bulmaya çalışın!'),
+            ],
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Anladım'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

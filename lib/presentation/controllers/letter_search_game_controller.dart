@@ -462,4 +462,21 @@ class LetterSearchGameController {
   void dispose() {
     timer?.cancel();
   }
+
+  // Sadece kelimeleri ve gridi yeniler, puanı korur
+  void refreshGame() {
+    final random = Random();
+    targetWords = List.from(_allWords)..shuffle(random);
+    targetWords = targetWords.take(3).toList();
+
+    foundWords.clear();
+    selectedCells = List.generate(10, (i) => List.generate(10, (j) => false));
+    foundCells = List.generate(10, (i) => List.generate(10, (j) => false));
+    selectedWord = '';
+    selectedPositions = [];
+    hintPositions = [];
+    foundWordsCount = 0;
+    timeLeft = 30; // Süreyi sıfırla
+    _generateRandomGrid();
+  }
 }

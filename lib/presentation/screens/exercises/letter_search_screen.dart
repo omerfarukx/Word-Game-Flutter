@@ -114,6 +114,12 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
         return;
       }
       setState(() {
+        if (_gameController.foundWordsCount >=
+            _gameController.targetWords.length) {
+          _gameController.refreshGame();
+          return;
+        }
+
         if (_gameController.timeLeft > 0) {
           _gameController.timeLeft--;
         } else {
