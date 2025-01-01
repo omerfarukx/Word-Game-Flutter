@@ -38,7 +38,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _nameController.text.trim(),
             );
         if (mounted) {
-          Navigator.pushReplacementNamed(context, RouteConstants.home);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kayıt başarılı! Lütfen giriş yapın.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            RouteConstants.login,
+            (route) => false,
+          );
         }
       } catch (e) {
         if (mounted) {

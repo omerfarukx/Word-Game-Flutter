@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../../data/word_pairs_data.dart';
+import '../../../data/achievements_data.dart';
+import '../../../domain/models/achievement.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class WordPairsScreen extends StatefulWidget {
   const WordPairsScreen({super.key});
@@ -13,6 +16,9 @@ class WordPairsScreen extends StatefulWidget {
 class _WordPairsScreenState extends State<WordPairsScreen>
     with SingleTickerProviderStateMixin {
   final List<Map<String, List<String>>> wordPairs = WordPairsData.wordPairs;
+  final List<Achievement> achievements = AchievementsData.achievements;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
   List<Map<String, String>> currentPairs = [];
   List<bool> selectedCards = [];
   List<bool> correctCards = [];
@@ -25,10 +31,27 @@ class _WordPairsScreenState extends State<WordPairsScreen>
   int currentLevel = 1;
   int consecutiveErrors = 0;
   bool isWrongAnswer = false;
+  bool hasJoker = true;
+
+  // Yeni özellikler için değişkenler
+  int comboCount = 0;
+  int maxComboCount = 0;
+  bool hasHint = true;
+  bool hasElimination = true;
+  List<Achievement> unlockedAchievements = [];
+  bool isPerfectRound = true;
+  int noHintRoundsCount = 0;
 
   static const int maxTime = 45;
   static const int minTime = 20;
   static const int timeDecreasePerLevel = 5;
+
+  // Ses dosyaları
+  static const String correctSound = 'sounds/correct.mp3';
+  static const String wrongSound = 'sounds/wrong.mp3';
+  static const String comboSound = 'sounds/combo.mp3';
+  static const String achievementSound = 'sounds/achievement.mp3';
+  static const String levelUpSound = 'sounds/level_up.mp3';
 
   late AnimationController _wrongAnimationController;
 
@@ -53,12 +76,25 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showRulesDialog();
     });
+    _loadSounds();
   }
 
-  @override
-  void dispose() {
-    _wrongAnimationController.dispose();
-    super.dispose();
+  Future<void> _loadSounds() async {
+    try {
+      await _audioPlayer.setSourceAsset(correctSound);
+    } catch (e) {
+      print('Ses yükleme hatası: $e');
+    }
+  }
+
+  void _playSound(String soundFile) async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.setSourceAsset(soundFile);
+      await _audioPlayer.resume();
+    } catch (e) {
+      print('Ses çalma hatası: $e');
+    }
   }
 
   void _initializeGame() {
@@ -82,12 +118,12 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     correctCards = List.generate(15, (index) => false);
     wrongCards = List.generate(15, (index) => false);
     remainingWords = 5;
+    hasJoker = true;
     if (!isGameStarted) {
       score = 0;
       currentLevel = 1;
       timeLeft = maxTime;
     } else {
-      // Bölüm geçildiğinde süreyi azalt
       timeLeft =
           max(minTime, maxTime - ((currentLevel - 1) * timeDecreasePerLevel));
     }
@@ -113,15 +149,40 @@ class _WordPairsScreenState extends State<WordPairsScreen>
       if (selectedWord.values.first.split('\n')[0] !=
           selectedWord.values.first.split('\n')[1]) {
         remainingWords--;
-        score += 20;
+
+        // Kombo sistemi
+        comboCount++;
+        if (comboCount > maxComboCount) {
+          maxComboCount = comboCount;
+        }
+
+        // Puan hesaplama (kombo bonusu ile)
+        int baseScore = 20;
+        int comboBonus = (comboCount ~/ 3) * 10; // Her 3 komboda +10 puan
+        score += baseScore + comboBonus;
+
+        // Zaman bonusu
+        int timeBonus = timeLeft > 30 ? 5 : 3;
+        timeLeft += timeBonus;
+
         if (score > highScore) {
           highScore = score;
         }
+
         correctCards[index] = true;
         consecutiveErrors = 0;
 
+        _playSound(correctSound);
+        if (comboCount >= 3) {
+          _playSound(comboSound);
+        }
+
         if (remainingWords == 0) {
-          currentLevel++; // Bölüm geçildiğinde seviyeyi arttır
+          _playSound(levelUpSound);
+          currentLevel++;
+          if (!hasHint && !hasElimination) {
+            noHintRoundsCount++;
+          }
           Future.delayed(const Duration(seconds: 1), () {
             setState(() {
               final currentScore = score;
@@ -130,11 +191,16 @@ class _WordPairsScreenState extends State<WordPairsScreen>
             });
           });
         }
+
+        _checkAchievements();
       } else {
         wrongCards[index] = true;
         setState(() {
           isWrongAnswer = true;
+          isPerfectRound = false;
+          comboCount = 0; // Komboyu sıfırla
         });
+        _playSound(wrongSound);
         _wrongAnimationController.forward(from: 0);
         consecutiveErrors++;
 
@@ -376,6 +442,175 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     );
   }
 
+  void _useJoker() {
+    if (!hasJoker || !isGameStarted) return;
+
+    List<int> unselectedCorrectCards = [];
+    for (int i = 0; i < currentPairs.length; i++) {
+      if (!selectedCards[i] && !correctCards[i]) {
+        final selectedWord = currentPairs[i];
+        if (selectedWord.values.first.split('\n')[0] !=
+            selectedWord.values.first.split('\n')[1]) {
+          unselectedCorrectCards.add(i);
+        }
+      }
+    }
+
+    if (unselectedCorrectCards.isNotEmpty) {
+      final random = Random();
+      final selectedIndex =
+          unselectedCorrectCards[random.nextInt(unselectedCorrectCards.length)];
+
+      setState(() {
+        hasJoker = false;
+        _handleCardTap(selectedIndex);
+      });
+    }
+  }
+
+  void _useHint() {
+    if (!hasHint || !isGameStarted) return;
+
+    // Doğru kartlardan birini yanıp söndür
+    List<int> unselectedCorrectCards = [];
+    for (int i = 0; i < currentPairs.length; i++) {
+      if (!selectedCards[i] && !correctCards[i]) {
+        final selectedWord = currentPairs[i];
+        if (selectedWord.values.first.split('\n')[0] !=
+            selectedWord.values.first.split('\n')[1]) {
+          unselectedCorrectCards.add(i);
+        }
+      }
+    }
+
+    if (unselectedCorrectCards.isNotEmpty) {
+      final random = Random();
+      final hintIndex =
+          unselectedCorrectCards[random.nextInt(unselectedCorrectCards.length)];
+
+      setState(() {
+        hasHint = false;
+        // Kartı yanıp söndür
+        _flashCard(hintIndex);
+      });
+    }
+  }
+
+  void _useElimination() {
+    if (!hasElimination || !isGameStarted) return;
+
+    // 1 yanlış kartı ele
+    List<int> wrongCardIndexes = [];
+    for (int i = 0; i < currentPairs.length; i++) {
+      if (!selectedCards[i] && !correctCards[i]) {
+        final selectedWord = currentPairs[i];
+        if (selectedWord.values.first.split('\n')[0] ==
+            selectedWord.values.first.split('\n')[1]) {
+          wrongCardIndexes.add(i);
+        }
+      }
+    }
+
+    if (wrongCardIndexes.isNotEmpty) {
+      wrongCardIndexes.shuffle();
+      setState(() {
+        hasElimination = false;
+        selectedCards[wrongCardIndexes[0]] = true;
+        correctCards[wrongCardIndexes[0]] = true;
+      });
+    }
+  }
+
+  void _flashCard(int index) async {
+    for (int i = 0; i < 3; i++) {
+      if (!mounted) return;
+      setState(() {
+        selectedCards[index] = true;
+      });
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (!mounted) return;
+      setState(() {
+        selectedCards[index] = false;
+      });
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+  }
+
+  void _checkAchievements() {
+    for (var achievement in achievements) {
+      if (!unlockedAchievements.contains(achievement)) {
+        bool shouldUnlock = false;
+
+        switch (achievement.id) {
+          case 'first_win':
+            shouldUnlock = currentLevel > 1;
+            break;
+          case 'combo_master':
+            shouldUnlock = maxComboCount >= 5;
+            break;
+          case 'speed_demon':
+            shouldUnlock = timeLeft > 25;
+            break;
+          case 'perfect_round':
+            shouldUnlock = isPerfectRound && remainingWords == 0;
+            break;
+          case 'hint_master':
+            shouldUnlock = noHintRoundsCount >= 3;
+            break;
+        }
+
+        if (shouldUnlock) {
+          setState(() {
+            unlockedAchievements.add(achievement);
+          });
+          _showAchievementDialog(achievement);
+          _playSound(achievementSound);
+        }
+      }
+    }
+  }
+
+  void _showAchievementDialog(Achievement achievement) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.emoji_events, color: Colors.amber),
+            SizedBox(width: 8),
+            Text('Başarı Kazanıldı!'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(achievement.badgeAsset, height: 100),
+            SizedBox(height: 16),
+            Text(
+              achievement.title,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(achievement.description),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Harika!'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    _wrongAnimationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -405,6 +640,112 @@ class _WordPairsScreenState extends State<WordPairsScreen>
           ),
         ),
         backgroundColor: isDark ? Colors.teal.shade700 : Colors.teal,
+        actions: [
+          if (isGameStarted) ...[
+            // İpucu butonu
+            IconButton(
+              onPressed: hasHint ? _useHint : null,
+              icon: Stack(
+                children: [
+                  Icon(
+                    Icons.lightbulb,
+                    color: hasHint ? Colors.amber : Colors.grey,
+                  ),
+                  if (hasHint)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '1',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              tooltip: 'İpucu Kullan',
+            ),
+            // Eleme butonu
+            IconButton(
+              onPressed: hasElimination ? _useElimination : null,
+              icon: Stack(
+                children: [
+                  Icon(
+                    Icons.remove_circle_outline,
+                    color: hasElimination ? Colors.amber : Colors.grey,
+                  ),
+                  if (hasElimination)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '1',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              tooltip: 'Eleme Kullan',
+            ),
+            // Joker butonu
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton(
+                onPressed: hasJoker ? _useJoker : null,
+                icon: Stack(
+                  children: [
+                    Icon(
+                      Icons.auto_awesome,
+                      color: hasJoker ? Colors.amber : Colors.grey,
+                    ),
+                    if (hasJoker)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '1',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                tooltip: 'Joker Kullan',
+              ),
+            ),
+          ],
+        ],
       ),
       body: SafeArea(
         child: Container(
@@ -505,9 +846,17 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                       builder: (context, child) {
                         Color cardColor =
                             isDark ? Colors.grey.shade800 : Colors.white;
-                        if (correctCards[index]) {
-                          cardColor =
-                              isDark ? Colors.green.shade700 : Colors.green;
+                        if (correctCards[index] &&
+                            selectedCards[index] &&
+                            !wrongCards[index]) {
+                          if (pair.values.first.split('\n')[0] ==
+                              pair.values.first.split('\n')[1]) {
+                            cardColor =
+                                Colors.black; // Elenen kart için siyah renk
+                          } else {
+                            cardColor =
+                                isDark ? Colors.green.shade700 : Colors.green;
+                          }
                         } else if (wrongCards[index]) {
                           cardColor = Color.lerp(
                             isDark ? Colors.grey.shade800 : Colors.white,

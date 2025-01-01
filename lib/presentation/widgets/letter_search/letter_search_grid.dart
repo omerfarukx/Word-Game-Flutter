@@ -4,7 +4,7 @@ class LetterSearchGrid extends StatelessWidget {
   final List<List<String>> currentGrid;
   final List<List<bool>> selectedCells;
   final List<List<bool>> foundCells;
-  final List<List<int>> hintPositions;
+  final List<List<bool>> hintPositions;
   final Function(int, int) onCellTap;
 
   const LetterSearchGrid({
@@ -34,8 +34,7 @@ class LetterSearchGrid extends StatelessWidget {
             final col = index % 10;
             final isSelected = selectedCells[row][col];
             final isFound = foundCells[row][col];
-            final isHint =
-                hintPositions.any((pos) => pos[0] == row && pos[1] == col);
+            final isHint = hintPositions[row][col];
 
             return GestureDetector(
               onTap: () => onCellTap(row, col),

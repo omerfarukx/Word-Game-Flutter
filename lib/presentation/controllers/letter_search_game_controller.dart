@@ -210,7 +210,7 @@ class LetterSearchGameController {
   List<List<bool>> foundCells = [];
 
   // İpucu verilen hücrelerin konumlarını tutan liste [[satır, sütun],...]
-  List<List<int>> hintPositions = [];
+  List<List<bool>> hintPositions = [];
 
   // Oyunda şimdiye kadar bulunmuş kelimelerin listesi
   List<String> foundWords = [];
@@ -227,11 +227,27 @@ class LetterSearchGameController {
   // Bulunan kelime sayısı
   int foundWordsCount = 0;
 
+  // Mevcut bölüm
+  int currentLevel = 1;
+
   // Oyunda kalan süre (saniye)
-  int timeLeft = 30;
+  int timeLeft = 60;
+
+  // Bölüm başına azalacak süre
+  static const int timeDecreasePerLevel = 5;
+
+  // Minimum süre
+  static const int minTime = 30;
+
+  // Başlangıç süresi
+  static const int maxTime = 60;
 
   // Oyunun başlayıp başlamadığını kontrol eden bayrak
   bool isGameStarted = false;
+
+  // Kelime bulunduğunda ve yanlış seçim yapıldığında kullanılacak bayraklar
+  bool isWordFound = false;
+  bool isWrongSelection = false;
 
   // Süre sayacı için zamanlayıcı
   Timer? timer;
@@ -312,171 +328,234 @@ class LetterSearchGameController {
     }
   }
 
-  // Oyun durumunu sıfırlayan metod
+  // Oyun durumunu sıfırlayan yardımcı metod
   void _resetGameState() {
-    score = 0;
-    foundWordsCount = 0;
-    timeLeft = 30;
+    selectedCells = List.generate(10, (_) => List.filled(10, false));
+    foundCells = List.generate(10, (_) => List.filled(10, false));
+    hintPositions = List.generate(10, (i) => List.generate(10, (j) => false));
     foundWords = [];
     selectedWord = '';
     selectedPositions = [];
-    hintPositions = [];
-    selectedCells = List.generate(10, (i) => List.generate(10, (j) => false));
-    foundCells = List.generate(10, (i) => List.generate(10, (j) => false));
+    if (!isGameStarted) {
+      score = 0;
+      currentLevel = 1;
+    }
+    foundWordsCount = 0;
+    // Bölüm başına süreyi azalt ama minimum sürenin altına düşme
+    timeLeft =
+        max(minTime, maxTime - ((currentLevel - 1) * timeDecreasePerLevel));
+    isWordFound = false;
+    isWrongSelection = false;
   }
 
-  // Kullanıcının hücre seçimlerini işleyen metod
+  // Hücre seçimini işleyen metod
   bool handleCellSelection(int row, int col) {
-    // Oyun başlamadıysa veya hücre daha önce bulunmuşsa seçime izin verme
-    if (!isGameStarted || foundCells[row][col]) return false;
+    if (!isGameStarted) return false;
 
-    // Seçili hücreyi kaldırma işlemi
+    isWordFound = false;
+    isWrongSelection = false;
+
     if (selectedCells[row][col]) {
-      int posIndex =
-          selectedPositions.indexWhere((pos) => pos[0] == row && pos[1] == col);
-      if (posIndex == selectedPositions.length - 1) {
-        selectedCells[row][col] = false;
-        selectedPositions.removeLast();
-        _updateSelectedWord();
-        return true;
-      }
-      return false;
+      // Seçili hücreyi kaldır
+      selectedCells[row][col] = false;
+      selectedPositions.removeWhere((pos) => pos[0] == row && pos[1] == col);
+      _updateSelectedWord();
+      return true;
     }
 
-    // Yeni seçilen hücrenin son seçilen hücreye komşu olup olmadığını kontrol et
-    if (selectedPositions.isNotEmpty) {
-      List<int> lastPosition = selectedPositions.last;
-      bool isAdjacent = (row - lastPosition[0]).abs() <= 1 &&
-          (col - lastPosition[1]).abs() <= 1 &&
-          !(row == lastPosition[0] && col == lastPosition[1]);
-
-      if (!isAdjacent) return false;
-    }
-
-    // Yeni hücreyi seç
+    // Yeni hücre seçimi
     selectedCells[row][col] = true;
     selectedPositions.add([row, col]);
     _updateSelectedWord();
 
-    // Seçilen kelimeyi kontrol et
-    if (targetWords.contains(selectedWord)) {
-      _handleCorrectWord();
-      return true;
-    } else if (selectedWord.length >
-        targetWords.map((w) => w.length).reduce(max)) {
-      _handleWrongWord();
-      return true;
+    // Seçilen harflerden oluşabilecek tüm permütasyonları kontrol et
+    bool wordFound = false;
+    List<String> possibleWords = _generatePossibleWords();
+
+    for (String word in possibleWords) {
+      if (targetWords.contains(word)) {
+        isWordFound = true;
+        score += 10;
+        foundWords.add(word);
+        foundWordsCount++;
+        timeLeft += 5; // Doğru kelime bulunduğunda 5 saniye ekle
+
+        // Bulunan kelimenin hücrelerini işaretle
+        for (var pos in selectedPositions) {
+          foundCells[pos[0]][pos[1]] = true;
+        }
+
+        clearSelection();
+        wordFound = true;
+        break;
+      }
+    }
+
+    if (!wordFound) {
+      // En uzun hedef kelimenin uzunluğunu bul
+      int maxWordLength = targetWords.map((word) => word.length).reduce(max);
+      if (selectedWord.length >= maxWordLength) {
+        isWrongSelection = true;
+        clearSelection();
+      }
     }
 
     return true;
   }
 
-  // Seçili hücrelerden kelimeyi oluşturan metod
+  // Seçili harflerden oluşabilecek tüm olası kelimeleri üreten yardımcı metod
+  List<String> _generatePossibleWords() {
+    // Sadece seçilen harflerin sırasıyla oluşan kelimeyi kontrol et
+    return [selectedWord];
+  }
+
+  // Seçili kelimeyi güncelleyen yardımcı metod
   void _updateSelectedWord() {
     selectedWord =
         selectedPositions.map((pos) => currentGrid[pos[0]][pos[1]]).join('');
   }
 
-  // Doğru kelime bulunduğunda çağrılan metod
-  void _handleCorrectWord() {
-    score += 10;
-    foundWordsCount++;
-    foundWords.add(selectedWord);
-
-    for (var pos in selectedPositions) {
-      foundCells[pos[0]][pos[1]] = true;
-    }
-
-    clearSelection();
-  }
-
-  // Yanlış kelime seçildiğinde çağrılan metod
-  void _handleWrongWord() {
-    score = score - 10;
-    clearSelection();
-  }
-
-  // Seçimleri temizleyen metod
-  void clearSelection() {
-    selectedCells = List.generate(10, (i) => List.generate(10, (j) => false));
-    selectedWord = '';
-    selectedPositions = [];
-  }
-
-  // İpucu veren metod
+  // İpucu gösteren metod
   void showHint() {
     if (!isGameStarted) return;
 
-    // Henüz bulunmamış kelimelerden birini rastgele seç
+    // Puanı düşür
+    score = max(0, score - 5);
+
+    // İpucu pozisyonlarını ve seçili hücreleri temizle
+    hintPositions = List.generate(10, (i) => List.generate(10, (j) => false));
+    clearSelection();
+
+    // Henüz bulunmamış kelimelerden birini seç
     List<String> remainingWords =
         targetWords.where((word) => !foundWords.contains(word)).toList();
     if (remainingWords.isEmpty) return;
 
-    String targetWord = remainingWords[Random().nextInt(remainingWords.length)];
-    _findWordPosition(targetWord);
-    score = score - 5; // İpucu kullanımı için puan cezası
-  }
+    final random = Random();
+    final targetWord = remainingWords[random.nextInt(remainingWords.length)];
 
-  // Verilen kelimenin tahtadaki konumunu bulan metod
-  void _findWordPosition(String word) {
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 10; j++) {
-        if (currentGrid[i][j] == word[0]) {
-          // Kelimeyi yatay, dikey ve çapraz olarak ara
-          if (_checkDirection(i, j, word, 0) || // yatay
-              _checkDirection(i, j, word, 1) || // dikey
-              _checkDirection(i, j, word, 2)) {
-            // çapraz
-            hintPositions.add([i, j]);
-            clearSelection();
-            selectedCells[i][j] = true;
-            selectedPositions.add([i, j]);
-            selectedWord = currentGrid[i][j];
-            return;
+    // Kelimeyi tahtada bul ve ipucu göster
+    bool found = false;
+    for (int i = 0; i < 10 && !found; i++) {
+      for (int j = 0; j < 10 && !found; j++) {
+        if (currentGrid[i][j] == targetWord[0]) {
+          // Tüm yönleri kontrol et
+          for (int direction = 0; direction < 8 && !found; direction++) {
+            if (_checkWordInDirection(i, j, targetWord, direction)) {
+              _highlightWordInDirection(i, j, targetWord.length, direction);
+              // İpucu gösterilen harfleri seçili hale getir
+              _selectWordInDirection(i, j, targetWord.length, direction);
+              found = true;
+            }
           }
         }
       }
     }
   }
 
-  // Verilen yönde kelimeyi kontrol eden metod
-  bool _checkDirection(int startRow, int startCol, String word, int direction) {
-    // Kelimenin tahtaya sığıp sığmadığını kontrol et
-    if ((direction == 0 && startCol + word.length > 10) ||
-        (direction == 1 && startRow + word.length > 10) ||
-        (direction == 2 &&
-            (startRow + word.length > 10 || startCol + word.length > 10))) {
+  // Verilen yönde kelimeyi kontrol eden yardımcı metod
+  bool _checkWordInDirection(
+      int startRow, int startCol, String word, int direction) {
+    final directions = [
+      [0, 1], // sağa
+      [1, 0], // aşağı
+      [1, 1], // sağ aşağı çapraz
+      [-1, 1], // sağ yukarı çapraz
+      [0, -1], // sola
+      [-1, 0], // yukarı
+      [-1, -1], // sol yukarı çapraz
+      [1, -1] // sol aşağı çapraz
+    ];
+
+    int dRow = directions[direction][0];
+    int dCol = directions[direction][1];
+
+    // Kelimenin sınırlar içinde olup olmadığını kontrol et
+    int endRow = startRow + dRow * (word.length - 1);
+    int endCol = startCol + dCol * (word.length - 1);
+
+    if (endRow < 0 || endRow >= 10 || endCol < 0 || endCol >= 10) {
       return false;
     }
 
-    // Harfleri kontrol et
-    for (int k = 0; k < word.length; k++) {
-      int row = startRow + (direction == 0 ? 0 : k);
-      int col = startCol + (direction == 1 ? 0 : k);
-      if (currentGrid[row][col] != word[k]) return false;
+    // Kelimeyi kontrol et
+    for (int i = 0; i < word.length; i++) {
+      int row = startRow + dRow * i;
+      int col = startCol + dCol * i;
+      if (currentGrid[row][col] != word[i]) {
+        return false;
+      }
     }
     return true;
   }
 
-  // Oyun sonlandığında zamanlayıcıyı temizleyen metod
+  // Kelimeyi belirtilen yönde vurgula
+  void _highlightWordInDirection(
+      int startRow, int startCol, int length, int direction) {
+    final directions = [
+      [0, 1], // sağa
+      [1, 0], // aşağı
+      [1, 1], // sağ aşağı çapraz
+      [-1, 1], // sağ yukarı çapraz
+      [0, -1], // sola
+      [-1, 0], // yukarı
+      [-1, -1], // sol yukarı çapraz
+      [1, -1] // sol aşağı çapraz
+    ];
+
+    int dRow = directions[direction][0];
+    int dCol = directions[direction][1];
+
+    for (int i = 0; i < length; i++) {
+      int row = startRow + dRow * i;
+      int col = startCol + dCol * i;
+      hintPositions[row][col] = true;
+    }
+  }
+
+  // Seçimi temizleyen metod
+  void clearSelection() {
+    selectedCells = List.generate(10, (_) => List.filled(10, false));
+    selectedPositions = [];
+    selectedWord = '';
+  }
+
+  // Kelimeyi belirtilen yönde seç
+  void _selectWordInDirection(
+      int startRow, int startCol, int length, int direction) {
+    final directions = [
+      [0, 1], // sağa
+      [1, 0], // aşağı
+      [1, 1], // sağ aşağı çapraz
+      [-1, 1], // sağ yukarı çapraz
+      [0, -1], // sola
+      [-1, 0], // yukarı
+      [-1, -1], // sol yukarı çapraz
+      [1, -1] // sol aşağı çapraz
+    ];
+
+    int dRow = directions[direction][0];
+    int dCol = directions[direction][1];
+
+    for (int i = 0; i < length; i++) {
+      int row = startRow + dRow * i;
+      int col = startCol + dCol * i;
+      selectedCells[row][col] = true;
+      selectedPositions.add([row, col]);
+    }
+    _updateSelectedWord();
+  }
+
   void dispose() {
     timer?.cancel();
   }
 
-  // Sadece kelimeleri ve gridi yeniler, puanı korur
+  // Oyunu yenileyen metod
   void refreshGame() {
-    final random = Random();
-    targetWords = List.from(_allWords)..shuffle(random);
-    targetWords = targetWords.take(3).toList();
-
-    foundWords.clear();
-    selectedCells = List.generate(10, (i) => List.generate(10, (j) => false));
-    foundCells = List.generate(10, (i) => List.generate(10, (j) => false));
-    selectedWord = '';
-    selectedPositions = [];
-    hintPositions = [];
-    foundWordsCount = 0;
-    timeLeft = 30; // Süreyi sıfırla
-    _generateRandomGrid();
+    final currentScore = score;
+    final level = currentLevel + 1;
+    initializeGame();
+    score = currentScore;
+    currentLevel = level;
   }
 }

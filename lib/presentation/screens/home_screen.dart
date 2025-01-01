@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/route_constants.dart';
 import '../providers/theme_provider.dart';
+import '../providers/auth_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,23 @@ class HomeScreen extends StatelessWidget {
             ),
             onPressed: () {
               themeProvider.toggleTheme();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              try {
+                await context.read<AuthProvider>().logout();
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(context, RouteConstants.login);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString())),
+                  );
+                }
+              }
             },
           ),
         ],

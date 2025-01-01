@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "837489322530",
+    "project_id": "word-game-c4a49",
+    "storage_bucket": "word-game-c4a49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837489322530:android:941aa85c54b5c2a470387b",
+        "android_client_info": {
+          "package_name": "com.example.hizli_okuma_oyunu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrY4cxxq2Of-gY7_OsIiQXyL9v2IJSXRE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
