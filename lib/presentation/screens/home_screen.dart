@@ -43,19 +43,19 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
               'ÇALIŞMALAR',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.teal,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildExerciseCard(
               context,
               'Kelime Çiftleri',
@@ -84,16 +84,30 @@ class HomeScreen extends StatelessWidget {
               Icons.remove_red_eye,
               RouteConstants.eyeFocus,
             ),
-            const SizedBox(height: 24),
+            _buildExerciseCard(
+              context,
+              'Kelime Tanıma',
+              'Kelime tanıma hızınızı artırın',
+              Icons.flash_on,
+              RouteConstants.wordRecognition,
+            ),
+            _buildExerciseCard(
+              context,
+              'Çevresel Görüş',
+              'Merkeze odaklanırken çevreyi fark edin',
+              Icons.visibility,
+              RouteConstants.peripheralVision,
+            ),
+            const SizedBox(height: 20),
             const Text(
               'İSTATİSTİKLER',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.teal,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildStatisticsCard(
               'Okuma düzeyi',
               'Hızlı okuma Şampiyonu',
@@ -118,18 +132,22 @@ class HomeScreen extends StatelessWidget {
   Widget _buildExerciseCard(BuildContext context, String title, String subtitle,
       IconData icon, String route) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: Icon(icon, color: Colors.teal, size: 32),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        leading: Icon(icon, color: Colors.teal, size: 28),
         title: Text(
           title,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.arrow_forward_ios),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(fontSize: 14),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
         onTap: () => Navigator.pushNamed(context, route),
       ),
     );
@@ -137,13 +155,13 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildStatisticsCard(String title, String value, IconData icon) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Icon(icon, color: Colors.teal, size: 32),
-            const SizedBox(width: 16),
+            Icon(icon, color: Colors.teal, size: 28),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,15 +169,15 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     value,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

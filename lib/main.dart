@@ -12,13 +12,15 @@ import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/register_screen.dart';
-import 'presentation/screens/exercises/eye_focus_screen.dart';
+import 'features/exercises/eye_focus/screens/eye_focus_list_screen.dart';
 import 'presentation/screens/exercises/speed_reading_screen.dart';
 import 'presentation/screens/exercises/word_pairs_screen.dart';
 import 'presentation/screens/exercises/letter_search_screen.dart';
 import 'presentation/screens/exercises/speed_reading_exercise_screen.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/providers/speed_reading_provider.dart';
+import 'features/exercises/word_recognition/screens/word_recognition_list_screen.dart';
+import 'features/exercises/peripheral_vision/screens/peripheral_vision_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,7 +95,7 @@ void main() async {
               RouteConstants.login: (context) => const LoginScreen(),
               RouteConstants.register: (context) => const RegisterScreen(),
               RouteConstants.home: (context) => const HomeScreen(),
-              RouteConstants.eyeFocus: (context) => const EyeFocusScreen(),
+              RouteConstants.eyeFocus: (context) => const EyeFocusListScreen(),
               RouteConstants.speedReading: (context) =>
                   const SpeedReadingScreen(),
               RouteConstants.wordPairs: (context) => const WordPairsScreen(),
@@ -101,6 +103,10 @@ void main() async {
                   const LetterSearchScreen(),
               RouteConstants.speedReadingExercise: (context) =>
                   const SpeedReadingExerciseScreen(),
+              RouteConstants.wordRecognition: (context) =>
+                  const WordRecognitionListScreen(),
+              RouteConstants.peripheralVision: (context) =>
+                  const PeripheralVisionListScreen(),
             },
             debugShowCheckedModeBanner: false,
           );

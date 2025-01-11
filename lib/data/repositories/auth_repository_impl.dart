@@ -51,8 +51,6 @@ class AuthRepositoryImpl implements IAuthRepository {
         throw Exception('Email ve şifre alanları boş bırakılamaz');
       }
 
-      await _firebaseAuth.setPersistence(firebase_auth.Persistence.LOCAL);
-
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
