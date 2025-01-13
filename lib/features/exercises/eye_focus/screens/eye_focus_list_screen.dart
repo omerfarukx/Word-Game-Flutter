@@ -1,177 +1,197 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/route_constants.dart';
-import '../../../../core/constants/theme_constants.dart';
+import '../models/eye_focus_exercise.dart';
+import 'schultz_table_screen.dart';
+import 'peripheral_vision_screen.dart';
 
 class EyeFocusListScreen extends StatelessWidget {
   const EyeFocusListScreen({Key? key}) : super(key: key);
-
-  Widget _buildExerciseCard(
-    BuildContext context,
-    String title,
-    String description,
-    IconData icon,
-    String route,
-    List<Color> gradientColors,
-  ) {
-    return Card(
-      elevation: 8,
-      shadowColor: gradientColors[1].withOpacity(0.4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ThemeConstants.cardBorderRadius),
-      ),
-      child: InkWell(
-        onTap: () => Navigator.pushNamed(context, route),
-        borderRadius: BorderRadius.circular(ThemeConstants.cardBorderRadius),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: gradientColors,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius:
-                BorderRadius.circular(ThemeConstants.cardBorderRadius),
-            boxShadow: [
-              BoxShadow(
-                color: gradientColors[1].withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        icon,
-                        size: ThemeConstants.iconSize,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(
-                      ThemeConstants.buttonBorderRadius,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text(
-                        'BAŞLA',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(
-                        Icons.arrow_forward,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Göz Odaklama Egzersizleri'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).scaffoldBackgroundColor,
-                Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              _buildExerciseCard(
+                context,
+                title: 'Schultz Tablosu',
+                description: 'Sayıları sırayla bulun',
+                color: Colors.orange,
+                icon: Icons.grid_on,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SchultzTableScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildExerciseCard(
+                context,
+                title: 'Temel Çevresel Görüş',
+                description:
+                    'Merkeze odaklanırken çevredeki büyük şekilleri fark edin.',
+                color: Colors.green,
+                icon: Icons.visibility,
+                difficulty: 'EASY',
+                duration: '60 saniye',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PeripheralVisionScreen(
+                        difficulty: 'EASY',
+                        duration: 60,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildExerciseCard(
+                context,
+                title: 'Orta Seviye Çevresel Görüş',
+                description:
+                    'Merkeze odaklanırken çevredeki orta boy şekilleri fark edin.',
+                color: Colors.blue,
+                icon: Icons.visibility,
+                difficulty: 'MEDIUM',
+                duration: '90 saniye',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PeripheralVisionScreen(
+                        difficulty: 'MEDIUM',
+                        duration: 90,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildExerciseCard(
+                context,
+                title: 'İleri Seviye Çevresel Görüş',
+                description:
+                    'Merkeze odaklanırken çevredeki küçük şekilleri fark edin.',
+                color: Colors.red,
+                icon: Icons.visibility,
+                difficulty: 'HARD',
+                duration: '120 saniye',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PeripheralVisionScreen(
+                        difficulty: 'HARD',
+                        duration: 120,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Column(
-              children: [
-                _buildExerciseCard(
-                  context,
-                  'Schultz Tablosu',
-                  'Sayıları sırayla bulun',
-                  Icons.grid_on,
-                  RouteConstants.eyeFocus,
-                  [
-                    Colors.orange.shade300,
-                    Colors.orange.shade500,
-                    Colors.orange.shade700
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExerciseCard(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required Color color,
+    required IconData icon,
+    String? difficulty,
+    String? duration,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      color: color,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (difficulty != null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        difficulty,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: const TextStyle(color: Colors.white),
+                softWrap: true,
+              ),
+              if (duration != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.timer, color: Colors.white, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      duration,
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                _buildExerciseCard(
-                  context,
-                  'Çevresel Görüş',
-                  'Merkeze odaklanırken çevreyi fark edin',
-                  Icons.visibility,
-                  RouteConstants.peripheralVision,
-                  [
-                    Colors.purple.shade300,
-                    Colors.purple.shade500,
-                    Colors.purple.shade700
-                  ],
-                ),
-                const SizedBox(height: 12),
               ],
-            ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: onTap,
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                  ),
+                  child: const Text(
+                    'BAŞLA',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
