@@ -6,6 +6,19 @@ import '../../../../core/constants/theme_constants.dart';
 class PeripheralVisionListScreen extends StatelessWidget {
   const PeripheralVisionListScreen({Key? key}) : super(key: key);
 
+  String _getDifficultyText(int difficulty) {
+    switch (difficulty) {
+      case 1:
+        return 'KOLAY';
+      case 2:
+        return 'ORTA';
+      case 3:
+        return 'ZOR';
+      default:
+        return 'KOLAY';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +45,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
               children: [
                 _buildExerciseCard(
                   context,
-                  PeripheralVisionExercise.easy(),
+                  PeripheralVisionExercise.basic(),
                   [
                     Colors.green.shade300,
                     Colors.green.shade500,
@@ -43,7 +56,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildExerciseCard(
                   context,
-                  PeripheralVisionExercise.medium(),
+                  PeripheralVisionExercise.intermediate(),
                   [
                     Colors.blue.shade300,
                     Colors.blue.shade500,
@@ -54,7 +67,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildExerciseCard(
                   context,
-                  PeripheralVisionExercise.hard(),
+                  PeripheralVisionExercise.advanced(),
                   [
                     Colors.red.shade300,
                     Colors.red.shade500,
@@ -158,7 +171,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                exercise.difficulty.name.toUpperCase(),
+                                _getDifficultyText(exercise.difficulty),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,

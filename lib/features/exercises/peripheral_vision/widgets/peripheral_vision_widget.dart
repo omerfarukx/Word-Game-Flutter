@@ -20,307 +20,195 @@ class PeripheralVisionWidget extends StatefulWidget {
 class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
     with SingleTickerProviderStateMixin {
   late Timer _timer;
-  late Timer _showItemsTimer;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
-  int _remainingSeconds = 0;
+  int _remainingTime = 60;
   int _score = 0;
   int _totalAttempts = 0;
-  bool _isShowingItems = false;
-  bool _canAnswer = false;
-  List<Offset> _itemPositions = [];
-  int _currentTargetIndex = -1;
-  final List<String> _shapes = ['●', '■', '▲', '◆'];
+  bool _isActive = true;
+  bool _showFeedback = false;
+  bool _isCorrect = false;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+  final List<Shape> _shapes = [
+    Shape.circle,
+    Shape.square,
+    Shape.triangle,
+    Shape.diamond
+  ];
+  Shape _selectedShape = Shape.circle;
+  List<Shape> _peripheralShapes = [];
+  final Random _random = Random();
+  double _baseRadius = 120.0;
+  double _currentScale = 1.0;
+  String _feedbackMessage = '';
+  Color _feedbackColor = Colors.white;
+  bool _showMessage = false;
 
   @override
   void initState() {
     super.initState();
-    _remainingSeconds = widget.exercise.durationInSeconds;
+    _remainingTime = widget.exercise.durationInSeconds;
+    _startTimer();
+    _generatePeripheralShapes();
 
     _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-
-    _pulseController.repeat(reverse: true);
-    _startExercise();
   }
 
-  @override
-  void dispose() {
-    _timer.cancel();
-    if (_showItemsTimer.isActive) {
-      _showItemsTimer.cancel();
-    }
-    _pulseController.dispose();
-    super.dispose();
-  }
-
-  void _startExercise() {
+  void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
+        if (_remainingTime > 0) {
+          _remainingTime--;
         } else {
-          _completeExercise();
+          _endExercise();
         }
       });
     });
-    _showNextRound();
   }
 
-  void _showNextRound() {
-    if (_remainingSeconds <= 0) return;
+  void _generatePeripheralShapes() {
+    setState(() {
+      _peripheralShapes = List.generate(8, (index) {
+        return _shapes[_random.nextInt(_shapes.length)];
+      });
+      _currentScale = 1.0;
+    });
+  }
+
+  void _checkShape(Shape shape) {
+    if (!_isActive) return;
 
     setState(() {
-      _generateItemPositions();
-      _currentTargetIndex = Random().nextInt(_shapes.length);
-      _isShowingItems = true;
-      _canAnswer = false;
+      _totalAttempts++;
+      _isCorrect = shape == _selectedShape;
+      if (_isCorrect) {
+        _score++;
+        _currentScale = 1.2;
+        _feedbackMessage = 'Harika! Doğru şekli buldun!';
+        _feedbackColor = Colors.green;
+      } else {
+        _feedbackMessage = 'Tekrar dene, yanlış şekli seçtin.';
+        _feedbackColor = Colors.red;
+      }
+      _showFeedback = true;
+      _showMessage = true;
     });
 
-    _showItemsTimer = Timer(widget.exercise.showDuration, () {
+    Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         setState(() {
-          _isShowingItems = false;
-          _canAnswer = true;
+          _showMessage = false;
+        });
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() {
+          _showFeedback = false;
+          _selectedShape = _shapes[_random.nextInt(_shapes.length)];
+          _generatePeripheralShapes();
         });
       }
     });
   }
 
-  void _generateItemPositions() {
-    _itemPositions = [];
-    final random = Random();
-
-    for (int i = 0; i < widget.exercise.itemCount; i++) {
-      final angle = 2 * pi * i / widget.exercise.itemCount;
-      final radius = widget.exercise.radius * (0.8 + random.nextDouble() * 0.4);
-      final x = cos(angle) * radius;
-      final y = sin(angle) * radius;
-      _itemPositions.add(Offset(x, y));
-    }
-  }
-
-  void _handleAnswer(int selectedIndex) {
-    if (!_canAnswer || _currentTargetIndex == -1) return;
-
-    setState(() {
-      if (selectedIndex == _currentTargetIndex) {
-        _score++;
-      }
-      _totalAttempts++;
-      _canAnswer = false;
-    });
-
-    if (_remainingSeconds > 0) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          _showNextRound();
-        }
-      });
-    } else {
-      _completeExercise();
-    }
-  }
-
-  void _completeExercise() {
+  void _endExercise() {
     _timer.cancel();
-    if (_showItemsTimer.isActive) {
-      _showItemsTimer.cancel();
-    }
-    final double accuracy =
-        _totalAttempts > 0 ? (_score / _totalAttempts) * 100 : 0;
+    _isActive = false;
+    final accuracy = (_score / _totalAttempts) * 100;
     widget.onComplete(_score, accuracy);
   }
 
   @override
+  void dispose() {
+    _timer.cancel();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          margin: const EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: widget.exercise.targetColor.withOpacity(0.2),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.timer,
-                color: widget.exercise.targetColor,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Kalan Süre: $_remainingSeconds saniye',
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                'Merkeze odaklanırken çevredeki şekilleri bul',
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                   color: widget.exercise.targetColor,
+                  fontWeight: FontWeight.w500,
                 ),
-              ),
-            ],
-          ),
-        ),
-        if (_isShowingItems)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            margin: const EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: widget.exercise.targetColor.withOpacity(0.2),
+                textAlign: TextAlign.center,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.remove_red_eye,
-                  color: widget.exercise.targetColor,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Hedef Şekil: ${_shapes[_currentTargetIndex]}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: widget.exercise.targetColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        Expanded(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: widget.exercise.radius * 2.2,
-                height: widget.exercise.radius * 2.2,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: widget.exercise.targetColor.withOpacity(0.2),
-                  ),
-                ),
-              ),
-              if (_isShowingItems)
-                ...List.generate(widget.exercise.itemCount, (index) {
-                  return Positioned(
-                    left: widget.exercise.radius + _itemPositions[index].dx,
-                    top: widget.exercise.radius + _itemPositions[index].dy,
-                    child: GestureDetector(
-                      onTap: () => _handleAnswer(index),
-                      child: Container(
-                        width: widget.exercise.itemSize,
-                        height: widget.exercise.itemSize,
-                        alignment: Alignment.center,
-                        child: Text(
-                          _shapes[index % _shapes.length],
-                          style: TextStyle(
-                            fontSize: widget.exercise.itemSize * 0.8,
-                            color: widget.exercise.targetColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ScaleTransition(
-                scale: _pulseAnimation,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: widget.exercise.targetColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (!_isShowingItems && _canAnswer)
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  alignment: WrapAlignment.center,
-                  children: List.generate(_shapes.length, (index) {
-                    return GestureDetector(
-                      onTap: () => _handleAnswer(index),
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: widget.exercise.targetColor.withOpacity(0.2),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          _shapes[index],
-                          style: TextStyle(
-                            fontSize: 30,
-                            color: widget.exercise.targetColor,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 20),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: widget.exercise.targetColor.withOpacity(0.2),
-                    ),
+                    color: widget.exercise.targetColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.score,
+                        Icons.timer_outlined,
                         color: widget.exercise.targetColor,
-                        size: 24,
+                        size: 16,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                       Text(
-                        'Skor: $_score / $_totalAttempts',
+                        '$_remainingTime',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
                           color: widget.exercise.targetColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: widget.exercise.targetColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.stars_rounded,
+                        color: widget.exercise.targetColor,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$_score/$_totalAttempts',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: widget.exercise.targetColor,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -328,8 +216,231 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                 ),
               ],
             ),
-          ),
-      ],
+            if (_showMessage)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  _feedbackMessage,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: _feedbackColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      widget.exercise.targetColor.withOpacity(0.1),
+                      Colors.transparent,
+                    ],
+                    radius: 0.8,
+                  ),
+                ),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.exercise.targetColor.withOpacity(0.2),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.exercise.targetColor.withOpacity(0.1),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ...List.generate(8, (index) {
+                          final angle = (index * pi / 4);
+                          final radius = _baseRadius * _currentScale;
+                          return Positioned(
+                            left: 150 + radius * cos(angle),
+                            top: 150 + radius * sin(angle),
+                            child: TweenAnimationBuilder<double>(
+                              duration: const Duration(milliseconds: 300),
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              builder: (context, value, child) {
+                                return Transform.scale(
+                                  scale: value,
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        _checkShape(_peripheralShapes[index]),
+                                    child: Container(
+                                      width: 45,
+                                      height: 45,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black54,
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: widget.exercise.targetColor
+                                                .withOpacity(0.3),
+                                            blurRadius: 8,
+                                            spreadRadius: _showFeedback ? 4 : 0,
+                                          ),
+                                        ],
+                                      ),
+                                      child: ShapeWidget(
+                                        shape: _peripheralShapes[index],
+                                        color: widget.exercise.targetColor
+                                            .withOpacity(0.9),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }),
+                        ScaleTransition(
+                          scale: _pulseAnimation,
+                          child: Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: widget.exercise.targetColor
+                                      .withOpacity(0.5),
+                                  blurRadius: 15,
+                                  spreadRadius: 5,
+                                ),
+                              ],
+                            ),
+                            child: ShapeWidget(
+                              shape: _selectedShape,
+                              color: widget.exercise.targetColor,
+                              size: 35,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: widget.exercise.targetColor.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.remove_red_eye,
+                    color: widget.exercise.targetColor.withOpacity(0.7),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Merkeze odaklanmayı unutma!',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: widget.exercise.targetColor.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+
+class ShapeWidget extends StatelessWidget {
+  final Shape shape;
+  final Color color;
+  final double size;
+
+  const ShapeWidget({
+    Key? key,
+    required this.shape,
+    required this.color,
+    this.size = 30,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      child: CustomPaint(
+        size: Size(size, size),
+        painter: ShapePainter(shape: shape, color: color),
+      ),
+    );
+  }
+}
+
+class ShapePainter extends CustomPainter {
+  final Shape shape;
+  final Color color;
+
+  ShapePainter({required this.shape, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 2;
+
+    switch (shape) {
+      case Shape.circle:
+        canvas.drawCircle(
+          Offset(size.width / 2, size.height / 2),
+          size.width / 2,
+          paint,
+        );
+        break;
+      case Shape.square:
+        canvas.drawRect(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          paint,
+        );
+        break;
+      case Shape.triangle:
+        final path = Path()
+          ..moveTo(size.width / 2, 0)
+          ..lineTo(size.width, size.height)
+          ..lineTo(0, size.height)
+          ..close();
+        canvas.drawPath(path, paint);
+        break;
+      case Shape.diamond:
+        final path = Path()
+          ..moveTo(size.width / 2, 0)
+          ..lineTo(size.width, size.height / 2)
+          ..lineTo(size.width / 2, size.height)
+          ..lineTo(0, size.height / 2)
+          ..close();
+        canvas.drawPath(path, paint);
+        break;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+enum Shape { circle, square, triangle, diamond }

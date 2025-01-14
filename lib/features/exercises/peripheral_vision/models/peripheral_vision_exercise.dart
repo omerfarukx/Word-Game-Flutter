@@ -1,74 +1,53 @@
 import 'package:flutter/material.dart';
 
-enum PeripheralDifficulty {
-  easy, // Az sayıda, büyük şekiller
-  medium, // Orta sayıda, orta boy şekiller
-  hard, // Çok sayıda, küçük şekiller
-}
-
 class PeripheralVisionExercise {
+  final String id;
   final String title;
   final String description;
-  final PeripheralDifficulty difficulty;
-  final int durationInSeconds;
-  final int itemCount; // Ekranda gösterilecek şekil/kelime sayısı
-  final double itemSize; // Şekil/kelime boyutu
-  final double radius; // Merkeze olan maksimum uzaklık
-  final Duration showDuration; // Gösterim süresi
   final Color targetColor;
+  final int difficulty; // 1: Kolay, 2: Orta, 3: Zor
+  final int durationInSeconds;
 
   const PeripheralVisionExercise({
+    required this.id,
     required this.title,
     required this.description,
-    required this.difficulty,
-    required this.durationInSeconds,
-    required this.itemCount,
-    required this.itemSize,
-    required this.radius,
-    required this.showDuration,
     required this.targetColor,
+    required this.difficulty,
+    this.durationInSeconds = 60,
   });
 
-  factory PeripheralVisionExercise.easy() {
+  factory PeripheralVisionExercise.basic() {
     return const PeripheralVisionExercise(
+      id: 'basic_peripheral',
       title: 'Temel Çevresel Görüş',
       description: 'Merkeze odaklanırken çevredeki büyük şekilleri fark edin.',
-      difficulty: PeripheralDifficulty.easy,
-      durationInSeconds: 60,
-      itemCount: 4,
-      itemSize: 60,
-      radius: 150,
-      showDuration: Duration(milliseconds: 2000),
-      targetColor: Colors.green,
+      targetColor: Color(0xFF4CAF50),
+      difficulty: 1,
     );
   }
 
-  factory PeripheralVisionExercise.medium() {
+  factory PeripheralVisionExercise.intermediate() {
     return const PeripheralVisionExercise(
+      id: 'intermediate_peripheral',
       title: 'Orta Seviye Çevresel Görüş',
       description:
-          'Merkeze odaklanırken çevredeki orta boy şekilleri fark edin.',
-      difficulty: PeripheralDifficulty.medium,
-      durationInSeconds: 90,
-      itemCount: 6,
-      itemSize: 40,
-      radius: 180,
-      showDuration: Duration(milliseconds: 1500),
-      targetColor: Colors.blue,
+          'Merkeze odaklanırken çevredeki şekilleri daha hızlı algılayın.',
+      targetColor: Color(0xFF2196F3),
+      difficulty: 2,
+      durationInSeconds: 45,
     );
   }
 
-  factory PeripheralVisionExercise.hard() {
+  factory PeripheralVisionExercise.advanced() {
     return const PeripheralVisionExercise(
+      id: 'advanced_peripheral',
       title: 'İleri Seviye Çevresel Görüş',
-      description: 'Merkeze odaklanırken çevredeki küçük şekilleri fark edin.',
-      difficulty: PeripheralDifficulty.hard,
-      durationInSeconds: 120,
-      itemCount: 8,
-      itemSize: 30,
-      radius: 200,
-      showDuration: Duration(milliseconds: 1000),
-      targetColor: Colors.red,
+      description:
+          'Merkeze odaklanırken çevredeki şekilleri çok hızlı algılayın.',
+      targetColor: Color(0xFFF44336),
+      difficulty: 3,
+      durationInSeconds: 30,
     );
   }
 }
