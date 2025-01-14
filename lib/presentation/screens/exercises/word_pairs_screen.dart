@@ -751,75 +751,78 @@ class _WordPairsScreenState extends State<WordPairsScreen>
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: isDark
                   ? [
-                      Colors.grey.shade900,
-                      Colors.black,
+                      const Color(0xFF1F2937),
+                      const Color(0xFF111827),
+                      const Color(0xFF030712),
                     ]
                   : [
-                      Colors.teal.shade50,
-                      Colors.white,
+                      const Color(0xFF0F766E),
+                      const Color(0xFF0D9488),
+                      const Color(0xFF0F766E),
                     ],
+              stops: const [0.0, 0.5, 1.0],
             ),
           ),
           child: Column(
             children: [
               Container(
                 height: infoHeight,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.grey.shade800 : Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  color: isDark
+                      ? const Color(0xFF1F2937).withOpacity(0.9)
+                      : Colors.white.withOpacity(0.1),
+                  borderRadius:
+                      const BorderRadius.vertical(bottom: Radius.circular(24)),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    LinearProgressIndicator(
-                      value: timeLeft / 45,
-                      backgroundColor:
-                          isDark ? Colors.grey.shade700 : Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        isWrongAnswer ? Colors.red : Colors.amber,
-                      ),
-                      minHeight: 4,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildInfoCard(
-                          icon: Icons.stars,
+                          icon: Icons.star,
                           label: 'Puan',
                           value: score.toString(),
                           isDark: isDark,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFEC4899), Color(0xFFDB2777)],
+                          ),
                         ),
                         _buildInfoCard(
                           icon: Icons.emoji_events,
                           label: 'En Yüksek',
                           value: highScore.toString(),
-                          color: Colors.amber,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFACC15), Color(0xFFEAB308)],
+                          ),
                           isDark: isDark,
                         ),
                         _buildInfoCard(
                           icon: Icons.timer,
                           label: 'Süre',
                           value: timeLeft.toString(),
-                          color: timeLeft < 10 ? Colors.red : null,
+                          gradient: LinearGradient(
+                            colors: timeLeft < 10
+                                ? const [Color(0xFFDC2626), Color(0xFFB91C1C)]
+                                : const [Color(0xFF2DD4BF), Color(0xFF0D9488)],
+                          ),
                           isDark: isDark,
                         ),
                         _buildInfoCard(
                           icon: Icons.trending_up,
                           label: 'Bölüm',
                           value: currentLevel.toString(),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
+                          ),
                           isDark: isDark,
                         ),
                       ],
@@ -829,145 +832,164 @@ class _WordPairsScreenState extends State<WordPairsScreen>
               ),
               Expanded(
                 child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  padding: EdgeInsets.zero,
+                  physics: const BouncingScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
-                    childAspectRatio: aspectRatio,
-                    crossAxisSpacing: 6,
-                    mainAxisSpacing: 6,
+                    childAspectRatio: 1.2,
+                    crossAxisSpacing: 2,
+                    mainAxisSpacing: 2,
                   ),
                   itemCount: currentPairs.length,
                   itemBuilder: (context, index) {
                     final pair = currentPairs[index];
-                    return AnimatedBuilder(
-                      animation: _wrongAnimationController,
-                      builder: (context, child) {
-                        Color cardColor =
-                            isDark ? Colors.grey.shade800 : Colors.white;
-                        if (correctCards[index] &&
-                            selectedCards[index] &&
-                            !wrongCards[index]) {
-                          if (pair.values.first.split('\n')[0] ==
-                              pair.values.first.split('\n')[1]) {
-                            cardColor =
-                                Colors.black; // Elenen kart için siyah renk
-                          } else {
-                            cardColor =
-                                isDark ? Colors.green.shade700 : Colors.green;
-                          }
-                        } else if (wrongCards[index]) {
-                          cardColor = Color.lerp(
-                            isDark ? Colors.grey.shade800 : Colors.white,
-                            isDark ? Colors.red.shade700 : Colors.red,
-                            _wrongAnimationController.value,
-                          )!;
-                        } else if (selectedCards[index]) {
-                          cardColor =
-                              isDark ? Colors.teal.shade700 : Colors.teal;
-                        }
-
-                        return Card(
-                          elevation: selectedCards[index] ? 8 : 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(
-                              color: correctCards[index]
-                                  ? (isDark
-                                      ? Colors.green.shade700
-                                      : Colors.green)
-                                  : wrongCards[index]
-                                      ? (isDark
-                                          ? Colors.red.shade700
-                                          : Colors.red)
-                                      : selectedCards[index]
-                                          ? (isDark
-                                              ? Colors.teal.shade700
-                                              : Colors.teal)
-                                          : (isDark
-                                                  ? Colors.teal.shade700
-                                                  : Colors.teal)
-                                              .withOpacity(0.3),
-                              width: selectedCards[index] ? 2 : 1,
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      child: Card(
+                        elevation: selectedCards[index] ? 12 : 4,
+                        margin: const EdgeInsets.all(1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                correctCards[index]
+                                    ? (pair.values.first.split('\n')[0] ==
+                                            pair.values.first.split('\n')[1]
+                                        ? (isDark
+                                            ? const Color(0xFF374151)
+                                            : const Color(0xFF115E59))
+                                        : (isDark
+                                            ? const Color(0xFF047857)
+                                            : const Color(0xFF0F766E)))
+                                    : wrongCards[index]
+                                        ? Color.lerp(
+                                            isDark
+                                                ? const Color(0xFF1F2937)
+                                                : Colors.white
+                                                    .withOpacity(0.15),
+                                            const Color(0xFFDC2626),
+                                            _wrongAnimationController.value,
+                                          )!
+                                        : selectedCards[index]
+                                            ? (isDark
+                                                ? const Color(0xFF059669)
+                                                : const Color(0xFF0D9488))
+                                            : (isDark
+                                                ? const Color(0xFF1F2937)
+                                                : Colors.white
+                                                    .withOpacity(0.15)),
+                                correctCards[index]
+                                    ? (pair.values.first.split('\n')[0] ==
+                                            pair.values.first.split('\n')[1]
+                                        ? (isDark
+                                            ? const Color(0xFF4B5563)
+                                            : const Color(0xFF0F766E))
+                                        : (isDark
+                                            ? const Color(0xFF065F46)
+                                            : const Color(0xFF0D9488)))
+                                    : wrongCards[index]
+                                        ? Color.lerp(
+                                            isDark
+                                                ? const Color(0xFF374151)
+                                                : Colors.white
+                                                    .withOpacity(0.25),
+                                            const Color(0xFFB91C1C),
+                                            _wrongAnimationController.value,
+                                          )!
+                                        : selectedCards[index]
+                                            ? (isDark
+                                                ? const Color(0xFF047857)
+                                                : const Color(0xFF0F766E))
+                                            : (isDark
+                                                ? const Color(0xFF374151)
+                                                : Colors.white
+                                                    .withOpacity(0.25)),
+                              ],
                             ),
-                          ),
-                          color: cardColor,
-                          child: InkWell(
-                            onTap: isGameStarted
-                                ? () => _handleCardTap(index)
-                                : null,
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                gradient: (!selectedCards[index] &&
-                                        !correctCards[index] &&
-                                        !wrongCards[index])
-                                    ? LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: isDark
-                                            ? [
-                                                Colors.grey.shade800,
-                                                Colors.grey.shade900,
-                                              ]
-                                            : [
-                                                Colors.white,
-                                                Colors.teal.shade50,
-                                              ],
-                                      )
-                                    : null,
+                            boxShadow: [
+                              BoxShadow(
+                                color: (correctCards[index] ||
+                                        selectedCards[index])
+                                    ? const Color(0xFF0D9488).withOpacity(0.3)
+                                    : Colors.black.withOpacity(0.1),
+                                blurRadius: selectedCards[index] ? 12 : 4,
+                                offset: const Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: InkWell(
+                            onTap: () => _handleCardTap(index),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 2),
                               child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(
-                                    pair.values.first,
-                                    textAlign: TextAlign.center,
-                                    style: _getCardTextStyle(
-                                      isDark: isDark,
-                                      isCorrect: correctCards[index],
-                                      isSelected: selectedCards[index],
-                                    ),
-                                  ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: pair.values.first
+                                      .split('\n')
+                                      .map(
+                                        (word) => FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            word,
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.nunito(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
+                                              shadows: [
+                                                Shadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.3),
+                                                  offset: const Offset(0, 2),
+                                                  blurRadius: 4,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
                                 ),
                               ),
                             ),
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     );
                   },
                 ),
               ),
               if (!isGameStarted)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(
-                    child: SizedBox(
-                      width: screenSize.width * 0.6,
-                      height: buttonHeight,
-                      child: ElevatedButton(
-                        onPressed: _startGame,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              isDark ? Colors.teal.shade700 : Colors.teal,
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 4,
-                        ),
-                        child: Text(
-                          'OYUNU BAŞLAT',
-                          style: GoogleFonts.nunito(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.grey.shade100 : Colors.white,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
+                Container(
+                  width: double.infinity,
+                  height: 56,
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ElevatedButton(
+                    onPressed: _startGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0D9488),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 4,
+                    ),
+                    child: Text(
+                      'OYUNU BAŞLAT',
+                      style: GoogleFonts.nunito(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.0,
                       ),
                     ),
                   ),
@@ -994,19 +1016,24 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     required IconData icon,
     required String label,
     required String value,
-    Color? color,
     required bool isDark,
+    Color? color,
+    Gradient? gradient,
   }) {
-    final defaultColor = isDark ? Colors.teal.shade300 : Colors.teal;
+    final defaultColor = isDark ? Colors.white : Colors.black87;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: (color ?? defaultColor).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: (color ?? defaultColor).withOpacity(0.3),
-          width: 1.5,
-        ),
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: (color ?? defaultColor).withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1016,39 +1043,28 @@ class _WordPairsScreenState extends State<WordPairsScreen>
             children: [
               Icon(
                 icon,
-                color: color ?? defaultColor,
-                size: 14,
+                color: Colors.white,
+                size: 16,
               ),
-              const SizedBox(width: 2),
+              const SizedBox(width: 4),
               Text(
                 label,
                 style: GoogleFonts.nunito(
-                  fontSize: 11,
-                  color: color ?? defaultColor,
+                  fontSize: 12,
+                  color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 2),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                value,
-                style: GoogleFonts.nunito(
-                  fontSize: 16,
-                  color: color ?? defaultColor,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              if (label == 'Bölüm')
-                Icon(
-                  Icons.arrow_upward,
-                  color: color ?? defaultColor,
-                  size: 12,
-                ),
-            ],
+          Text(
+            value,
+            style: GoogleFonts.nunito(
+              fontSize: 18,
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ],
       ),

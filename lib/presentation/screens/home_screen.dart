@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/route_constants.dart';
-import '../providers/theme_provider.dart';
 import '../providers/auth_provider.dart';
 
 class CategoryInfo {
@@ -38,17 +37,17 @@ class HomeScreen extends StatelessWidget {
   Map<String, CategoryInfo> get categoryInfo => {
         'Kelime Egzersizleri': CategoryInfo(
           name: 'Kelime Egzersizleri',
-          color: Colors.purple,
+          color: const Color(0xFF8B5CF6),
           icon: Icons.text_fields,
         ),
         'Görsel Egzersizler': CategoryInfo(
           name: 'Görsel Egzersizler',
-          color: Colors.blue,
+          color: const Color(0xFF3B82F6),
           icon: Icons.visibility,
         ),
         'Okuma Egzersizleri': CategoryInfo(
           name: 'Okuma Egzersizleri',
-          color: Colors.orange,
+          color: const Color(0xFFF59E0B),
           icon: Icons.menu_book,
         ),
       };
@@ -100,19 +99,16 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = true;
     final categories = exercises.map((e) => e.category).toSet().toList();
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: isDark
-                ? [Colors.grey.shade900, Colors.black]
-                : [Colors.grey.shade50, Colors.white],
+            colors: [Color(0xFF1F2937), Color(0xFF111827)],
           ),
         ),
         child: SafeArea(
@@ -120,7 +116,7 @@ class HomeScreen extends StatelessWidget {
             slivers: [
               SliverAppBar(
                 floating: true,
-                backgroundColor: isDark ? Colors.grey.shade900 : Colors.white,
+                backgroundColor: const Color(0xFF1F2937),
                 elevation: 0,
                 title: const Text(
                   'Hızlı Okuma',
@@ -130,16 +126,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 actions: [
-                  IconButton(
-                    icon: Icon(
-                      themeProvider.isDarkMode
-                          ? Icons.light_mode
-                          : Icons.dark_mode,
-                    ),
-                    onPressed: () {
-                      themeProvider.toggleTheme();
-                    },
-                  ),
                   IconButton(
                     icon: const Icon(Icons.logout),
                     onPressed: () async {
@@ -210,18 +196,18 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.teal.shade700,
-            Colors.teal.shade500,
+            Color(0xFF0EA5E9),
+            Color(0xFF0284C7),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.teal.withOpacity(0.3),
+            color: const Color(0xFF0EA5E9).withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -317,7 +303,7 @@ class HomeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: info.color.withOpacity(0.1),
+                  color: info.color.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -329,10 +315,10 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 info.name.toUpperCase(),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade800,
+                  color: Color(0xFFE5E7EB),
                   letterSpacing: 0.5,
                 ),
               ),
@@ -378,11 +364,11 @@ class HomeScreen extends StatelessWidget {
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey.shade800 : Colors.white,
+        color: const Color(0xFF374151),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 8,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -402,7 +388,7 @@ class HomeScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
@@ -415,10 +401,10 @@ class HomeScreen extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: Color(0xFFF9FAFB),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -427,9 +413,9 @@ class HomeScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
-                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
+                    color: Color(0xFFD1D5DB),
                   ),
                 ),
               ],
@@ -444,11 +430,11 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey.shade800 : Colors.white,
+        color: const Color(0xFF374151),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : Colors.grey.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 8,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -463,7 +449,7 @@ class HomeScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.grey.shade300 : Colors.grey.shade800,
+              color: Colors.grey.shade300,
               letterSpacing: 0.5,
             ),
           ),
@@ -530,7 +516,7 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -544,18 +530,18 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
+              color: Color(0xFFF9FAFB),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
-              color: isDark ? Colors.grey.shade300 : Colors.grey.shade600,
+              color: Color(0xFFD1D5DB),
             ),
           ),
         ],

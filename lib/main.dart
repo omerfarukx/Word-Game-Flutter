@@ -9,7 +9,6 @@ import 'core/constants/route_constants.dart';
 import 'core/constants/theme_constants.dart';
 import 'core/di/service_locator.dart';
 import 'presentation/providers/auth_provider.dart';
-import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/register_screen.dart';
 import 'features/exercises/eye_focus/screens/eye_focus_list_screen.dart';
@@ -49,7 +48,7 @@ void main() async {
   }
 
   await setupServiceLocator();
-  final prefs = await SharedPreferences.getInstance();
+  await SharedPreferences.getInstance();
 
   runApp(
     MultiProvider(
@@ -58,20 +57,16 @@ void main() async {
           create: (_) => getIt<AuthProvider>(),
         ),
         ChangeNotifierProvider(
-          create: (_) => ThemeProvider(prefs),
-        ),
-        ChangeNotifierProvider(
           create: (_) => SpeedReadingProvider()..initialize(),
         ),
       ],
-      child: Consumer2<ThemeProvider, AuthProvider>(
-        builder: (context, themeProvider, authProvider, child) {
+      child: Builder(
+        builder: (context) {
           return MaterialApp(
             title: AppConstants.appName,
-            theme: ThemeConstants.lightTheme,
+            theme: ThemeConstants.darkTheme,
             darkTheme: ThemeConstants.darkTheme,
-            themeMode:
-                themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode: ThemeMode.dark,
             home: StreamBuilder<firebase_auth.User?>(
               stream: firebase_auth.FirebaseAuth.instance.authStateChanges(),
               builder: (context, snapshot) {

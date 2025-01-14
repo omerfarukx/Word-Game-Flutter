@@ -237,35 +237,54 @@ class _SpeedReadingExerciseScreenState
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              ThemeConstants.lightPrimaryColor.withOpacity(0.1),
+              ThemeConstants.lightPrimaryColor.withOpacity(0.2),
               Colors.white,
+              ThemeConstants.lightPrimaryColor.withOpacity(0.05),
             ],
+            stops: const [0.0, 0.5, 1.0],
           ),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Hız: $wordsPerMinute kelime/dk',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      _buildInfoCard(
+                        icon: Icons.speed,
+                        title: 'Hız',
+                        value: '$wordsPerMinute kelime/dk',
+                        gradient: LinearGradient(
+                          colors: [Colors.blue.shade400, Colors.blue.shade600],
                         ),
                       ),
-                      Text(
-                        'Kelime: $totalWords',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      _buildInfoCard(
+                        icon: Icons.text_fields,
+                        title: 'Kelime',
+                        value: '$totalWords',
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.purple.shade400,
+                            Colors.purple.shade600
+                          ],
                         ),
                       ),
                     ],
@@ -276,40 +295,66 @@ class _SpeedReadingExerciseScreenState
             if (!isExerciseStarted)
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Card(
-                    elevation: 4,
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
                           Text(
                             text,
-                            style: const TextStyle(fontSize: 18),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              height: 1.6,
+                              letterSpacing: 0.3,
+                            ),
                             textAlign: TextAlign.justify,
                           ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              const Text(
-                                'Okuma Hızı:',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                          const SizedBox(height: 24),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: ThemeConstants.lightPrimaryColor
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Okuma Hızını Ayarla',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Slider(
-                                  value: wordsPerMinute.toDouble(),
-                                  min: 100,
-                                  max: 500,
-                                  divisions: 40,
-                                  label: '$wordsPerMinute kelime/dk',
-                                  onChanged: (value) =>
-                                      updateSpeed(value.round()),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.speed,
+                                        color:
+                                            ThemeConstants.lightPrimaryColor),
+                                    Expanded(
+                                      child: Slider(
+                                        value: wordsPerMinute.toDouble(),
+                                        min: 100,
+                                        max: 500,
+                                        divisions: 40,
+                                        label: '$wordsPerMinute kelime/dk',
+                                        activeColor:
+                                            ThemeConstants.lightPrimaryColor,
+                                        onChanged: (value) =>
+                                            updateSpeed(value.round()),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -321,20 +366,35 @@ class _SpeedReadingExerciseScreenState
               Expanded(
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 24),
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
                     decoration: BoxDecoration(
-                      color: ThemeConstants.lightPrimaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: ThemeConstants.lightPrimaryColor,
-                        width: 2,
+                      gradient: LinearGradient(
+                        colors: [
+                          ThemeConstants.lightPrimaryColor.withOpacity(0.9),
+                          ThemeConstants.lightPrimaryColor,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              ThemeConstants.lightPrimaryColor.withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: Text(
                       currentWord,
                       style: const TextStyle(
-                        fontSize: 32,
+                        fontSize: 36,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -348,18 +408,31 @@ class _SpeedReadingExerciseScreenState
                     onPressed: isExerciseStarted ? stopExercise : startExercise,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeConstants.lightPrimaryColor,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
                         vertical: 16,
                       ),
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    child: Text(
-                      isExerciseStarted ? 'Durdur' : 'Başla',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+                      minimumSize: const Size(double.infinity, 56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      elevation: 4,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(isExerciseStarted ? Icons.stop : Icons.play_arrow),
+                        const SizedBox(width: 8),
+                        Text(
+                          isExerciseStarted ? 'Durdur' : 'Başla',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -367,6 +440,56 @@ class _SpeedReadingExerciseScreenState
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Gradient gradient,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
