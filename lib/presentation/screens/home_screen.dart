@@ -68,6 +68,13 @@ class HomeScreen extends StatelessWidget {
           category: 'Kelime Egzersizleri',
         ),
         Exercise(
+          title: 'Kelime Odağı',
+          subtitle: 'Kelimeler arasındaki ilişkileri keşfedin',
+          icon: Icons.psychology,
+          route: RouteConstants.wordFocus,
+          category: 'Kelime Egzersizleri',
+        ),
+        Exercise(
           title: 'Harf Arama',
           subtitle: 'Harfleri bulun ve seçin',
           icon: Icons.search,
