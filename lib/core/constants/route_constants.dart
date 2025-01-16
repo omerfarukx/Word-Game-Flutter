@@ -10,4 +10,5 @@ class RouteConstants {
   static const String speedReadingExercise = '/speed-reading-exercise';
   static const String peripheralVision = '/peripheral-vision';
   static const String wordFocus = '/word-focus';
+  static const String wordSearch = '/word-search';
 }

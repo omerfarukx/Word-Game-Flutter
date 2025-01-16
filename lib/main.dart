@@ -21,6 +21,7 @@ import 'presentation/providers/speed_reading_provider.dart';
 import 'features/exercises/word_recognition/screens/word_recognition_list_screen.dart';
 import 'features/exercises/peripheral_vision/screens/peripheral_vision_list_screen.dart';
 import 'features/word_focus/screens/word_focus_list_screen.dart';
+import 'features/word_focus/screens/word_search_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -105,6 +106,7 @@ void main() async {
                   const PeripheralVisionListScreen(),
               RouteConstants.wordFocus: (context) =>
                   const WordFocusListScreen(),
+              RouteConstants.wordSearch: (context) => const WordSearchScreen(),
             },
             debugShowCheckedModeBanner: false,
           );

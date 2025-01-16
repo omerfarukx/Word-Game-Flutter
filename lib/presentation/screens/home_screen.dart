@@ -75,6 +75,13 @@ class HomeScreen extends StatelessWidget {
           category: 'Kelime Egzersizleri',
         ),
         Exercise(
+          title: 'Kelime Bulma',
+          subtitle: 'Gizli kelimeleri bulun',
+          icon: Icons.grid_on,
+          route: RouteConstants.wordSearch,
+          category: 'Kelime Egzersizleri',
+        ),
+        Exercise(
           title: 'Harf Arama',
           subtitle: 'Harfleri bulun ve seçin',
           icon: Icons.search,
