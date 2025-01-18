@@ -1,6 +1,22 @@
 import 'dart:math';
 
-enum WordCategory { fruits, animals, cities, countries, professions }
+enum WordCategory {
+  meyveler,
+  hayvanlar,
+  sehirler,
+  ulkeler,
+  meslekler,
+  renkler,
+  sporlar,
+  tasitlar,
+  mobilyalar,
+  sebzeler,
+  kiyafetler,
+  okul,
+  doga,
+  aile,
+  teknoloji
+}
 
 class WordSearchGame {
   final List<String> words;
@@ -29,51 +45,398 @@ class WordSearchGame {
         isCompleted = false;
 
   factory WordSearchGame.easy() {
-    return WordSearchGame(
-      words: ['ELMA', 'ARMUT', 'KİRAZ', 'ÜZÜM', 'İNCİR'],
-      gridSize: 8,
-      timeLeft: 180,
-      category: WordCategory.fruits,
-      hints: [
-        'Kırmızı veya yeşil olabilir',
-        'Armut gibi armut',
-        'Mayıs ayının meyvesi',
-        'Salkım salkım',
-        'Ege\'nin meşhur meyvesi'
-      ],
-    );
-  }
-
-  factory WordSearchGame.medium() {
-    return WordSearchGame(
-      words: ['ASLAN', 'KAPLAN', 'ZEBRA', 'FİL', 'ZÜRAFA'],
-      gridSize: 10,
-      timeLeft: 240,
-      category: WordCategory.animals,
-      hints: [
-        'Ormanlar kralı',
-        'Çizgili kedi',
-        'Siyah beyaz çizgili',
-        'Uzun hortumlu',
-        'Uzun boyunlu'
-      ],
-    );
-  }
-
-  factory WordSearchGame.hard() {
-    return WordSearchGame(
-      words: ['İSTANBUL', 'ANKARA', 'İZMİR', 'BURSA', 'ANTALYA'],
-      gridSize: 12,
-      timeLeft: 300,
-      category: WordCategory.cities,
-      hints: [
-        'Boğaz şehri',
-        'Başkent',
-        'Ege\'nin incisi',
-        'Yeşil Bursa',
-        'Turizm başkenti'
-      ],
-    );
+    switch (WordCategory.values[Random().nextInt(WordCategory.values.length)]) {
+      case WordCategory.meyveler:
+        return WordSearchGame(
+          words: [
+            'ELMA',
+            'ARMUT',
+            'KİRAZ',
+            'ÜZÜM',
+            'İNCİR',
+            'PORTAKAL',
+            'MUZ',
+            'KARPUZ'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.meyveler,
+          hints: [
+            'Kırmızı veya yeşil olabilir',
+            'Armut gibi armut',
+            'Mayıs ayının meyvesi',
+            'Salkım salkım',
+            'Ege\'nin meşhur meyvesi',
+            'C vitamini deposu',
+            'Potasyum kaynağı',
+            'Yazın vazgeçilmezi'
+          ],
+        );
+      case WordCategory.hayvanlar:
+        return WordSearchGame(
+          words: [
+            'ASLAN',
+            'KAPLAN',
+            'ZEBRA',
+            'FİL',
+            'ZÜRAFA',
+            'PENGUEN',
+            'PANDA',
+            'AYI'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.hayvanlar,
+          hints: [
+            'Ormanlar kralı',
+            'Çizgili kedi',
+            'Siyah beyaz çizgili',
+            'Uzun hortumlu',
+            'Uzun boyunlu',
+            'Kutupların sakini',
+            'Bambu sever',
+            'Kış uykusuna yatar'
+          ],
+        );
+      case WordCategory.sehirler:
+        return WordSearchGame(
+          words: [
+            'ANKARA',
+            'İSTANBUL',
+            'İZMİR',
+            'BURSA',
+            'ANTALYA',
+            'ADANA',
+            'MERSİN',
+            'MUĞLA'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.sehirler,
+          hints: [
+            'Başkent',
+            'Boğaz şehri',
+            'Ege\'nin incisi',
+            'Yeşil Bursa',
+            'Turizm başkenti',
+            'Kebap şehri',
+            'Narenciye diyarı',
+            'Bodrum\'un ili'
+          ],
+        );
+      case WordCategory.ulkeler:
+        return WordSearchGame(
+          words: [
+            'TÜRKİYE',
+            'ALMANYA',
+            'FRANSA',
+            'İTALYA',
+            'JAPONYA',
+            'KANADA',
+            'BREZİLYA',
+            'MISIR'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.ulkeler,
+          hints: [
+            'Ay yıldızlı bayrak',
+            'Avrupa\'nın motoru',
+            'Eyfel\'in ülkesi',
+            'Pizza ve makarna',
+            'Güneşin doğduğu yer',
+            'Akçaağaç yaprağı',
+            'Samba ülkesi',
+            'Piramitlerin vatanı'
+          ],
+        );
+      case WordCategory.meslekler:
+        return WordSearchGame(
+          words: [
+            'DOKTOR',
+            'AVUKAT',
+            'ÖĞRETMEN',
+            'MÜHENDİS',
+            'AŞÇI',
+            'PİLOT',
+            'BERBER',
+            'MİMAR'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.meslekler,
+          hints: [
+            'Sağlık çalışanı',
+            'Hukuk adamı',
+            'Eğitimci',
+            'Teknik uzman',
+            'Mutfağın şefi',
+            'Göklerin kaptanı',
+            'Saç ve sakal ustası',
+            'Yapı tasarımcısı'
+          ],
+        );
+      case WordCategory.renkler:
+        return WordSearchGame(
+          words: [
+            'KIRMIZI',
+            'MAVİ',
+            'YEŞİL',
+            'SARI',
+            'MOR',
+            'TURUNCU',
+            'PEMBE',
+            'SİYAH'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.renkler,
+          hints: [
+            'Aşkın rengi',
+            'Denizin rengi',
+            'Doğanın rengi',
+            'Güneşin rengi',
+            'Asaletin rengi',
+            'Portakalın rengi',
+            'Pamuk şekerin rengi',
+            'Gecenin rengi'
+          ],
+        );
+      case WordCategory.sporlar:
+        return WordSearchGame(
+          words: [
+            'FUTBOL',
+            'BASKETBOL',
+            'VOLEYBOL',
+            'TENİS',
+            'YÜZME',
+            'BOKS',
+            'GÜREŞ',
+            'KAYAK'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.sporlar,
+          hints: [
+            'En popüler spor',
+            'Potaya atış',
+            'File üstü oyun',
+            'Raketli spor',
+            'Su sporu',
+            'Yumruk sporu',
+            'Ata sporu',
+            'Kış sporu'
+          ],
+        );
+      case WordCategory.tasitlar:
+        return WordSearchGame(
+          words: [
+            'ARABA',
+            'UÇAK',
+            'TREN',
+            'GEMİ',
+            'OTOBÜS',
+            'METRO',
+            'BİSİKLET',
+            'MOTOR'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.tasitlar,
+          hints: [
+            'Dört tekerlekli',
+            'Göklerin taşıtı',
+            'Raylı sistem',
+            'Deniz taşıtı',
+            'Toplu taşıma',
+            'Yeraltı treni',
+            'İki tekerlekli',
+            'İki tekerlekli motorlu'
+          ],
+        );
+      case WordCategory.mobilyalar:
+        return WordSearchGame(
+          words: [
+            'MASA',
+            'KOLTUK',
+            'DOLAP',
+            'YATAK',
+            'SANDALYE',
+            'KİTAPLIK',
+            'KANEPE',
+            'BÜFE'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.mobilyalar,
+          hints: [
+            'Üzerinde yemek yeriz',
+            'Oturma odası klasiği',
+            'Eşya saklama ünitesi',
+            'Uyku mobilyası',
+            'Tek kişilik oturma',
+            'Kitap rafları',
+            'Uzanmalık mobilya',
+            'Yemek odası mobilyası'
+          ],
+        );
+      case WordCategory.sebzeler:
+        return WordSearchGame(
+          words: [
+            'DOMATES',
+            'BİBER',
+            'PATLICAN',
+            'HAVUÇ',
+            'PATATES',
+            'ISPANAK',
+            'MARUL',
+            'KABAK'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.sebzeler,
+          hints: [
+            'Salçanın hammaddesi',
+            'Acı veya tatlı olur',
+            'Karnıyarık malzemesi',
+            'Tavşanın sevdiği',
+            'Kızartması meşhur',
+            'Demir deposu sebze',
+            'Yeşil yapraklı',
+            'Hem tatlısı hem yemeği'
+          ],
+        );
+      case WordCategory.kiyafetler:
+        return WordSearchGame(
+          words: [
+            'GÖMLEK',
+            'PANTOLON',
+            'CEKET',
+            'KAZAK',
+            'ELBİSE',
+            'ETEK',
+            'ŞORT',
+            'MONT'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.kiyafetler,
+          hints: [
+            'Yakalı üst giysi',
+            'Bacakları örter',
+            'Takım elbise parçası',
+            'Yün örme giysi',
+            'Kadın tek parça',
+            'Diz üstü giysi',
+            'Yaz mevsimi giysisi',
+            'Kışlık dış giyim'
+          ],
+        );
+      case WordCategory.okul:
+        return WordSearchGame(
+          words: [
+            'KALEM',
+            'DEFTER',
+            'KİTAP',
+            'SİLGİ',
+            'ÇANTA',
+            'CETVEL',
+            'PERGEL',
+            'BOYA'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.okul,
+          hints: [
+            'Yazı yazma aracı',
+            'Not tutma aracı',
+            'Okuma materyali',
+            'Hata düzeltici',
+            'Eşya taşıyıcı',
+            'Çizgi çekme aracı',
+            'Daire çizme aracı',
+            'Resim yapma malzemesi'
+          ],
+        );
+      case WordCategory.doga:
+        return WordSearchGame(
+          words: [
+            'AĞAÇ',
+            'ÇİÇEK',
+            'ORMAN',
+            'DENİZ',
+            'DAĞLAR',
+            'BULUT',
+            'GÜNEŞ',
+            'YILDIZ'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.doga,
+          hints: [
+            'Gölge veren',
+            'Bahçe süsü',
+            'Ağaç topluluğu',
+            'Tuzlu su kütlesi',
+            'Yüksek yerler',
+            'Gökyüzü süsü',
+            'Isı kaynağı',
+            'Gece parlayan'
+          ],
+        );
+      case WordCategory.aile:
+        return WordSearchGame(
+          words: [
+            'ANNE',
+            'BABA',
+            'KARDEŞ',
+            'DEDE',
+            'NINE',
+            'TEYZE',
+            'AMCA',
+            'DAYI'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.aile,
+          hints: [
+            'Ailenin kadını',
+            'Ailenin erkeği',
+            'Aynı anne babadan',
+            'Babanın babası',
+            'Annenin annesi',
+            'Annenin kız kardeşi',
+            'Babanın erkek kardeşi',
+            'Annenin erkek kardeşi'
+          ],
+        );
+      case WordCategory.teknoloji:
+        return WordSearchGame(
+          words: [
+            'TELEFON',
+            'BİLGİSAYAR',
+            'TABLET',
+            'ROBOT',
+            'DRONE',
+            'YAZICI',
+            'MODEM',
+            'KAMERA'
+          ],
+          gridSize: 8,
+          timeLeft: 180,
+          category: WordCategory.teknoloji,
+          hints: [
+            'İletişim cihazı',
+            'Masaüstü cihaz',
+            'Taşınabilir ekran',
+            'Yapay zeka ürünü',
+            'Uzaktan kontrol',
+            'Baskı makinesi',
+            'İnternet cihazı',
+            'Görüntü kaydedici'
+          ],
+        );
+    }
   }
 
   void generateGrid() {

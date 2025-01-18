@@ -295,13 +295,18 @@ class _WordSearchWidgetState extends State<WordSearchWidget> {
             ),
 
             // Kelime gridi
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.grey.shade800,
+                  width: 1,
                 ),
+              ),
+              child: AspectRatio(
+                aspectRatio: 1,
                 child: GestureDetector(
                   onPanStart: (details) {
                     final box = context.findRenderObject() as RenderBox;
@@ -323,12 +328,13 @@ class _WordSearchWidgetState extends State<WordSearchWidget> {
                     });
                   },
                   child: GridView.builder(
-                    padding: const EdgeInsets.all(12.0),
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(4.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: currentGame.gridSize,
                       childAspectRatio: 1.0,
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
+                      crossAxisSpacing: 4.0,
+                      mainAxisSpacing: 4.0,
                     ),
                     itemCount: currentGame.gridSize * currentGame.gridSize,
                     itemBuilder: (context, index) {
@@ -340,16 +346,26 @@ class _WordSearchWidgetState extends State<WordSearchWidget> {
                         onTapDown: (_) => _handleLetterSelection(row, col),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? Colors.blue
-                                : const Color(0xFF2A2A2A),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Colors.blue.shade300
-                                  : Colors.transparent,
-                              width: 2,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: isSelected
+                                  ? [Colors.blue.shade400, Colors.blue.shade600]
+                                  : [
+                                      const Color(0xFF2A2A2A),
+                                      const Color(0xFF1A1A1A),
+                                    ],
                             ),
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.blue.withOpacity(0.3),
+                                      blurRadius: 4,
+                                      spreadRadius: 1,
+                                    )
+                                  ]
+                                : [],
                           ),
                           alignment: Alignment.center,
                           child: Text(
@@ -358,7 +374,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget> {
                               color: isSelected
                                   ? Colors.white
                                   : Colors.grey.shade300,
-                              fontSize: 22,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -373,12 +389,17 @@ class _WordSearchWidgetState extends State<WordSearchWidget> {
             // Bulunan kelimeler listesi
             Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.grey.shade800,
+                  width: 1,
+                ),
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
