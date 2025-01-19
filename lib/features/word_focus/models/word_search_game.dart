@@ -29,6 +29,7 @@ class WordSearchGame {
   int timeLeft;
   bool isCompleted;
   List<List<int>> validMoves = [];
+  late int maxWordLength;
 
   WordSearchGame({
     required this.words,
@@ -42,7 +43,11 @@ class WordSearchGame {
           (_) => List.generate(gridSize, (_) => ''),
         ),
         score = 0,
-        isCompleted = false;
+        isCompleted = false {
+    // En uzun kelimenin uzunluğunu bul
+    maxWordLength =
+        words.fold(0, (max, word) => word.length > max ? word.length : max);
+  }
 
   factory WordSearchGame.easy() {
     switch (WordCategory.values[Random().nextInt(WordCategory.values.length)]) {
@@ -440,50 +445,114 @@ class WordSearchGame {
   }
 
   void generateGrid() {
-    final random = Random();
-    validMoves.clear();
+    int maxGridAttempts = 5; // Maksimum grid oluşturma denemesi
+    bool success = false;
 
-    // Kelimeleri gride yerleştir
-    for (final word in words) {
-      bool placed = false;
-      while (!placed) {
-        // Yatay, dikey veya çapraz yerleştirme
-        final direction = random.nextInt(3); // 0: yatay, 1: dikey, 2: çapraz
-        int maxRow, maxCol;
+    while (maxGridAttempts > 0 && !success) {
+      success = true;
+      final random = Random();
+      validMoves.clear();
 
-        switch (direction) {
-          case 0: // yatay
-            maxRow = gridSize;
-            maxCol = gridSize - word.length;
-            break;
-          case 1: // dikey
-            maxRow = gridSize - word.length;
-            maxCol = gridSize;
-            break;
-          case 2: // çapraz
-            maxRow = gridSize - word.length;
-            maxCol = gridSize - word.length;
-            break;
-          default:
-            maxRow = gridSize;
-            maxCol = gridSize;
+      // Grid'i temizle
+      for (var i = 0; i < gridSize; i++) {
+        for (var j = 0; j < gridSize; j++) {
+          grid[i][j] = '';
+        }
+      }
+
+      // Kelimeleri gride yerleştir
+      for (final word in words) {
+        bool placed = false;
+        int attempts = 0;
+        while (!placed && attempts < 100) {
+          attempts++;
+
+          // Yatay, dikey veya çapraz yerleştirme
+          final direction = random.nextInt(3); // 0: yatay, 1: dikey, 2: çapraz
+          int maxRow, maxCol;
+
+          switch (direction) {
+            case 0: // yatay
+              maxRow = gridSize;
+              maxCol = gridSize - word.length + 1;
+              break;
+            case 1: // dikey
+              maxRow = gridSize - word.length + 1;
+              maxCol = gridSize;
+              break;
+            case 2: // çapraz
+              maxRow = gridSize - word.length + 1;
+              maxCol = gridSize - word.length + 1;
+              break;
+            default:
+              maxRow = gridSize;
+              maxCol = gridSize;
+          }
+
+          // Eğer kelime grid'e sığmıyorsa, yeni yön dene
+          if (maxRow <= 0 || maxCol <= 0) {
+            continue;
+          }
+
+          // Rastgele pozisyon seç
+          final row = random.nextInt(maxRow);
+          final col = random.nextInt(maxCol);
+
+          // Kelimeyi yerleştirmeyi dene
+          if (canPlaceWord(word, row, col, direction)) {
+            placeWord(word, row, col, direction);
+            placed = true;
+          }
         }
 
-        final row = random.nextInt(maxRow);
-        final col = random.nextInt(maxCol);
-
-        if (canPlaceWord(word, row, col, direction)) {
-          placeWord(word, row, col, direction);
-          placed = true;
+        if (!placed) {
+          success = false;
+          maxGridAttempts--;
+          break;
         }
+      }
+
+      if (success) {
+        // Boş kalan yerleri rastgele harflerle doldur
+        fillEmptySpaces();
       }
     }
 
-    // Boş kalan yerleri rastgele harflerle doldur
+    // Eğer grid oluşturulamadıysa, basit bir grid oluştur
+    if (!success) {
+      createSimpleGrid();
+    }
+  }
+
+  void createSimpleGrid() {
+    validMoves.clear();
+    // Grid'i temizle
+    for (var i = 0; i < gridSize; i++) {
+      for (var j = 0; j < gridSize; j++) {
+        grid[i][j] = '';
+      }
+    }
+
+    // Kelimeleri sadece yatay olarak yerleştir
+    int currentRow = 0;
+    for (final word in words) {
+      if (currentRow < gridSize && word.length <= gridSize) {
+        for (int i = 0; i < word.length; i++) {
+          grid[currentRow][i] = word[i];
+        }
+        validMoves.add(List.generate(word.length * 2,
+            (index) => index % 2 == 0 ? currentRow : index ~/ 2));
+        currentRow++;
+      }
+    }
+
+    // Boş kalan yerleri doldur
     fillEmptySpaces();
   }
 
   bool canPlaceWord(String word, int row, int col, int direction) {
+    if (row < 0 || col < 0 || row >= gridSize || col >= gridSize) return false;
+
     List<List<int>> positions = [];
 
     for (int i = 0; i < word.length; i++) {
@@ -503,8 +572,12 @@ class WordSearchGame {
           break;
       }
 
+      // Sınırları kontrol et
       if (currentRow >= gridSize || currentCol >= gridSize) return false;
-      if (grid[currentRow][currentCol].isNotEmpty) return false;
+
+      // Çakışma kontrolü
+      if (grid[currentRow][currentCol].isNotEmpty &&
+          grid[currentRow][currentCol] != word[i]) return false;
 
       positions.add([currentRow, currentCol]);
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../presentation/controllers/letter_search_game_controller.dart';
 import '../../../presentation/widgets/letter_search/letter_search_grid.dart';
@@ -443,145 +444,352 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: (isDark ? Colors.black : Colors.white).withOpacity(0.6),
+            ),
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           'Harf Arama',
           style: GoogleFonts.nunito(
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            fontSize: 24,
+            color: isDark ? Colors.white : Colors.black87,
           ),
         ),
-        backgroundColor: isDark ? Colors.teal.shade700 : Colors.teal,
         actions: [
           if (_gameController.isGameStarted) ...[
-            // İlk Joker butonu
-            IconButton(
-              onPressed: hasFirstJoker ? _useFirstJoker : null,
-              icon: Stack(
-                children: [
-                  Icon(
-                    Icons.front_hand,
-                    color: hasFirstJoker ? Colors.amber : Colors.grey,
-                  ),
-                  if (hasFirstJoker)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '1',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+              ),
+              child: IconButton(
+                onPressed: hasFirstJoker ? _useFirstJoker : null,
+                icon: Stack(
+                  children: [
+                    Icon(
+                      Icons.front_hand,
+                      color: hasFirstJoker
+                          ? Colors.amber
+                          : (isDark ? Colors.white60 : Colors.black38),
+                      size: 28,
+                    ),
+                    if (hasFirstJoker)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Text(
+                            '1',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
+                tooltip: 'İlk Harf Joker',
               ),
-              tooltip: 'İlk Harf Joker',
             ),
-            // İkinci Joker butonu
-            IconButton(
-              onPressed: hasSecondJoker ? _useSecondJoker : null,
-              icon: Stack(
-                children: [
-                  Icon(
-                    Icons.auto_fix_high,
-                    color: hasSecondJoker ? Colors.amber : Colors.grey,
-                  ),
-                  if (hasSecondJoker)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '1',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+              ),
+              child: IconButton(
+                onPressed: hasSecondJoker ? _useSecondJoker : null,
+                icon: Stack(
+                  children: [
+                    Icon(
+                      Icons.auto_fix_high,
+                      color: hasSecondJoker
+                          ? Colors.amber
+                          : (isDark ? Colors.white60 : Colors.black38),
+                      size: 28,
+                    ),
+                    if (hasSecondJoker)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Text(
+                            '1',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
+                tooltip: 'Tam Kelime Joker',
               ),
-              tooltip: 'Tam Kelime Joker',
             ),
           ],
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            tooltip: 'Nasıl Oynanır?',
-            onPressed: () => GameDialogs.showHelpDialog(context),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.help_outline,
+                size: 28,
+                color: isDark ? Colors.white70 : Colors.black54,
+              ),
+              tooltip: 'Nasıl Oynanır?',
+              onPressed: () => GameDialogs.showHelpDialog(context),
+            ),
           ),
         ],
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: isDark
                 ? [
-                    Colors.grey.shade900,
-                    Colors.black,
+                    Color(0xFF1A237E),
+                    Color(0xFF0D47A1),
+                    Color(0xFF01579B),
                   ]
                 : [
-                    Colors.teal.shade50,
-                    Colors.white,
+                    Color(0xFF2196F3),
+                    Color(0xFF1976D2),
+                    Color(0xFF0D47A1),
                   ],
           ),
         ),
         child: Stack(
           children: [
-            Column(
-              children: [
-                TargetWordsDisplay(
-                  targetWords: _gameController.targetWords,
-                  foundWords: _gameController.foundWords,
+            Container(
+              decoration: BoxDecoration(
+                backgroundBlendMode: BlendMode.overlay,
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 1.5,
+                  colors: [
+                    Colors.white.withOpacity(0.15),
+                    Colors.white.withOpacity(0.05),
+                    Colors.transparent,
+                  ],
                 ),
-                Expanded(
-                  child: LetterSearchGrid(
-                    currentGrid: _gameController.currentGrid,
-                    selectedCells: _gameController.selectedCells,
-                    foundCells: _gameController.foundCells,
-                    hintPositions: _gameController.hintPositions,
-                    onCellTap: (row, col) {
-                      if (_gameController.handleCellSelection(row, col)) {
-                        setState(() {
-                          if (_gameController.isWordFound) {
-                            _handleWordFound();
-                          } else if (_gameController.isWrongSelection) {
-                            _handleWrongSelection();
-                          }
-                        });
-                      }
-                    },
+              ),
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withOpacity(0.1),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: TargetWordsDisplay(
+                          targetWords: _gameController.targetWords,
+                          foundWords: _gameController.foundWords,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                ScoreBoard(
-                  score: _gameController.score,
-                  foundWordsCount: _gameController.foundWordsCount,
-                  totalWords: _gameController.targetWords.length,
-                  timeLeft: _gameController.timeLeft,
-                ),
-              ],
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        color: (isDark ? Colors.white : Colors.black)
+                            .withOpacity(0.1),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              LetterSearchGrid(
+                                currentGrid: _gameController.currentGrid,
+                                selectedCells: _gameController.selectedCells,
+                                foundCells: _gameController.foundCells,
+                                hintPositions: _gameController.hintPositions,
+                                onCellTap: (row, col) {
+                                  if (_gameController.handleCellSelection(
+                                      row, col)) {
+                                    setState(() {
+                                      if (_gameController.isWordFound) {
+                                        _handleWordFound();
+                                      } else if (_gameController
+                                          .isWrongSelection) {
+                                        _handleWrongSelection();
+                                      }
+                                    });
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withOpacity(0.1),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.stars_rounded,
+                                  color: Colors.amber,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_gameController.score}',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.white : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.timer_outlined,
+                                  color: _gameController.timeLeft <= 10
+                                      ? Colors.red
+                                      : Colors.white,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_gameController.timeLeft}',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: _gameController.timeLeft <= 10
+                                        ? Colors.red
+                                        : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle_outline,
+                                  color: Colors.green,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_gameController.foundWordsCount}/${_gameController.targetWords.length}',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.white : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             if (!_gameController.isGameStarted)
               Positioned.fill(
-                child: Container(
-                  color: Colors.black.withOpacity(0.3),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.3),
+                  ),
                 ),
               ),
           ],
