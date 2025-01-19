@@ -82,6 +82,13 @@ class HomeScreen extends StatelessWidget {
           category: 'Kelime Egzersizleri',
         ),
         Exercise(
+          title: 'Kelime Zinciri',
+          subtitle: 'Son harften yeni kelimeler türetin',
+          icon: Icons.link,
+          route: RouteConstants.wordChain,
+          category: 'Kelime Egzersizleri',
+        ),
+        Exercise(
           title: 'Harf Arama',
           subtitle: 'Harfleri bulun ve seçin',
           icon: Icons.search,

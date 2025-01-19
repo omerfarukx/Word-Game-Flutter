@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 class StatisticsProvider with ChangeNotifier {
   String _readingLevel = 'Başlangıç';
@@ -7,6 +8,10 @@ class StatisticsProvider with ChangeNotifier {
   double _duration = 0.0;
   int _streakDays = 0;
   DateTime? _lastExerciseDate;
+
+  // Kelime zinciri oyunu skorları
+  final List<int> _wordChainScores = [];
+  List<int> get wordChainScores => List.unmodifiable(_wordChainScores);
 
   String get readingLevel => _readingLevel;
   int get completedExercises => _completedExercises;
@@ -30,6 +35,13 @@ class StatisticsProvider with ChangeNotifier {
       _lastExerciseDate = DateTime.parse(lastExerciseDateStr);
     }
 
+    // Kelime zinciri skorlarını yükle
+    final scores = prefs.getStringList('wordChainScores');
+    if (scores != null) {
+      _wordChainScores.clear();
+      _wordChainScores.addAll(scores.map((s) => int.parse(s)));
+    }
+
     notifyListeners();
   }
 
@@ -45,6 +57,10 @@ class StatisticsProvider with ChangeNotifier {
       await prefs.setString(
           'lastExerciseDate', _lastExerciseDate!.toIso8601String());
     }
+
+    // Kelime zinciri skorlarını kaydet
+    await prefs.setStringList(
+        'wordChainScores', _wordChainScores.map((s) => s.toString()).toList());
   }
 
   void updateReadingLevel(String level) {
@@ -99,5 +115,22 @@ class StatisticsProvider with ChangeNotifier {
     }
     _saveStatistics();
     notifyListeners();
+  }
+
+  void saveWordChainScore(int score) {
+    _wordChainScores.add(score);
+    _saveStatistics();
+    notifyListeners();
+  }
+
+  int get bestWordChainScore {
+    if (_wordChainScores.isEmpty) return 0;
+    return _wordChainScores.reduce((max, score) => score > max ? score : max);
+  }
+
+  double get averageWordChainScore {
+    if (_wordChainScores.isEmpty) return 0;
+    return _wordChainScores.reduce((sum, score) => sum + score) /
+        _wordChainScores.length;
   }
 }

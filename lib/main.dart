@@ -23,6 +23,7 @@ import 'features/word_focus/screens/word_focus_list_screen.dart';
 import 'features/word_focus/screens/word_search_screen.dart';
 import 'features/statistics/providers/statistics_provider.dart';
 import 'features/statistics/screens/statistics_screen.dart';
+import 'features/word_chain/screens/word_chain_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +99,7 @@ void main() async {
           RouteConstants.wordFocus: (context) => const WordFocusListScreen(),
           RouteConstants.wordSearch: (context) => const WordSearchScreen(),
           RouteConstants.statistics: (context) => const StatisticsScreen(),
+          RouteConstants.wordChain: (context) => const WordChainScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),
