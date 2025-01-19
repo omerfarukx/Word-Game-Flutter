@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/word_recognition_exercise.dart';
 import 'word_recognition_screen.dart';
-import '../../../../core/constants/theme_constants.dart';
 
 class WordRecognitionListScreen extends StatelessWidget {
   const WordRecognitionListScreen({Key? key}) : super(key: key);
@@ -83,7 +82,7 @@ class WordRecognitionListScreen extends StatelessWidget {
         elevation: 8,
         shadowColor: gradientColors[1].withOpacity(0.4),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ThemeConstants.cardBorderRadius),
+          borderRadius: BorderRadius.circular(16.0),
         ),
         child: InkWell(
           onTap: () {
@@ -94,7 +93,7 @@ class WordRecognitionListScreen extends StatelessWidget {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(ThemeConstants.cardBorderRadius),
+          borderRadius: BorderRadius.circular(16.0),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -102,8 +101,7 @@ class WordRecognitionListScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius:
-                  BorderRadius.circular(ThemeConstants.cardBorderRadius),
+              borderRadius: BorderRadius.circular(16.0),
               boxShadow: [
                 BoxShadow(
                   color: gradientColors[1].withOpacity(0.3),
@@ -127,7 +125,7 @@ class WordRecognitionListScreen extends StatelessWidget {
                         ),
                         child: Icon(
                           icon,
-                          size: ThemeConstants.iconSize,
+                          size: 24,
                           color: Colors.white,
                         ),
                       ),
@@ -152,9 +150,7 @@ class WordRecognitionListScreen extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.black26,
-                                borderRadius: BorderRadius.circular(
-                                  ThemeConstants.buttonBorderRadius,
-                                ),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 exercise.difficulty.name.toUpperCase(),
@@ -207,9 +203,7 @@ class WordRecognitionListScreen extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white24,
-                          borderRadius: BorderRadius.circular(
-                            ThemeConstants.buttonBorderRadius,
-                          ),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
                           children: const [

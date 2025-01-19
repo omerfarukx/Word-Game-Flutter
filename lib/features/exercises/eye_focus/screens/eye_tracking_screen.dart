@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/theme_constants.dart';
 import '../models/eye_tracking_exercise.dart';
 import '../widgets/eye_tracking_widget.dart';
 
@@ -35,7 +34,7 @@ class EyeTrackingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.darkBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(exercise.title),
         backgroundColor: Colors.transparent,
@@ -46,7 +45,7 @@ class EyeTrackingScreen extends StatelessWidget {
         child: Column(
           children: [
             Card(
-              color: ThemeConstants.darkSurfaceColor,
+              color: Theme.of(context).cardColor,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(

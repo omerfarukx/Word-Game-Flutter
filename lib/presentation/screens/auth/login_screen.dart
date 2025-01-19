@@ -1,9 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/route_constants.dart';
-import '../../../core/constants/theme_constants.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/theme_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +16,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Oturum durumunu kontrol et
+    firebase_auth.FirebaseAuth.instance
+        .authStateChanges()
+        .listen((firebase_auth.User? user) {
+      if (user != null && mounted) {
+        // Kullanıcı giriş yapmışsa ana sayfaya yönlendir
+        Navigator.of(context).pushReplacementNamed(RouteConstants.home);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -26,27 +40,45 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      try {
-        await context.read<AuthProvider>().login(
-              _emailController.text.trim(),
-              _passwordController.text,
-            );
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, RouteConstants.home);
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString())),
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Lütfen email ve şifrenizi girin'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await context.read<AuthProvider>().login(
+            _emailController.text.trim(),
+            _passwordController.text.trim(),
           );
-        }
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, RouteConstants.home);
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -67,26 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.light_mode),
-                      const SizedBox(width: 8),
-                      Consumer<ThemeProvider>(
-                        builder: (context, themeProvider, child) {
-                          return Switch(
-                            value: themeProvider.isDarkMode,
-                            onChanged: (value) {
-                              themeProvider.toggleTheme();
-                            },
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.dark_mode),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -137,28 +149,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed:
-                        context.watch<AuthProvider>().isLoading ? null : _login,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: ThemeConstants.lightPrimaryColor,
-                      foregroundColor: Colors.white,
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Giriş Yap'),
                     ),
-                    child: context.watch<AuthProvider>().isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Text(
-                            'Giriş Yap',
-                            style: TextStyle(fontSize: 16),
-                          ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(

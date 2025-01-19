@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/peripheral_vision_exercise.dart';
 import 'peripheral_vision_screen.dart';
-import '../../../../core/constants/theme_constants.dart';
 
 class PeripheralVisionListScreen extends StatelessWidget {
   const PeripheralVisionListScreen({Key? key}) : super(key: key);
@@ -96,7 +95,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
         elevation: 8,
         shadowColor: gradientColors[1].withOpacity(0.4),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ThemeConstants.cardBorderRadius),
+          borderRadius: BorderRadius.circular(16.0),
         ),
         child: InkWell(
           onTap: () {
@@ -108,7 +107,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(ThemeConstants.cardBorderRadius),
+          borderRadius: BorderRadius.circular(16.0),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -116,8 +115,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius:
-                  BorderRadius.circular(ThemeConstants.cardBorderRadius),
+              borderRadius: BorderRadius.circular(16.0),
               boxShadow: [
                 BoxShadow(
                   color: gradientColors[1].withOpacity(0.3),
@@ -141,7 +139,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
                         ),
                         child: Icon(
                           icon,
-                          size: ThemeConstants.iconSize,
+                          size: 24,
                           color: Colors.white,
                         ),
                       ),
@@ -166,9 +164,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.black26,
-                                borderRadius: BorderRadius.circular(
-                                  ThemeConstants.buttonBorderRadius,
-                                ),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 _getDifficultyText(exercise.difficulty),
@@ -221,9 +217,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white24,
-                          borderRadius: BorderRadius.circular(
-                            ThemeConstants.buttonBorderRadius,
-                          ),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
                           children: const [

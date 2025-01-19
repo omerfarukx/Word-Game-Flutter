@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/theme_constants.dart';
 import '../../providers/speed_reading_provider.dart';
 import '../../widgets/countdown_dialog.dart';
 
@@ -142,6 +141,7 @@ class _SpeedReadingExerciseScreenState
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     final provider = Provider.of<SpeedReadingProvider>(context);
 
     if (!provider.isInitialized) {
@@ -156,7 +156,7 @@ class _SpeedReadingExerciseScreenState
       return Scaffold(
         appBar: AppBar(
           title: const Text('Hızlı Okuma'),
-          backgroundColor: ThemeConstants.lightPrimaryColor,
+          backgroundColor: primaryColor,
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -164,7 +164,7 @@ class _SpeedReadingExerciseScreenState
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                ThemeConstants.lightPrimaryColor.withOpacity(0.1),
+                primaryColor.withOpacity(0.1),
                 Colors.white,
               ],
             ),
@@ -173,10 +173,10 @@ class _SpeedReadingExerciseScreenState
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.menu_book,
                   size: 100,
-                  color: ThemeConstants.lightPrimaryColor,
+                  color: primaryColor,
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -203,7 +203,7 @@ class _SpeedReadingExerciseScreenState
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ThemeConstants.lightPrimaryColor,
+                    backgroundColor: primaryColor,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 48,
                       vertical: 16,
@@ -224,7 +224,7 @@ class _SpeedReadingExerciseScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hızlı Okuma'),
-        backgroundColor: ThemeConstants.lightPrimaryColor,
+        backgroundColor: primaryColor,
         actions: [
           if (!isExerciseStarted)
             IconButton(
@@ -240,9 +240,9 @@ class _SpeedReadingExerciseScreenState
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              ThemeConstants.lightPrimaryColor.withOpacity(0.2),
+              primaryColor.withOpacity(0.2),
               Colors.white,
-              ThemeConstants.lightPrimaryColor.withOpacity(0.05),
+              primaryColor.withOpacity(0.05),
             ],
             stops: const [0.0, 0.5, 1.0],
           ),
@@ -318,8 +318,7 @@ class _SpeedReadingExerciseScreenState
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: ThemeConstants.lightPrimaryColor
-                                  .withOpacity(0.1),
+                              color: primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -335,9 +334,7 @@ class _SpeedReadingExerciseScreenState
                                 const SizedBox(height: 8),
                                 Row(
                                   children: [
-                                    const Icon(Icons.speed,
-                                        color:
-                                            ThemeConstants.lightPrimaryColor),
+                                    Icon(Icons.speed, color: primaryColor),
                                     Expanded(
                                       child: Slider(
                                         value: wordsPerMinute.toDouble(),
@@ -345,8 +342,7 @@ class _SpeedReadingExerciseScreenState
                                         max: 500,
                                         divisions: 40,
                                         label: '$wordsPerMinute kelime/dk',
-                                        activeColor:
-                                            ThemeConstants.lightPrimaryColor,
+                                        activeColor: primaryColor,
                                         onChanged: (value) =>
                                             updateSpeed(value.round()),
                                       ),
@@ -372,8 +368,8 @@ class _SpeedReadingExerciseScreenState
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          ThemeConstants.lightPrimaryColor.withOpacity(0.9),
-                          ThemeConstants.lightPrimaryColor,
+                          primaryColor.withOpacity(0.9),
+                          primaryColor,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -381,8 +377,7 @@ class _SpeedReadingExerciseScreenState
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              ThemeConstants.lightPrimaryColor.withOpacity(0.3),
+                          color: primaryColor.withOpacity(0.3),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                         ),
@@ -407,7 +402,7 @@ class _SpeedReadingExerciseScreenState
                   ElevatedButton(
                     onPressed: isExerciseStarted ? stopExercise : startExercise,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeConstants.lightPrimaryColor,
+                      backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,

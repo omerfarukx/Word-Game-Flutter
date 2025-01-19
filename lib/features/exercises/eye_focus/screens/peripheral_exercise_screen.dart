@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/theme_constants.dart';
 import '../models/peripheral_exercise.dart';
 import '../widgets/peripheral_exercise_widget.dart';
 
@@ -47,7 +46,7 @@ class PeripheralExerciseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.darkBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(exercise.title),
         backgroundColor: Colors.transparent,
@@ -58,7 +57,7 @@ class PeripheralExerciseScreen extends StatelessWidget {
         child: Column(
           children: [
             Card(
-              color: ThemeConstants.darkSurfaceColor,
+              color: Theme.of(context).cardColor,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

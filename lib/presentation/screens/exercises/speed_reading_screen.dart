@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../core/constants/theme_constants.dart';
 
 class SpeedReadingScreen extends StatefulWidget {
   const SpeedReadingScreen({super.key});
@@ -90,6 +89,7 @@ Bunun için okuma hızı kademeli olarak artırılmalıdır.
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -179,9 +179,9 @@ Bunun için okuma hızı kademeli olarak artırılmalıdır.
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: ThemeConstants.lightPrimaryColor,
+                            color: primaryColor,
                             border: Border.all(
-                              color: ThemeConstants.lightPrimaryColor,
+                              color: primaryColor,
                               width: 2,
                             ),
                             borderRadius: BorderRadius.circular(8),
@@ -211,7 +211,7 @@ Bunun için okuma hızı kademeli olarak artırılmalıdır.
                 child: ElevatedButton(
                   onPressed: _isPlaying ? _stopExercise : _startExercise,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ThemeConstants.lightPrimaryColor,
+                    backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 32, vertical: 16),

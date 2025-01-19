@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
-import 'core/constants/theme_constants.dart';
 import 'core/di/service_locator.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/screens/auth/login_screen.dart';
@@ -22,6 +21,8 @@ import 'features/exercises/word_recognition/screens/word_recognition_list_screen
 import 'features/exercises/peripheral_vision/screens/peripheral_vision_list_screen.dart';
 import 'features/word_focus/screens/word_focus_list_screen.dart';
 import 'features/word_focus/screens/word_search_screen.dart';
+import 'features/statistics/providers/statistics_provider.dart';
+import 'features/statistics/screens/statistics_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,56 +62,58 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => SpeedReadingProvider()..initialize(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => StatisticsProvider(),
+        ),
       ],
-      child: Builder(
-        builder: (context) {
-          return MaterialApp(
-            title: AppConstants.appName,
-            theme: ThemeConstants.darkTheme,
-            darkTheme: ThemeConstants.darkTheme,
-            themeMode: ThemeMode.dark,
-            home: StreamBuilder<firebase_auth.User?>(
-              stream: firebase_auth.FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Scaffold(
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-
-                // Oturum durumunu kontrol et
-                final isLoggedIn = snapshot.hasData;
-                if (isLoggedIn) {
-                  return const HomeScreen();
-                }
-                return const LoginScreen();
-              },
+      child: MaterialApp(
+        title: AppConstants.appName,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.dark(
+            primary: const Color(0xFF1976D2),
+            secondary: const Color(0xFF1976D2).withOpacity(0.8),
+          ),
+          scaffoldBackgroundColor: const Color(0xFF1F2937),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
+          cardTheme: const CardTheme(
+            elevation: 4,
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1976D2),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            routes: {
-              RouteConstants.login: (context) => const LoginScreen(),
-              RouteConstants.register: (context) => const RegisterScreen(),
-              RouteConstants.home: (context) => const HomeScreen(),
-              RouteConstants.eyeFocus: (context) => const EyeFocusListScreen(),
-              RouteConstants.speedReading: (context) =>
-                  const SpeedReadingScreen(),
-              RouteConstants.wordPairs: (context) => const WordPairsScreen(),
-              RouteConstants.letterSearch: (context) =>
-                  const LetterSearchScreen(),
-              RouteConstants.speedReadingExercise: (context) =>
-                  const SpeedReadingExerciseScreen(),
-              RouteConstants.wordRecognition: (context) =>
-                  const WordRecognitionListScreen(),
-              RouteConstants.peripheralVision: (context) =>
-                  const PeripheralVisionListScreen(),
-              RouteConstants.wordFocus: (context) =>
-                  const WordFocusListScreen(),
-              RouteConstants.wordSearch: (context) => const WordSearchScreen(),
-            },
-            debugShowCheckedModeBanner: false,
-          );
+          ),
+        ),
+        initialRoute: RouteConstants.login,
+        routes: {
+          RouteConstants.login: (context) => const LoginScreen(),
+          RouteConstants.register: (context) => const RegisterScreen(),
+          RouteConstants.home: (context) => const HomeScreen(),
+          RouteConstants.eyeFocus: (context) => const EyeFocusListScreen(),
+          RouteConstants.speedReading: (context) => const SpeedReadingScreen(),
+          RouteConstants.wordPairs: (context) => const WordPairsScreen(),
+          RouteConstants.letterSearch: (context) => const LetterSearchScreen(),
+          RouteConstants.speedReadingExercise: (context) =>
+              const SpeedReadingExerciseScreen(),
+          RouteConstants.wordRecognition: (context) =>
+              const WordRecognitionListScreen(),
+          RouteConstants.peripheralVision: (context) =>
+              const PeripheralVisionListScreen(),
+          RouteConstants.wordFocus: (context) => const WordFocusListScreen(),
+          RouteConstants.wordSearch: (context) => const WordSearchScreen(),
+          RouteConstants.statistics: (context) => const StatisticsScreen(),
         },
+        debugShowCheckedModeBanner: false,
       ),
     ),
   );

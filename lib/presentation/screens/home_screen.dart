@@ -132,6 +132,7 @@ class HomeScreen extends StatelessWidget {
                 floating: true,
                 backgroundColor: const Color(0xFF1F2937),
                 elevation: 0,
+                automaticallyImplyLeading: false,
                 title: const Text(
                   'Hızlı Okuma',
                   style: TextStyle(

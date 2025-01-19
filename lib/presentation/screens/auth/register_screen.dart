@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/route_constants.dart';
-import '../../../core/constants/theme_constants.dart';
 import '../../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -62,6 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kayıt Ol'),
@@ -179,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         : _register,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: ThemeConstants.lightPrimaryColor,
+                      backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                     ),
                     child: context.watch<AuthProvider>().isLoading
