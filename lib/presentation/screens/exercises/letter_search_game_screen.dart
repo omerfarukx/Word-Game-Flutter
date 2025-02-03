@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/theme_constants.dart';
 import 'dart:math' as math;
 
 class LetterSearchGameScreen extends StatefulWidget {
