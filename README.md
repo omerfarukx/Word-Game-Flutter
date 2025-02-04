@@ -22,7 +22,6 @@ Okuma hızınızı ve anlama kabiliyetinizi geliştirmenize yardımcı olan mode
 
 ## 📱 Ekran Görüntüleri
 
-[Ekran görüntüleri buraya eklenecek]
 
 ## 🛠️ Kurulum
 
