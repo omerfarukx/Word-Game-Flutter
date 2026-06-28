@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import '../../../data/word_pairs_data.dart';
-import '../../../data/achievements_data.dart';
-import '../../../domain/models/achievement.dart';
+import '../../../../data/word_pairs_data.dart';
+import '../../../../data/achievements_data.dart';
+import '../../../../domain/models/achievement.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:audioplayers/audioplayers.dart';
 

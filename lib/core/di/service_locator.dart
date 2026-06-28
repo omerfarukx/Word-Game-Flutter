@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../presentation/providers/auth_provider.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
 final getIt = GetIt.instance;
 

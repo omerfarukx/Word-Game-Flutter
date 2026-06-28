@@ -58,14 +58,26 @@ flutter run
 
 ## 🏗️ Mimari
 
-Bu proje Clean Architecture prensiplerine uygun olarak geliştirilmiştir:
+Bu proje **feature-first** (özellik odaklı) bir yapıyla geliştirilmiştir. Paylaşılan katmanlar (`core`, `data`, `domain`) cross-cutting olarak kalırken, her ekran/özellik kendi `features/` modülünde toplanır:
 
 ```
 lib/
-├── core/          # Temel utility ve sabitler
-├── data/          # Veri katmanı
-├── domain/        # İş mantığı katmanı
-└── presentation/  # UI katmanı
+├── core/          # Sabitler, DI (service_locator), utils, paylaşılan widget'lar
+├── data/          # Veri kaynakları ve repository implementasyonları
+├── domain/        # Entity'ler, modeller, repository arayüzleri
+└── features/      # Özellik bazlı modüller (her biri screens/providers/widgets içerir)
+    ├── auth/             # Giriş / kayıt
+    ├── home/             # Ana ekran
+    ├── statistics/       # İstatistik takibi
+    ├── word_chain/       # Kelime zinciri oyunu
+    ├── word_focus/       # Kelime odağı / kelime bulma
+    └── exercises/        # Egzersizler
+        ├── eye_focus/        # Göz odaklama
+        ├── peripheral_vision/ # Çevresel görüş
+        ├── word_recognition/ # Kelime tanıma
+        ├── speed_reading/    # Hızlı okuma
+        ├── word_pairs/       # Kelime çiftleri
+        └── letter_search/    # Harf arama
 ```
 
 ## 🤝 Katkıda Bulunma

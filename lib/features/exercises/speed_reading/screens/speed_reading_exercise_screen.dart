@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/speed_reading_provider.dart';
-import '../../widgets/countdown_dialog.dart';
+import '../providers/speed_reading_provider.dart';
+import '../../../../core/widgets/countdown_dialog.dart';
 
 class SpeedReadingExerciseScreen extends StatefulWidget {
   const SpeedReadingExerciseScreen({super.key});
