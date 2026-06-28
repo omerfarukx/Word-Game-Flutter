@@ -23,7 +23,6 @@ class _SpeedReadingExerciseScreenState
   int currentWordIndex = 0;
   String currentWord = '';
   List<String> words = [];
-  final int _countDown = 3;
 
   @override
   void initState() {
@@ -62,28 +61,6 @@ class _SpeedReadingExerciseScreenState
   void dispose() {
     timer?.cancel();
     super.dispose();
-  }
-
-  void _showStartDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Hızlı Okuma Egzersizi'),
-        content: const Text(
-          'Bu egzersiz, okuma hızınızı artırmanıza yardımcı olacaktır. Metni istediğiniz hızda okuyabilirsiniz. Hazır olduğunuzda başlayın.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              startExercise();
-            },
-            child: const Text('BAŞLA'),
-          ),
-        ],
-      ),
-    );
   }
 
   void startExercise() {

@@ -20,6 +20,7 @@ class _WordChainScreenState extends State<WordChainScreen> {
     _game = WordChainGame();
     _game.gameState.listen((state) {
       if (!state.isGameActive && state.score > 0) {
+        if (!mounted) return;
         context.read<StatisticsProvider>().saveWordChainScore(state.score);
       }
     });

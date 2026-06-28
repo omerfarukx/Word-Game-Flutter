@@ -120,8 +120,6 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
           return 'Ortadaki kelimeden türeyen kelimeleri seçin';
         case WordGameType.category:
           return 'Ortadaki kelime ile aynı kategorideki kelimeleri seçin';
-        default:
-          return 'Kelimeleri seçin';
       }
     }
 

@@ -83,7 +83,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     try {
       await _audioPlayer.setSourceAsset(correctSound);
     } catch (e) {
-      print('Ses yükleme hatası: $e');
+      debugPrint('Ses yükleme hatası: $e');
     }
   }
 
@@ -93,7 +93,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
       await _audioPlayer.setSourceAsset(soundFile);
       await _audioPlayer.resume();
     } catch (e) {
-      print('Ses çalma hatası: $e');
+      debugPrint('Ses çalma hatası: $e');
     }
   }
 
@@ -136,15 +136,6 @@ class _WordPairsScreenState extends State<WordPairsScreen>
       selectedCards[index] = true;
 
       final selectedWord = currentPairs[index];
-      final originalWord = wordPairs.firstWhere(
-        (pair) => pair.keys.first == selectedWord.keys.first,
-        orElse: () => {
-          selectedWord.keys.first: [
-            selectedWord.values.first,
-            selectedWord.values.first
-          ]
-        },
-      );
 
       if (selectedWord.values.first.split('\n')[0] !=
           selectedWord.values.first.split('\n')[1]) {
@@ -614,22 +605,8 @@ class _WordPairsScreenState extends State<WordPairsScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final screenSize = MediaQuery.of(context).size;
-    final padding = MediaQuery.of(context).padding;
-    final availableHeight = screenSize.height -
-        padding.top -
-        padding.bottom -
-        AppBar().preferredSize.height;
 
     const infoHeight = 80.0;
-    const buttonHeight = 40.0;
-
-    final gridHeight =
-        availableHeight - infoHeight - (isGameStarted ? 0 : buttonHeight) - 16;
-
-    final itemWidth = (screenSize.width - 24) / 3;
-    final itemHeight = (gridHeight - 40) / 5;
-    final aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
       appBar: AppBar(
@@ -1001,17 +978,6 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     );
   }
 
-  Color _getTextColor({
-    required bool isDark,
-    required bool isCorrect,
-    required bool isSelected,
-  }) {
-    if (isCorrect || isSelected) {
-      return isDark ? Colors.grey.shade100 : Colors.white;
-    }
-    return isDark ? Colors.grey.shade100 : Colors.black87;
-  }
-
   Widget _buildInfoCard({
     required IconData icon,
     required String label,
@@ -1071,21 +1037,4 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     );
   }
 
-  TextStyle _getCardTextStyle({
-    required bool isDark,
-    required bool isCorrect,
-    required bool isSelected,
-  }) {
-    return GoogleFonts.nunito(
-      fontSize: 16,
-      color: _getTextColor(
-        isDark: isDark,
-        isCorrect: isCorrect,
-        isSelected: isSelected,
-      ),
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0.5,
-      height: 1.5,
-    );
-  }
 }

@@ -41,8 +41,6 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
   static const String achievementSound = 'sounds/achievement.mp3';
   static const String levelUpSound = 'sounds/level_up.mp3';
 
-  int _countDown = 3;
-
   @override
   void initState() {
     super.initState();
@@ -72,7 +70,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
     try {
       await _audioPlayer.setSourceAsset(correctSound);
     } catch (e) {
-      print('Ses yükleme hatası: $e');
+      debugPrint('Ses yükleme hatası: $e');
     }
   }
 
@@ -82,7 +80,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
       await _audioPlayer.setSourceAsset(soundFile);
       await _audioPlayer.resume();
     } catch (e) {
-      print('Ses çalma hatası: $e');
+      debugPrint('Ses çalma hatası: $e');
     }
   }
 
@@ -159,7 +157,6 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
       if (!mounted) return;
       Navigator.of(context).pop();
       setState(() {
-        _countDown = 3;
         _gameController.isGameStarted = true;
         _startGame();
       });
@@ -356,7 +353,6 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
     setState(() {
       _gameController.isGameStarted = false;
       _gameController.initializeGame();
-      _countDown = 3;
       hasFirstJoker = true;
       hasSecondJoker = true;
       comboCount = 0;

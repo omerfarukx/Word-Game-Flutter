@@ -24,7 +24,6 @@ class _PeripheralExerciseWidgetState extends State<PeripheralExerciseWidget> {
   int _remainingSeconds = 0;
   List<Offset> _targetPositions = [];
   int _score = 0;
-  int _missedTargets = 0;
 
   @override
   void initState() {
@@ -54,9 +53,6 @@ class _PeripheralExerciseWidgetState extends State<PeripheralExerciseWidget> {
       Duration(milliseconds: (widget.exercise.targetShowTime * 1000).toInt()),
       (timer) {
         setState(() {
-          // Önceki hedefler kaçırıldı sayılır
-          _missedTargets += _targetPositions.length;
-
           // Yeni hedef pozisyonları oluştur
           _targetPositions = List.generate(
             widget.exercise.targetCount,

@@ -77,21 +77,20 @@ Bunun için okuma hızı kademeli olarak artırılmalıdır.
     });
   }
 
-  Future<bool> _onWillPop() async {
-    if (_isPlaying) {
-      _stopExercise();
-    }
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_isPlaying) {
+          _stopExercise();
+        }
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(

@@ -19,7 +19,6 @@ class _EyeFocusExerciseScreenState extends State<EyeFocusExerciseScreen> {
   late Timer _timer;
   int _remainingTime = 0;
   int _score = 0;
-  bool _isCompleted = false;
 
   @override
   void initState() {
@@ -42,9 +41,6 @@ class _EyeFocusExerciseScreenState extends State<EyeFocusExerciseScreen> {
 
   void _completeExercise() {
     _timer.cancel();
-    setState(() {
-      _isCompleted = true;
-    });
     _showCompletionDialog();
   }
 
@@ -76,7 +72,6 @@ class _EyeFocusExerciseScreenState extends State<EyeFocusExerciseScreen> {
               setState(() {
                 _remainingTime = widget.exercise.duration;
                 _score = 0;
-                _isCompleted = false;
               });
               _startTimer();
             },

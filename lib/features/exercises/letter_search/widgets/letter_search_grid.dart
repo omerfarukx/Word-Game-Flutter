@@ -19,7 +19,6 @@ class LetterSearchGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return LayoutBuilder(
       builder: (context, constraints) {
         // Ekranın genişliğine göre hücre boyutunu hesapla

@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 
 class AudioManager {
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -7,7 +8,7 @@ class AudioManager {
     try {
       await _audioPlayer.play(AssetSource('sounds/$soundName.mp3'));
     } catch (e) {
-      print('Ses çalma hatası: $e');
+      debugPrint('Ses çalma hatası: $e');
     }
   }
 
