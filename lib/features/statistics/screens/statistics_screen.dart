@@ -109,7 +109,7 @@ class StatisticsScreen extends StatelessWidget {
                           Expanded(
                             child: _buildStatCard(
                               'Ortalama',
-                              '${statistics.averageWordChainScore.toStringAsFixed(1)}',
+                              statistics.averageWordChainScore.toStringAsFixed(1),
                               Icons.analytics,
                               Colors.purple,
                             ),

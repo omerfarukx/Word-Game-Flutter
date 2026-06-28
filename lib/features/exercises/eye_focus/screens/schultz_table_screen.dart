@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class SchultzTableScreen extends StatefulWidget {
-  const SchultzTableScreen({Key? key}) : super(key: key);
+  const SchultzTableScreen({super.key});
 
   @override
   State<SchultzTableScreen> createState() => _SchultzTableScreenState();
@@ -156,7 +156,7 @@ class _SchultzTableScreenState extends State<SchultzTableScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.2),
+                color: Colors.green.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
@@ -196,12 +196,12 @@ class _SchultzTableScreenState extends State<SchultzTableScreen> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.white24),
                   ),
-                  child: Column(
-                    children: const [
+                  child: const Column(
+                    children: [
                       Text(
                         'Nasıl Oynanır?',
                         style: TextStyle(
@@ -233,7 +233,7 @@ class _SchultzTableScreenState extends State<SchultzTableScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 32),
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: Colors.white24),
                       ),
@@ -272,7 +272,7 @@ class _SchultzTableScreenState extends State<SchultzTableScreen> {
                                 horizontal: 48,
                                 vertical: 16,
                               ),
-                              backgroundColor: Colors.white.withOpacity(0.2),
+                              backgroundColor: Colors.white.withValues(alpha: 0.2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -297,7 +297,7 @@ class _SchultzTableScreenState extends State<SchultzTableScreen> {
                   child: Container(
                     margin: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.white24),
                     ),
@@ -343,7 +343,7 @@ class _SchultzTableScreenState extends State<SchultzTableScreen> {
       child: Container(
         decoration: BoxDecoration(
           color:
-              isFound ? const Color(0xFF4CAF50) : Colors.white.withOpacity(0.1),
+              isFound ? const Color(0xFF4CAF50) : Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: Colors.white24,
@@ -353,7 +353,7 @@ class _SchultzTableScreenState extends State<SchultzTableScreen> {
         child: Center(
           child: Text(
             number.toString(),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.white,

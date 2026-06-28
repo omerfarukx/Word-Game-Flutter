@@ -8,10 +8,10 @@ class PeripheralVisionWidget extends StatefulWidget {
   final Function(int score, double accuracy) onComplete;
 
   const PeripheralVisionWidget({
-    Key? key,
+    super.key,
     required this.exercise,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<PeripheralVisionWidget> createState() => _PeripheralVisionWidgetState();
@@ -37,7 +37,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
   Shape _selectedShape = Shape.circle;
   List<Shape> _peripheralShapes = [];
   final Random _random = Random();
-  double _baseRadius = 120.0;
+  final double _baseRadius = 120.0;
   double _currentScale = 1.0;
   String _feedbackMessage = '';
   Color _feedbackColor = Colors.white;
@@ -163,7 +163,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: widget.exercise.targetColor.withOpacity(0.1),
+                    color: widget.exercise.targetColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -191,7 +191,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: widget.exercise.targetColor.withOpacity(0.1),
+                    color: widget.exercise.targetColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -235,7 +235,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      widget.exercise.targetColor.withOpacity(0.1),
+                      widget.exercise.targetColor.withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                     radius: 0.8,
@@ -248,12 +248,12 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: widget.exercise.targetColor.withOpacity(0.2),
+                        color: widget.exercise.targetColor.withValues(alpha: 0.2),
                         width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: widget.exercise.targetColor.withOpacity(0.1),
+                          color: widget.exercise.targetColor.withValues(alpha: 0.1),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -286,7 +286,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                                         boxShadow: [
                                           BoxShadow(
                                             color: widget.exercise.targetColor
-                                                .withOpacity(0.3),
+                                                .withValues(alpha: 0.3),
                                             blurRadius: 8,
                                             spreadRadius: _showFeedback ? 4 : 0,
                                           ),
@@ -295,7 +295,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                                       child: ShapeWidget(
                                         shape: _peripheralShapes[index],
                                         color: widget.exercise.targetColor
-                                            .withOpacity(0.9),
+                                            .withValues(alpha: 0.9),
                                       ),
                                     ),
                                   ),
@@ -315,7 +315,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                               boxShadow: [
                                 BoxShadow(
                                   color: widget.exercise.targetColor
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                   blurRadius: 15,
                                   spreadRadius: 5,
                                 ),
@@ -338,7 +338,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: widget.exercise.targetColor.withOpacity(0.05),
+                color: widget.exercise.targetColor.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -346,7 +346,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                 children: [
                   Icon(
                     Icons.remove_red_eye,
-                    color: widget.exercise.targetColor.withOpacity(0.7),
+                    color: widget.exercise.targetColor.withValues(alpha: 0.7),
                     size: 16,
                   ),
                   const SizedBox(width: 8),
@@ -354,7 +354,7 @@ class _PeripheralVisionWidgetState extends State<PeripheralVisionWidget>
                     'Merkeze odaklanmayı unutma!',
                     style: TextStyle(
                       fontSize: 14,
-                      color: widget.exercise.targetColor.withOpacity(0.7),
+                      color: widget.exercise.targetColor.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -374,11 +374,11 @@ class ShapeWidget extends StatelessWidget {
   final double size;
 
   const ShapeWidget({
-    Key? key,
+    super.key,
     required this.shape,
     required this.color,
     this.size = 30,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

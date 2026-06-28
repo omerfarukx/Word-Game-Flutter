@@ -7,9 +7,9 @@ class EyeFocusExerciseScreen extends StatefulWidget {
   final EyeFocusExercise exercise;
 
   const EyeFocusExerciseScreen({
-    Key? key,
+    super.key,
     required this.exercise,
-  }) : super(key: key);
+  });
 
   @override
   State<EyeFocusExerciseScreen> createState() => _EyeFocusExerciseScreenState();

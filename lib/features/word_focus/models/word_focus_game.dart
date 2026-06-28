@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 enum WordGameType {
   synonyms, // Eş anlamlılar

@@ -6,9 +6,9 @@ class WordRecognitionScreen extends StatelessWidget {
   final WordRecognitionExercise exercise;
 
   const WordRecognitionScreen({
-    Key? key,
+    super.key,
     required this.exercise,
-  }) : super(key: key);
+  });
 
   void _showCompletionDialog(BuildContext context, int score, double accuracy) {
     showDialog(
@@ -18,7 +18,7 @@ class WordRecognitionScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        backgroundColor: Theme.of(context).cardColor.withOpacity(0.9),
+        backgroundColor: Theme.of(context).cardColor.withValues(alpha: 0.9),
         title: Row(
           children: [
             Icon(
@@ -109,7 +109,7 @@ class WordRecognitionScreen extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Theme.of(context).scaffoldBackgroundColor,
-                Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+                Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
               ],
             ),
           ),
@@ -121,10 +121,10 @@ class WordRecognitionScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor.withOpacity(0.1),
+                      color: Theme.of(context).cardColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: exercise.textColor.withOpacity(0.2),
+                        color: exercise.textColor.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),

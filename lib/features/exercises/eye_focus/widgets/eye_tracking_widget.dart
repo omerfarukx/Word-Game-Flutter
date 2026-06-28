@@ -8,10 +8,10 @@ class EyeTrackingWidget extends StatefulWidget {
   final VoidCallback onComplete;
 
   const EyeTrackingWidget({
-    Key? key,
+    super.key,
     required this.exercise,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<EyeTrackingWidget> createState() => _EyeTrackingWidgetState();

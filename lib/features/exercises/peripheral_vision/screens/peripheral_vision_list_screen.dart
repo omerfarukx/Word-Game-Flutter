@@ -3,7 +3,7 @@ import '../models/peripheral_vision_exercise.dart';
 import 'peripheral_vision_screen.dart';
 
 class PeripheralVisionListScreen extends StatelessWidget {
-  const PeripheralVisionListScreen({Key? key}) : super(key: key);
+  const PeripheralVisionListScreen({super.key});
 
   String _getDifficultyText(int difficulty) {
     switch (difficulty) {
@@ -34,7 +34,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Theme.of(context).scaffoldBackgroundColor,
-                Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+                Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
               ],
             ),
           ),
@@ -93,7 +93,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
       tag: exercise.title,
       child: Card(
         elevation: 8,
-        shadowColor: gradientColors[1].withOpacity(0.4),
+        shadowColor: gradientColors[1].withValues(alpha: 0.4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
@@ -118,7 +118,7 @@ class PeripheralVisionListScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16.0),
               boxShadow: [
                 BoxShadow(
-                  color: gradientColors[1].withOpacity(0.3),
+                  color: gradientColors[1].withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -219,8 +219,8 @@ class PeripheralVisionListScreen extends StatelessWidget {
                           color: Colors.white24,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Row(
-                          children: const [
+                        child: const Row(
+                          children: [
                             Text(
                               'BAŞLA',
                               style: TextStyle(

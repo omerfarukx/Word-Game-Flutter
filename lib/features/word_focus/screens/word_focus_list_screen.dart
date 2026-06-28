@@ -4,7 +4,7 @@ import '../models/word_pair.dart';
 import 'word_focus_screen.dart';
 
 class WordFocusListScreen extends StatelessWidget {
-  const WordFocusListScreen({Key? key}) : super(key: key);
+  const WordFocusListScreen({super.key});
 
   // Test için örnek kelime çiftleri
   WordPair _getTestWordPair(WordGameType type) {
@@ -981,7 +981,7 @@ class WordFocusListScreen extends StatelessWidget {
   }) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -1002,7 +1002,7 @@ class WordFocusListScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -1037,7 +1037,7 @@ class WordFocusListScreen extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right,
-                color: color.withOpacity(0.5),
+                color: color.withValues(alpha: 0.5),
               ),
             ],
           ),

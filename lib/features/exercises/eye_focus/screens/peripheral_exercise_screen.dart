@@ -6,9 +6,9 @@ class PeripheralExerciseScreen extends StatelessWidget {
   final PeripheralExercise exercise;
 
   const PeripheralExerciseScreen({
-    Key? key,
+    super.key,
     required this.exercise,
-  }) : super(key: key);
+  });
 
   void _showCompletionDialog(
       BuildContext context, int score, int missedTargets) {

@@ -6,9 +6,9 @@ class EyeTrackingScreen extends StatelessWidget {
   final EyeTrackingExercise exercise;
 
   const EyeTrackingScreen({
-    Key? key,
+    super.key,
     required this.exercise,
-  }) : super(key: key);
+  });
 
   void _showCompletionDialog(BuildContext context) {
     showDialog(

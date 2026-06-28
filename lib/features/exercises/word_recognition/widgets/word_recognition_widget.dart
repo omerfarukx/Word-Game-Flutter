@@ -7,10 +7,10 @@ class WordRecognitionWidget extends StatefulWidget {
   final Function(int score, double accuracy) onComplete;
 
   const WordRecognitionWidget({
-    Key? key,
+    super.key,
     required this.exercise,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<WordRecognitionWidget> createState() => _WordRecognitionWidgetState();
@@ -192,10 +192,10 @@ class _WordRecognitionWidgetState extends State<WordRecognitionWidget>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor.withOpacity(0.1),
+            color: Theme.of(context).cardColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: widget.exercise.textColor.withOpacity(0.2),
+              color: widget.exercise.textColor.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
@@ -227,14 +227,14 @@ class _WordRecognitionWidgetState extends State<WordRecognitionWidget>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor.withOpacity(0.1),
+                color: Theme.of(context).cardColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: widget.exercise.textColor.withOpacity(0.2),
+                  color: widget.exercise.textColor.withValues(alpha: 0.2),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: widget.exercise.textColor.withOpacity(0.1),
+                    color: widget.exercise.textColor.withValues(alpha: 0.1),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),
@@ -271,20 +271,20 @@ class _WordRecognitionWidgetState extends State<WordRecognitionWidget>
               decoration: InputDecoration(
                 hintText: 'Gördüğünüz kelimeyi yazın',
                 hintStyle: TextStyle(
-                  color: Colors.grey.withOpacity(0.6),
+                  color: Colors.grey.withValues(alpha: 0.6),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).cardColor.withOpacity(0.1),
+                fillColor: Theme.of(context).cardColor.withValues(alpha: 0.1),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(
-                    color: widget.exercise.textColor.withOpacity(0.2),
+                    color: widget.exercise.textColor.withValues(alpha: 0.2),
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(
-                    color: widget.exercise.textColor.withOpacity(0.2),
+                    color: widget.exercise.textColor.withValues(alpha: 0.2),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
@@ -298,7 +298,7 @@ class _WordRecognitionWidgetState extends State<WordRecognitionWidget>
                     Icons.check_circle,
                     color: _canAnswer
                         ? widget.exercise.textColor
-                        : Colors.grey.withOpacity(0.4),
+                        : Colors.grey.withValues(alpha: 0.4),
                   ),
                   onPressed: _canAnswer ? _checkAnswer : null,
                 ),
@@ -310,10 +310,10 @@ class _WordRecognitionWidgetState extends State<WordRecognitionWidget>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: Theme.of(context).cardColor.withOpacity(0.1),
+              color: Theme.of(context).cardColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(15),
               border: Border.all(
-                color: widget.exercise.textColor.withOpacity(0.2),
+                color: widget.exercise.textColor.withValues(alpha: 0.2),
               ),
             ),
             child: Row(

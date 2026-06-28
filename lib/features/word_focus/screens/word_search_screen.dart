@@ -3,7 +3,7 @@ import '../models/word_search_game.dart';
 import '../widgets/word_search_widget.dart';
 
 class WordSearchScreen extends StatelessWidget {
-  const WordSearchScreen({Key? key}) : super(key: key);
+  const WordSearchScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -75,14 +75,14 @@ class WordSearchScreen extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.withOpacity(0.3),
+                      backgroundColor: Colors.green.withValues(alpha: 0.3),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(
-                          color: Colors.green.withOpacity(0.5),
+                          color: Colors.green.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -102,14 +102,14 @@ class WordSearchScreen extends StatelessWidget {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.withOpacity(0.3),
+                      backgroundColor: Colors.red.withValues(alpha: 0.3),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(
-                          color: Colors.red.withOpacity(0.5),
+                          color: Colors.red.withValues(alpha: 0.5),
                         ),
                       ),
                     ),

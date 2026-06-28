@@ -7,9 +7,9 @@ class WordSearchWidget extends StatefulWidget {
   final WordSearchGame game;
 
   const WordSearchWidget({
-    Key? key,
+    super.key,
     required this.game,
-  }) : super(key: key);
+  });
 
   @override
   State<WordSearchWidget> createState() => _WordSearchWidgetState();
@@ -292,15 +292,15 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Column(
+        title: const Column(
           children: [
-            const Icon(
+            Icon(
               Icons.emoji_events,
               color: Colors.amber,
               size: 48,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Tebrikler!',
               style: TextStyle(
                 color: Colors.white,
@@ -363,13 +363,13 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF1B5E20), // Koyu yeşil
-            const Color(0xFF0D47A1), // Koyu mavi
+            Color(0xFF1B5E20), // Koyu yeşil
+            Color(0xFF0D47A1), // Koyu mavi
           ],
         ),
       ),
@@ -404,7 +404,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -472,7 +472,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
       decoration: BoxDecoration(
         color: Colors.black26,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -484,7 +484,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 12,
                 ),
               ),
@@ -506,9 +506,9 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
   Widget _buildHintButton() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.2),
+        color: Colors.blue.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
       ),
       child: Stack(
         children: [
@@ -546,9 +546,9 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.2),
+        color: Colors.blue.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -575,7 +575,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
         color: Colors.black26,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -656,8 +656,8 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
                                 ? [
                                     BoxShadow(
                                       color: isFound
-                                          ? Colors.green.withOpacity(0.3)
-                                          : Colors.blue.withOpacity(0.3),
+                                          ? Colors.green.withValues(alpha: 0.3)
+                                          : Colors.blue.withValues(alpha: 0.3),
                                       blurRadius: 4,
                                       spreadRadius: 1,
                                     )
@@ -670,7 +670,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
                             style: TextStyle(
                               color: isFound || isSelected
                                   ? Colors.white
-                                  : Colors.white.withOpacity(0.8),
+                                  : Colors.white.withValues(alpha: 0.8),
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -696,7 +696,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
         color: Colors.black12,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -737,13 +737,13 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Colors.green.withOpacity(0.3),
-                          Colors.green.withOpacity(0.4),
+                          Colors.green.withValues(alpha: 0.3),
+                          Colors.green.withValues(alpha: 0.4),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.green.withOpacity(0.5),
+                        color: Colors.green.withValues(alpha: 0.5),
                         width: 1,
                       ),
                     ),
@@ -765,7 +765,7 @@ class _WordSearchWidgetState extends State<WordSearchWidget>
   }
 
   void _handleGridTouch(Offset localPosition) {
-    final gridPadding = 16.0;
+    const gridPadding = 16.0;
     final gridWidth = MediaQuery.of(context).size.width - (gridPadding * 2);
     final cellSize = gridWidth / currentGame.gridSize;
 

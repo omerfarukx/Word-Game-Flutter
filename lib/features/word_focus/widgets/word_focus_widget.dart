@@ -10,11 +10,11 @@ class WordFocusWidget extends StatefulWidget {
   final Function(int score, double accuracy) onComplete;
 
   const WordFocusWidget({
-    Key? key,
+    super.key,
     required this.game,
     required this.wordPair,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<WordFocusWidget> createState() => _WordFocusWidgetState();
@@ -26,7 +26,7 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
   int _remainingTime = 0;
   int _score = 0;
   int _attempts = 0;
-  Set<String> _foundWords = {};
+  final Set<String> _foundWords = {};
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -128,13 +128,13 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
     return Container(
       width: size.width,
       height: size.height,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF6200EA), // Derin mor
-            const Color(0xFF304FFE), // Canlı mavi
+            Color(0xFF6200EA), // Derin mor
+            Color(0xFF304FFE), // Canlı mavi
           ],
         ),
       ),
@@ -144,8 +144,8 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
           ...List.generate(widget.wordPair.relatedWords.length, (index) {
             final angle =
                 (index * 2 * pi) / widget.wordPair.relatedWords.length;
-            final wordWidth = 100.0;
-            final wordHeight = 45.0;
+            const wordWidth = 100.0;
+            const wordHeight = 45.0;
 
             return Positioned(
               left: centerX + radius * cos(angle) - (wordWidth / 2),
@@ -172,7 +172,7 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
                                     widget.wordPair.relatedWords[index])
                                 ? Colors.green.shade300
                                 : Colors.blue.shade300)
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -211,7 +211,7 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.deepPurple.shade300.withOpacity(0.5),
+                      color: Colors.deepPurple.shade300.withValues(alpha: 0.5),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -236,7 +236,7 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -276,10 +276,10 @@ class _WordFocusWidgetState extends State<WordFocusWidget>
               margin: const EdgeInsets.symmetric(horizontal: 20),
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),

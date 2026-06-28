@@ -341,12 +341,12 @@ class _WordPairsScreenState extends State<WordPairsScreen>
         return AlertDialog(
           title: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline_rounded,
                 color: Colors.teal,
                 size: 28,
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
                 'Oyun Kuralları',
                 style: GoogleFonts.nunito(
@@ -365,27 +365,27 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                 '1. Kartlardaki kelime çiftlerinden farklı yazılanları bulun.',
                 Icons.difference_rounded,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildRuleItem(
                 '2. Her doğru eşleştirme için 20 puan kazanırsınız.',
                 Icons.add_circle_outline_rounded,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildRuleItem(
                 '3. Her yanlış seçimde 10 puan kaybedersiniz.',
                 Icons.remove_circle_outline_rounded,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildRuleItem(
                 '4. Yanlış seçimlerde sürenizden düşer.',
                 Icons.timer_off_outlined,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildRuleItem(
                 '5. Her bölümde süre 5 saniye azalır.',
                 Icons.trending_down_rounded,
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildRuleItem(
                 '6. Her turda 5 farklı kelime çifti bulmalısınız.',
                 Icons.grid_view_rounded,
@@ -398,7 +398,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                 Navigator.of(context).pop();
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.teal,
                   borderRadius: BorderRadius.circular(8),
@@ -428,7 +428,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
           color: Colors.teal,
           size: 20,
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
@@ -574,7 +574,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.emoji_events, color: Colors.amber),
             SizedBox(width: 8),
@@ -585,19 +585,19 @@ class _WordPairsScreenState extends State<WordPairsScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(achievement.badgeAsset, height: 100),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               achievement.title,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(achievement.description),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Harika!'),
+            child: const Text('Harika!'),
           ),
         ],
       ),
@@ -656,12 +656,12 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                       right: 0,
                       top: 0,
                       child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
-                        child: Text(
+                        child: const Text(
                           '1',
                           style: TextStyle(
                             fontSize: 10,
@@ -689,12 +689,12 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                       right: 0,
                       top: 0,
                       child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
-                        child: Text(
+                        child: const Text(
                           '1',
                           style: TextStyle(
                             fontSize: 10,
@@ -724,12 +724,12 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                         right: 0,
                         top: 0,
                         child: Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
                             color: Colors.red,
                             shape: BoxShape.circle,
                           ),
-                          child: Text(
+                          child: const Text(
                             '1',
                             style: TextStyle(
                               fontSize: 10,
@@ -776,8 +776,8 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                 margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF1F2937).withOpacity(0.9)
-                      : Colors.white.withOpacity(0.1),
+                      ? const Color(0xFF1F2937).withValues(alpha: 0.9)
+                      : Colors.white.withValues(alpha: 0.1),
                   borderRadius:
                       const BorderRadius.vertical(bottom: Radius.circular(24)),
                 ),
@@ -873,7 +873,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                                             isDark
                                                 ? const Color(0xFF1F2937)
                                                 : Colors.white
-                                                    .withOpacity(0.15),
+                                                    .withValues(alpha: 0.15),
                                             const Color(0xFFDC2626),
                                             _wrongAnimationController.value,
                                           )!
@@ -884,7 +884,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                                             : (isDark
                                                 ? const Color(0xFF1F2937)
                                                 : Colors.white
-                                                    .withOpacity(0.15)),
+                                                    .withValues(alpha: 0.15)),
                                 correctCards[index]
                                     ? (pair.values.first.split('\n')[0] ==
                                             pair.values.first.split('\n')[1]
@@ -899,7 +899,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                                             isDark
                                                 ? const Color(0xFF374151)
                                                 : Colors.white
-                                                    .withOpacity(0.25),
+                                                    .withValues(alpha: 0.25),
                                             const Color(0xFFB91C1C),
                                             _wrongAnimationController.value,
                                           )!
@@ -910,15 +910,15 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                                             : (isDark
                                                 ? const Color(0xFF374151)
                                                 : Colors.white
-                                                    .withOpacity(0.25)),
+                                                    .withValues(alpha: 0.25)),
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: (correctCards[index] ||
                                         selectedCards[index])
-                                    ? const Color(0xFF0D9488).withOpacity(0.3)
-                                    : Colors.black.withOpacity(0.1),
+                                    ? const Color(0xFF0D9488).withValues(alpha: 0.3)
+                                    : Colors.black.withValues(alpha: 0.1),
                                 blurRadius: selectedCards[index] ? 12 : 4,
                                 offset: const Offset(0, 4),
                               ),
@@ -948,7 +948,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
                                               shadows: [
                                                 Shadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha: 0.3),
                                                   offset: const Offset(0, 2),
                                                   blurRadius: 4,
                                                 ),
@@ -1029,7 +1029,7 @@ class _WordPairsScreenState extends State<WordPairsScreen>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: (color ?? defaultColor).withOpacity(0.1),
+            color: (color ?? defaultColor).withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

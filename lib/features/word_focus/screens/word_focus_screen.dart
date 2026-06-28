@@ -8,10 +8,10 @@ class WordFocusScreen extends StatelessWidget {
   final WordPair wordPair;
 
   const WordFocusScreen({
-    Key? key,
+    super.key,
     required this.game,
     required this.wordPair,
-  }) : super(key: key);
+  });
 
   void _showCompletionDialog(BuildContext context, int score, double accuracy) {
     showDialog(

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/eye_focus_exercise.dart';
 import 'schultz_table_screen.dart';
 import 'peripheral_vision_screen.dart';
 
 class EyeFocusListScreen extends StatelessWidget {
-  const EyeFocusListScreen({Key? key}) : super(key: key);
+  const EyeFocusListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +145,7 @@ class EyeFocusListScreen extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -183,7 +182,7 @@ class EyeFocusListScreen extends StatelessWidget {
                 child: TextButton(
                   onPressed: onTap,
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                   ),
                   child: const Text(
                     'BAŞLA',

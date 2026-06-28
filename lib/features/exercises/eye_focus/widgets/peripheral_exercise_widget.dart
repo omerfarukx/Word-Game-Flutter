@@ -8,10 +8,10 @@ class PeripheralExerciseWidget extends StatefulWidget {
   final VoidCallback onComplete;
 
   const PeripheralExerciseWidget({
-    Key? key,
+    super.key,
     required this.exercise,
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<PeripheralExerciseWidget> createState() =>
@@ -152,7 +152,7 @@ class _PeripheralExerciseWidgetState extends State<PeripheralExerciseWidget> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),

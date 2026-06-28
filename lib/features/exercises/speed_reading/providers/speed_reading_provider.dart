@@ -17,7 +17,7 @@ class SpeedReadingProvider with ChangeNotifier {
     if (!_isInitialized) return '';
 
     try {
-      final texts = SpeedReadingData.texts;
+      const texts = SpeedReadingData.texts;
       if (texts.isEmpty) return '';
 
       final randomIndex = _random.nextInt(texts.length);

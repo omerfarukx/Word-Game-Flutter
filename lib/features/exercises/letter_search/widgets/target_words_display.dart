@@ -42,25 +42,25 @@ class TargetWordsDisplay extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: isFound
                         ? [
-                            Colors.green.withOpacity(0.7),
-                            Colors.green.shade700.withOpacity(0.7),
+                            Colors.green.withValues(alpha: 0.7),
+                            Colors.green.shade700.withValues(alpha: 0.7),
                           ]
                         : [
-                            Colors.white.withOpacity(0.2),
-                            Colors.white.withOpacity(0.1),
+                            Colors.white.withValues(alpha: 0.2),
+                            Colors.white.withValues(alpha: 0.1),
                           ],
                   ),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isFound
-                        ? Colors.green.withOpacity(0.5)
-                        : Colors.white.withOpacity(0.2),
+                        ? Colors.green.withValues(alpha: 0.5)
+                        : Colors.white.withValues(alpha: 0.2),
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: isFound
-                          ? Colors.green.withOpacity(0.2)
-                          : Colors.black.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -70,7 +70,7 @@ class TargetWordsDisplay extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (isFound) ...[
-                      Icon(
+                      const Icon(
                         Icons.check_circle_outline,
                         color: Colors.white,
                         size: 18,

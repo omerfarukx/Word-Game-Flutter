@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../controllers/letter_search_game_controller.dart';
 import '../widgets/letter_search_grid.dart';
 import '../widgets/target_words_display.dart';
-import '../widgets/score_board.dart';
 import '../widgets/game_dialogs.dart';
 import '../../../../data/achievements_data.dart';
 import '../../../../domain/models/achievement.dart';
@@ -410,7 +409,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.emoji_events, color: Colors.amber),
             SizedBox(width: 8),
@@ -421,19 +420,19 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(achievement.badgeAsset, height: 100),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               achievement.title,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(achievement.description),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Harika!'),
+            child: const Text('Harika!'),
           ),
         ],
       ),
@@ -452,7 +451,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
-              color: (isDark ? Colors.black : Colors.white).withOpacity(0.6),
+              color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.6),
             ),
           ),
         ),
@@ -477,7 +476,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
               ),
               child: IconButton(
                 onPressed: hasFirstJoker ? _useFirstJoker : null,
@@ -501,7 +500,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -526,7 +525,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
               ),
               child: IconButton(
                 onPressed: hasSecondJoker ? _useSecondJoker : null,
@@ -550,7 +549,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -576,7 +575,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
             ),
             child: IconButton(
               icon: Icon(
@@ -597,14 +596,14 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
             end: Alignment.bottomRight,
             colors: isDark
                 ? [
-                    Color(0xFF1A237E),
-                    Color(0xFF0D47A1),
-                    Color(0xFF01579B),
+                    const Color(0xFF1A237E),
+                    const Color(0xFF0D47A1),
+                    const Color(0xFF01579B),
                   ]
                 : [
-                    Color(0xFF2196F3),
-                    Color(0xFF1976D2),
-                    Color(0xFF0D47A1),
+                    const Color(0xFF2196F3),
+                    const Color(0xFF1976D2),
+                    const Color(0xFF0D47A1),
                   ],
           ),
         ),
@@ -617,8 +616,8 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                   center: Alignment.center,
                   radius: 1.5,
                   colors: [
-                    Colors.white.withOpacity(0.15),
-                    Colors.white.withOpacity(0.05),
+                    Colors.white.withValues(alpha: 0.15),
+                    Colors.white.withValues(alpha: 0.05),
                     Colors.transparent,
                   ],
                 ),
@@ -632,9 +631,9 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       color: (isDark ? Colors.white : Colors.black)
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
                     child: ClipRRect(
@@ -654,13 +653,13 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
                         color: (isDark ? Colors.white : Colors.black)
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -705,9 +704,9 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       color: (isDark ? Colors.white : Colors.black)
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
                     child: ClipRRect(
@@ -719,7 +718,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                           children: [
                             Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.stars_rounded,
                                   color: Colors.amber,
                                   size: 24,
@@ -759,7 +758,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                             ),
                             Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.check_circle_outline,
                                   color: Colors.green,
                                   size: 24,
@@ -788,7 +787,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                   ),
                 ),
               ),

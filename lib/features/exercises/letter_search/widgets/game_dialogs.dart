@@ -76,22 +76,22 @@ class GameDialogs {
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [
-                        Color(0xFF1A237E).withOpacity(0.95),
-                        Color(0xFF0D47A1).withOpacity(0.95),
+                        const Color(0xFF1A237E).withValues(alpha: 0.95),
+                        const Color(0xFF0D47A1).withValues(alpha: 0.95),
                       ]
                     : [
-                        Color(0xFFE3F2FD).withOpacity(0.95),
-                        Color(0xFFBBDEFB).withOpacity(0.95),
+                        const Color(0xFFE3F2FD).withValues(alpha: 0.95),
+                        const Color(0xFFBBDEFB).withValues(alpha: 0.95),
                       ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -112,10 +112,10 @@ class GameDialogs {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: (isDark ? Colors.white : Colors.black)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           border: Border.all(
                             color: (isDark ? Colors.white : Colors.black)
-                                .withOpacity(0.1),
+                                .withValues(alpha: 0.1),
                           ),
                         ),
                         child: Icon(
@@ -139,17 +139,17 @@ class GameDialogs {
                             horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
                           color: (isDark ? Colors.white : Colors.black)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: (isDark ? Colors.white : Colors.black)
-                                .withOpacity(0.1),
+                                .withValues(alpha: 0.1),
                           ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.stars_rounded,
                               color: Colors.amber,
                               size: 28,
@@ -184,7 +184,7 @@ class GameDialogs {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.refresh_rounded),
+                            const Icon(Icons.refresh_rounded),
                             const SizedBox(width: 8),
                             Text(
                               'Yeniden Başla',

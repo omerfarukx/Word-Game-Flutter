@@ -577,7 +577,9 @@ class WordSearchGame {
 
       // Çakışma kontrolü
       if (grid[currentRow][currentCol].isNotEmpty &&
-          grid[currentRow][currentCol] != word[i]) return false;
+          grid[currentRow][currentCol] != word[i]) {
+        return false;
+      }
 
       positions.add([currentRow, currentCol]);
     }
@@ -616,8 +618,9 @@ class WordSearchGame {
   }
 
   bool isValidSelection(List<int> positions) {
-    if (positions.length < 4)
+    if (positions.length < 4) {
       return true; // En az 2 harf seçilebilir (satır ve sütun için 4 pozisyon)
+    }
 
     // Seçilen harflerin sıralı olup olmadığını kontrol et
     int row1 = positions[positions.length - 4];
@@ -635,8 +638,10 @@ class WordSearchGame {
     if ((row2 == row1 + 1 && col2 == col1 + 1) || // Sağ alt çapraz
         (row2 == row1 - 1 && col2 == col1 - 1) || // Sol üst çapraz
         (row2 == row1 + 1 && col2 == col1 - 1) || // Sol alt çapraz
-        (row2 == row1 - 1 && col2 == col1 + 1)) // Sağ üst çapraz
+        (row2 == row1 - 1 && col2 == col1 + 1)) {
+      // Sağ üst çapraz
       return true;
+    }
 
     return false;
   }

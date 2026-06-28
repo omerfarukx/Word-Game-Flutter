@@ -8,11 +8,11 @@ class SchultzTable extends StatefulWidget {
   final VoidCallback onCompleted;
 
   const SchultzTable({
-    Key? key,
+    super.key,
     required this.exercise,
     required this.onNumberFound,
     required this.onCompleted,
-  }) : super(key: key);
+  });
 
   @override
   State<SchultzTable> createState() => _SchultzTableState();
@@ -63,7 +63,7 @@ class _SchultzTableState extends State<SchultzTable> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -87,15 +87,15 @@ class _SchultzTableState extends State<SchultzTable> {
                   margin: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: isFound
-                        ? Theme.of(context).primaryColor.withOpacity(0.2)
+                        ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
                         : isNext
-                            ? Theme.of(context).primaryColor.withOpacity(0.1)
+                            ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                             : Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: isNext
                           ? Theme.of(context).primaryColor
-                          : Colors.grey.withOpacity(0.2),
+                          : Colors.grey.withValues(alpha: 0.2),
                       width: isNext ? 2 : 1,
                     ),
                   ),

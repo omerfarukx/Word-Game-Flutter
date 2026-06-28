@@ -33,19 +33,19 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   Map<String, CategoryInfo> get categoryInfo => {
-        'Kelime Egzersizleri': CategoryInfo(
+        'Kelime Egzersizleri': const CategoryInfo(
           name: 'Kelime Egzersizleri',
-          color: const Color(0xFF8B5CF6),
+          color: Color(0xFF8B5CF6),
           icon: Icons.text_fields,
         ),
-        'Görsel Egzersizler': CategoryInfo(
+        'Görsel Egzersizler': const CategoryInfo(
           name: 'Görsel Egzersizler',
-          color: const Color(0xFF3B82F6),
+          color: Color(0xFF3B82F6),
           icon: Icons.visibility,
         ),
-        'Okuma Egzersizleri': CategoryInfo(
+        'Okuma Egzersizleri': const CategoryInfo(
           name: 'Okuma Egzersizleri',
-          color: const Color(0xFFF59E0B),
+          color: Color(0xFFF59E0B),
           icon: Icons.menu_book,
         ),
       };
@@ -118,7 +118,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = true;
+    const isDark = true;
     final categories = exercises.map((e) => e.category).toSet().toList();
 
     return Scaffold(
@@ -133,12 +133,12 @@ class HomeScreen extends StatelessWidget {
         child: SafeArea(
           child: CustomScrollView(
             slivers: [
-              SliverAppBar(
+              const SliverAppBar(
                 floating: true,
-                backgroundColor: const Color(0xFF1F2937),
+                backgroundColor: Color(0xFF1F2937),
                 elevation: 0,
                 automaticallyImplyLeading: false,
-                title: const Text(
+                title: Text(
                   'Hızlı Okuma',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -207,7 +207,7 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0EA5E9).withOpacity(0.3),
+            color: const Color(0xFF0EA5E9).withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -221,7 +221,7 @@ class HomeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -260,7 +260,7 @@ class HomeScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(
@@ -303,7 +303,7 @@ class HomeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: info.color.withOpacity(0.15),
+                  color: info.color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -368,7 +368,7 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -388,7 +388,7 @@ class HomeScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
@@ -434,7 +434,7 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -516,7 +516,7 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

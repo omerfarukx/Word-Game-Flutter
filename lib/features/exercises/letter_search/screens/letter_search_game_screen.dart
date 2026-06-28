@@ -220,7 +220,7 @@ class _LetterSearchGameScreenState extends State<LetterSearchGameScreen> {
                             ),
                           ),
                           backgroundColor:
-                              Theme.of(context).primaryColor.withOpacity(0.2),
+                              Theme.of(context).primaryColor.withValues(alpha: 0.2),
                         );
                       }).toList(),
                     ),
@@ -233,7 +233,7 @@ class _LetterSearchGameScreenState extends State<LetterSearchGameScreen> {
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.05),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: LayoutBuilder(
@@ -312,7 +312,7 @@ class WordSearchPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.5)
+      ..color = Colors.blue.withValues(alpha: 0.5)
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
 
@@ -335,7 +335,7 @@ class WordSearchPainter extends CustomPainter {
     }
 
     // Bulunan kelimeleri çiz
-    paint.color = Colors.green.withOpacity(0.5);
+    paint.color = Colors.green.withValues(alpha: 0.5);
     for (var positions in foundWordPositions.values) {
       if (positions.length == 2) {
         final cellWidth = size.width / gridSize;

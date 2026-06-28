@@ -7,10 +7,10 @@ class PeripheralVisionScreen extends StatefulWidget {
   final int duration;
 
   const PeripheralVisionScreen({
-    Key? key,
+    super.key,
     required this.difficulty,
     required this.duration,
-  }) : super(key: key);
+  });
 
   @override
   State<PeripheralVisionScreen> createState() => _PeripheralVisionScreenState();
@@ -198,7 +198,7 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen>
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -219,13 +219,13 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen>
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF1A2B3C),
-              const Color(0xFF2C3E50),
+              Color(0xFF1A2B3C),
+              Color(0xFF2C3E50),
             ],
           ),
         ),
@@ -240,11 +240,11 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen>
                       margin: const EdgeInsets.all(16),
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.95),
+                        color: Colors.white.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             spreadRadius: 1,
                             blurRadius: 20,
                           ),
@@ -271,7 +271,7 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen>
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
+                              color: Colors.blue.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -314,12 +314,12 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen>
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Column(
+                            child: const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   'Nasıl Oynanır?',
                                   style: TextStyle(
@@ -356,7 +356,7 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen>
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               elevation: 8,
-                              shadowColor: Colors.blue.withOpacity(0.5),
+                              shadowColor: Colors.blue.withValues(alpha: 0.5),
                             ),
                             child: const Text(
                               'BAŞLA',
@@ -397,8 +397,8 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen>
                                 boxShadow: [
                                   BoxShadow(
                                     color: shapeColors[index] == Colors.yellow
-                                        ? Colors.yellow.withOpacity(0.3)
-                                        : Colors.blue.withOpacity(0.2),
+                                        ? Colors.yellow.withValues(alpha: 0.3)
+                                        : Colors.blue.withValues(alpha: 0.2),
                                     spreadRadius: 2,
                                     blurRadius: 8,
                                   ),

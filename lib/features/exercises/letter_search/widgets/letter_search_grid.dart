@@ -32,7 +32,7 @@ class LetterSearchGrid extends StatelessWidget {
           height: cellSize * 10 + 32, // Grid yüksekliği + padding
           child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 10,
               childAspectRatio: 1,
               crossAxisSpacing: 4,
@@ -56,7 +56,7 @@ class LetterSearchGrid extends StatelessWidget {
                       BoxShadow(
                         color: _getShadowColor(
                                 context, isFound, isSelected, isHint)
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                         spreadRadius: 1,
                         blurRadius: 4,
                         offset: const Offset(0, 2),
@@ -95,7 +95,7 @@ class LetterSearchGrid extends StatelessWidget {
                                       context, isFound, isSelected, isHint),
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withValues(alpha: 0.2),
                                       offset: const Offset(0, 1),
                                       blurRadius: 2,
                                     ),
@@ -160,18 +160,18 @@ class LetterSearchGrid extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isFound) {
       return isDark
-          ? Colors.green.withOpacity(0.2)
-          : Colors.green.withOpacity(0.1);
+          ? Colors.green.withValues(alpha: 0.2)
+          : Colors.green.withValues(alpha: 0.1);
     }
     if (isSelected) {
       return isDark
-          ? Colors.amber.withOpacity(0.2)
-          : Colors.amber.withOpacity(0.1);
+          ? Colors.amber.withValues(alpha: 0.2)
+          : Colors.amber.withValues(alpha: 0.1);
     }
     if (isHint) {
       return isDark
-          ? Colors.blueGrey.withOpacity(0.2)
-          : Colors.blueGrey.withOpacity(0.1);
+          ? Colors.blueGrey.withValues(alpha: 0.2)
+          : Colors.blueGrey.withValues(alpha: 0.1);
     }
     return Colors.transparent;
   }
