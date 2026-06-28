@@ -18,7 +18,7 @@ Okuma hızınızı ve anlama kabiliyetinizi geliştirmenize yardımcı olan mode
 - 📊 Detaylı ilerleme analizi
 - 🎯 Kişiselleştirilmiş hedefler
 - 🌙 Karanlık/Aydınlık tema desteği
-- 🔒 Firebase Authentication
+- 📴 Tamamen çevrimdışı çalışır (backend/giriş gerektirmez)
 
 ## 📱 Ekran Görüntüleri
 
@@ -37,24 +37,18 @@ git clone https://github.com/omerfarukx/Word-Game-Flutter.git
 flutter pub get
 ```
 
-4. Firebase projesini oluşturun ve yapılandırın:
-   - Firebase Console'dan yeni proje oluşturun
-   - google-services.json dosyasını android/app/ klasörüne ekleyin
-   - Firebase Authentication'ı etkinleştirin
-
-5. Uygulamayı çalıştırın:
+4. Uygulamayı çalıştırın:
 ```bash
 flutter run
 ```
 
 ## 📦 Kullanılan Paketler
 
-- firebase_core: ^2.24.2
-- firebase_auth: ^4.15.3
 - provider: ^6.1.1
-- get_it: ^7.6.4
 - sqflite: ^2.3.0
 - shared_preferences: ^2.2.2
+- google_fonts: ^6.2.1
+- audioplayers: ^6.1.0
 
 ## 🏗️ Mimari
 

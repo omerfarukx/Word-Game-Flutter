@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../core/constants/route_constants.dart';
-import '../../auth/providers/auth_provider.dart';
 
 class CategoryInfo {
   final String name;
@@ -147,26 +145,6 @@ class HomeScreen extends StatelessWidget {
                     fontSize: 24,
                   ),
                 ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.logout),
-                    onPressed: () async {
-                      try {
-                        await context.read<AuthProvider>().logout();
-                        if (context.mounted) {
-                          Navigator.pushReplacementNamed(
-                              context, RouteConstants.login);
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(e.toString())),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ],
               ),
               SliverToBoxAdapter(
                 child: Padding(
