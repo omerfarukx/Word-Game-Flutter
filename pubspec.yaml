@@ -36,7 +36,7 @@ dependencies:
   provider: ^6.1.1
   shared_preferences: ^2.2.2
   uuid: ^4.2.1
-  google_fonts: ^6.2.1
+  google_fonts: ^8.1.0
   audioplayers: ^6.1.0
 
 
