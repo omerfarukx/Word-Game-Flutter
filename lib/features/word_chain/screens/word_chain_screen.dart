@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import '../../../core/design/app_colors.dart';
 import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
+import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/shaker.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/text/turkish.dart';
@@ -31,6 +33,7 @@ class _WordChainScreenState extends State<WordChainScreen> {
 
   bool _saved = false;
   int _lastLen = 0;
+  int _confetti = 0;
 
   @override
   void initState() {
@@ -54,6 +57,7 @@ class _WordChainScreenState extends State<WordChainScreen> {
     if (_c.isOver && !_saved) {
       _saved = true;
       final stats = context.read<StatisticsProvider>();
+      if (_c.score > 0 && _c.score >= stats.bestWordChainScore) _confetti++;
       stats.saveWordChainScore(_c.score);
       stats.addExerciseCompletion(WordChainController.gameSeconds / 60);
     }
@@ -109,6 +113,7 @@ class _WordChainScreenState extends State<WordChainScreen> {
               ),
             ],
           ),
+          ConfettiBurst(trigger: _confetti),
           if (_c.isOver)
             _GameOverCard(c: _c, onRestart: _restart, onExit: () => Navigator.of(context).maybePop()),
         ],
@@ -195,11 +200,14 @@ class _ChainList extends StatelessWidget {
       controller: scroll,
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       itemCount: words.length,
-      itemBuilder: (context, i) => _ChainTile(
-        word: words[i],
-        isFirst: i == 0,
-        isLast: i == words.length - 1,
-        order: i + 1,
+      itemBuilder: (context, i) => Reveal(
+        key: ValueKey(i),
+        child: _ChainTile(
+          word: words[i],
+          isFirst: i == 0,
+          isLast: i == words.length - 1,
+          order: i + 1,
+        ),
       ),
     );
   }

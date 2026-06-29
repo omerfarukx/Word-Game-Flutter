@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/widgets/app_button.dart';
+import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
 import '../../../../core/text/turkish.dart';
@@ -28,6 +30,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
   final _input = TextEditingController();
   final _focus = FocusNode();
   bool _saved = false;
+  int _confetti = 0;
 
   void _onChange() {
     if (_c.phase == RecogPhase.input) {
@@ -37,6 +40,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
     }
     if (_c.phase == RecogPhase.over && !_saved) {
       _saved = true;
+      if (_c.score > 0 && _c.accuracy >= 70) _confetti++;
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordRecognitionController.gameSeconds / 60,
           );
@@ -74,6 +78,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
       child: Stack(
         children: [
           idle ? _DifficultyPicker(onPick: _c.start) : _play(),
+          ConfettiBurst(trigger: _confetti),
           if (_c.phase == RecogPhase.over)
             GameResultOverlay(
               accent: _accent,
@@ -122,8 +127,14 @@ class _DifficultyPicker extends StatelessWidget {
           Text('Kaybolmadan önce oku, sonra hatırladığını yaz.',
               style: AppText.body(14, color: AppColors.textLow)),
           const SizedBox(height: 24),
-          for (final d in RecogDifficulty.values) ...[
-            _DifficultyCard(difficulty: d, onTap: () => onPick(d)),
+          for (var i = 0; i < RecogDifficulty.values.length; i++) ...[
+            Reveal(
+              delay: Duration(milliseconds: i * 70),
+              child: _DifficultyCard(
+                difficulty: RecogDifficulty.values[i],
+                onTap: () => onPick(RecogDifficulty.values[i]),
+              ),
+            ),
             const SizedBox(height: 12),
           ],
         ],

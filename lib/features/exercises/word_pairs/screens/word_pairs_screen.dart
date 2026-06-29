@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/decorations.dart';
+import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/shaker.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
@@ -27,6 +29,8 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
   late final WordPairsController _c =
       WordPairsController(WordService.instance)..addListener(_onChange);
   bool _saved = false;
+  int _prevLevel = 1;
+  int _confetti = 0;
 
   @override
   void initState() {
@@ -35,6 +39,10 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
   }
 
   void _onChange() {
+    if (_c.level != _prevLevel) {
+      _prevLevel = _c.level;
+      _confetti++;
+    }
     if (_c.isOver && !_saved) {
       _saved = true;
       context.read<StatisticsProvider>().addExerciseCompletion(
@@ -46,6 +54,7 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
 
   void _restart() {
     _saved = false;
+    _prevLevel = 1;
     _c.start();
   }
 
@@ -76,6 +85,7 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
               ),
             ],
           ),
+          ConfettiBurst(trigger: _confetti),
           if (_c.isOver)
             GameResultOverlay(
               accent: _accent,
@@ -162,7 +172,11 @@ class _Grid extends StatelessWidget {
       childAspectRatio: 0.82,
       children: [
         for (var i = 0; i < c.cards.length; i++)
-          _Card(card: c.cards[i], onTap: () => c.tapCard(i)),
+          Reveal(
+            key: ValueKey('${c.level}_$i'),
+            delay: Duration(milliseconds: i * 25),
+            child: _Card(card: c.cards[i], onTap: () => c.tapCard(i)),
+          ),
       ],
     );
   }

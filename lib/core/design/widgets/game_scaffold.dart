@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../app_typography.dart';
+import '../decorations.dart';
+import 'aurora_background.dart';
 
-/// Shared shell for every game screen: ink gradient, one soft accent glow,
-/// and a quiet top bar (back + title + optional trailing). Games only supply
-/// their accent and content, so they all feel like one app.
+/// Shared shell for every game screen: a living aurora backdrop and a quiet top
+/// bar (back + gradient title + optional trailing). Games supply their accent
+/// and content, so they all feel like one app.
 class GameScaffold extends StatelessWidget {
   const GameScaffold({
     super.key,
@@ -26,16 +28,7 @@ class GameScaffold extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          const _InkBackground(),
-          Positioned(
-              top: -170,
-              left: -90,
-              child: _Glow(color: accent, size: 400, opacity: 0.26)),
-          const Positioned(
-              bottom: -210,
-              right: -130,
-              child: _Glow(color: AppColors.visual, size: 440, opacity: 0.10)),
-          const Positioned.fill(child: _Vignette()),
+          Positioned.fill(child: AuroraBackground(accent: accent)),
           SafeArea(
             child: Column(
               children: [
@@ -53,61 +46,6 @@ class GameScaffold extends StatelessWidget {
       ),
     );
   }
-}
-
-class _InkBackground extends StatelessWidget {
-  const _InkBackground();
-
-  @override
-  Widget build(BuildContext context) => const DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.bg, AppColors.bgDeep],
-          ),
-        ),
-        child: SizedBox.expand(),
-      );
-}
-
-class _Glow extends StatelessWidget {
-  const _Glow({required this.color, this.size = 340, this.opacity = 0.22});
-  final Color color;
-  final double size;
-  final double opacity;
-
-  @override
-  Widget build(BuildContext context) => IgnorePointer(
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [color.withValues(alpha: opacity), Colors.transparent],
-            ),
-          ),
-        ),
-      );
-}
-
-/// Darkens the screen edges so content floats in the middle.
-class _Vignette extends StatelessWidget {
-  const _Vignette();
-
-  @override
-  Widget build(BuildContext context) => IgnorePointer(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              radius: 1.1,
-              colors: [Colors.transparent, AppColors.bgDeep.withValues(alpha: 0.6)],
-              stops: const [0.62, 1.0],
-            ),
-          ),
-        ),
-      );
 }
 
 class _TopBar extends StatelessWidget {
@@ -135,10 +73,14 @@ class _TopBar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              title,
-              style: AppText.display(20),
-              overflow: TextOverflow.ellipsis,
+            child: ShaderMask(
+              shaderCallback: (r) =>
+                  AppGradients.forAccent(accent).createShader(r),
+              child: Text(
+                title,
+                style: AppText.display(22, color: Colors.white),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
           if (trailing != null) trailing!,
