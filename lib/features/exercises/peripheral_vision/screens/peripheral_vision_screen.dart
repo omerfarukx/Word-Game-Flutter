@@ -1,156 +1,237 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import '../models/peripheral_vision_exercise.dart';
-import '../widgets/peripheral_vision_widget.dart';
+import 'package:provider/provider.dart';
 
-class PeripheralVisionScreen extends StatelessWidget {
-  final PeripheralVisionExercise exercise;
+import '../../../../core/design/app_colors.dart';
+import '../../../../core/design/app_typography.dart';
+import '../../../../core/design/widgets/confetti.dart';
+import '../../../../core/design/widgets/game_result.dart';
+import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/stat_pill.dart';
+import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../statistics/providers/statistics_provider.dart';
+import '../controllers/peripheral_controller.dart';
 
-  const PeripheralVisionScreen({
-    super.key,
-    required this.exercise,
-  });
+const _accent = AppColors.visual;
 
-  void _showCompletionDialog(BuildContext context, int score, double accuracy) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        backgroundColor: Theme.of(context).cardColor.withValues(alpha: 0.9),
-        title: Row(
-          children: [
-            Icon(
-              Icons.emoji_events,
-              color: exercise.targetColor,
-              size: 30,
-            ),
-            const SizedBox(width: 10),
-            const Text('Egzersiz Tamamlandı!'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildResultRow(
-              Icons.score,
-              'Toplam Skor',
-              score.toString(),
-              exercise.targetColor,
-            ),
-            const SizedBox(height: 12),
-            _buildResultRow(
-              Icons.percent,
-              'Doğruluk Oranı',
-              '${accuracy.toStringAsFixed(1)}%',
-              exercise.targetColor,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            style: TextButton.styleFrom(
-              foregroundColor: exercise.targetColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text('TAMAM'),
-          ),
-        ],
-      ),
-    );
+class PeripheralVisionScreen extends StatefulWidget {
+  const PeripheralVisionScreen({super.key});
+
+  @override
+  State<PeripheralVisionScreen> createState() => _PeripheralVisionScreenState();
+}
+
+class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
+  final PeripheralController _c = PeripheralController();
+  bool _saved = false;
+  int _confetti = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _c.addListener(_onChange);
+    _c.start();
   }
 
-  Widget _buildResultRow(
-      IconData icon, String label, String value, Color color) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
+  void _onChange() {
+    if (_c.isOver && !_saved) {
+      _saved = true;
+      if (_c.score > 0 && _c.accuracy >= 70) _confetti++;
+      context.read<StatisticsProvider>().addExerciseCompletion(
+            PeripheralController.gameSeconds / 60,
+          );
+    }
+    setState(() {});
+  }
+
+  void _restart() {
+    _saved = false;
+    _c.start();
+  }
+
+  @override
+  void dispose() {
+    _c.removeListener(_onChange);
+    _c.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: exercise.title,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(exercise.title),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).scaffoldBackgroundColor,
-                Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: exercise.targetColor.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      exercise.description,
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: Center(
-                      child: PeripheralVisionWidget(
-                        exercise: exercise,
-                        onComplete: (score, accuracy) => _showCompletionDialog(
-                          context,
-                          score,
-                          accuracy,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+    return GameScaffold(
+      title: 'Çevresel Görüş',
+      accent: _accent,
+      trailing: TimerChip(seconds: _c.timeLeft),
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              _StatRow(c: _c),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                child: Text(
+                  _c.phase == PeriPhase.respond
+                      ? 'Hangi nokta parladı?'
+                      : 'Ortadaki noktaya odaklan',
+                  style: AppText.body(13, color: AppColors.textLow),
+                ),
               ),
+              Expanded(child: _Ring(c: _c)),
+            ],
+          ),
+          ConfettiBurst(trigger: _confetti),
+          if (_c.isOver)
+            GameResultOverlay(
+              accent: _accent,
+              title: 'Süre Doldu',
+              bigValue: '${_c.score}',
+              bigLabel: 'PUAN',
+              stats: [
+                ResultStat('DOĞRULUK', '%${_c.accuracy}'),
+                ResultStat('SEVİYE', '${_c.level}'),
+                ResultStat('KOMBO', 'x${_c.maxCombo}'),
+              ],
+              onRestart: _restart,
+              onExit: () => Navigator.of(context).maybePop(),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatRow extends StatelessWidget {
+  const _StatRow({required this.c});
+  final PeripheralController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Row(
+        children: [
+          Expanded(child: StatPill(label: 'SKOR', value: '${c.score}')),
+          const SizedBox(width: 10),
+          Expanded(
+            child: StatPill(
+              label: 'KOMBO',
+              value: c.combo >= 1 ? 'x${c.combo}' : '–',
+              accent: _accent,
+              emphasized: c.combo >= 3,
             ),
           ),
+          const SizedBox(width: 10),
+          Expanded(child: StatPill(label: 'DOĞRULUK', value: '%${c.accuracy}')),
+        ],
+      ),
+    );
+  }
+}
+
+class _Ring extends StatelessWidget {
+  const _Ring({required this.c});
+  final PeripheralController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, cons) {
+        final w = cons.maxWidth;
+        final h = cons.maxHeight;
+        final cx = w / 2;
+        final cy = h / 2;
+        final radius = (min(w, h) / 2) - 44;
+
+        final children = <Widget>[
+          // centre fixation
+          Positioned(
+            left: cx - 16,
+            top: cy - 16,
+            child: _Fixation(active: c.phase == PeriPhase.showing),
+          ),
+        ];
+
+        for (var i = 0; i < PeripheralController.dots; i++) {
+          final angle = -pi / 2 + i * (2 * pi / PeripheralController.dots);
+          final dx = cx + radius * cos(angle);
+          final dy = cy + radius * sin(angle);
+          children.add(Positioned(
+            left: dx - 30,
+            top: dy - 30,
+            width: 60,
+            height: 60,
+            child: _Dot(c: c, index: i),
+          ));
+        }
+
+        return Stack(children: children);
+      },
+    );
+  }
+}
+
+class _Fixation extends StatelessWidget {
+  const _Fixation({required this.active});
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.textLow.withValues(alpha: 0.25),
+        border: Border.all(
+          color: active ? _accent : AppColors.stroke,
+          width: 2,
+        ),
+      ),
+      child: const Icon(Icons.add_rounded, size: 18, color: AppColors.textMid),
+    );
+  }
+}
+
+class _Dot extends StatelessWidget {
+  const _Dot({required this.c, required this.index});
+  final PeripheralController c;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final lit = c.phase == PeriPhase.showing && c.litIndex == index;
+    final revealCorrect = c.phase == PeriPhase.feedback && c.litIndex == index;
+    final revealWrong = c.phase == PeriPhase.feedback &&
+        c.tappedIndex == index &&
+        !c.lastCorrect;
+
+    Color color;
+    List<BoxShadow>? glow;
+    if (lit) {
+      color = _accent;
+      glow = [BoxShadow(color: _accent.withValues(alpha: 0.7), blurRadius: 22)];
+    } else if (revealCorrect) {
+      color = AppColors.success;
+      glow = [
+        BoxShadow(color: AppColors.success.withValues(alpha: 0.6), blurRadius: 18)
+      ];
+    } else if (revealWrong) {
+      color = AppColors.danger;
+    } else {
+      color = AppColors.surfaceHi;
+    }
+
+    return GestureDetector(
+      onTap: () => c.tap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color,
+          border: Border.all(color: AppColors.stroke),
+          boxShadow: glow,
         ),
       ),
     );
