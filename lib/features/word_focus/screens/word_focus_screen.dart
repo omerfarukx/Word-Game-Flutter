@@ -13,6 +13,7 @@ import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/design/widgets/timer_chip.dart';
+import '../../../core/feedback/achievements.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
@@ -44,6 +45,8 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordFocusController.gameSeconds / 60,
           );
+      reportAchievements(context,
+          score: _c.score, maxCombo: _c.maxCombo, isRecord: _record);
     }
     setState(() {});
   }

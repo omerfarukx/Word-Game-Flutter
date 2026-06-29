@@ -12,6 +12,7 @@ import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/shaker.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../../core/feedback/achievements.dart';
 import '../../../../core/feedback/records.dart';
 import '../../../../core/text/turkish.dart';
 import '../../../../core/words/word_service.dart';
@@ -52,6 +53,8 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordPairsController.gameSeconds / 60,
           );
+      reportAchievements(context,
+          score: _c.score, maxCombo: _c.maxCombo, isRecord: _record);
     }
     setState(() {});
   }

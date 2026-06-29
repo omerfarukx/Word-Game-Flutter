@@ -11,6 +11,7 @@ import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../../core/feedback/achievements.dart';
 import '../../../../core/feedback/records.dart';
 import '../../../../core/text/turkish.dart';
 import '../../../../core/words/word_service.dart';
@@ -48,6 +49,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordRecognitionController.gameSeconds / 60,
           );
+      reportAchievements(context, score: _c.score, isRecord: _record);
     }
     setState(() {});
   }

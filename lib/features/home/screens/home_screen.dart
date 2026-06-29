@@ -7,6 +7,7 @@ import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/aurora_background.dart';
 import '../../../core/design/widgets/reveal.dart';
+import '../../../core/feedback/achievements.dart';
 import '../../../core/feedback/music_service.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/feedback/sound_service.dart';
@@ -301,10 +302,11 @@ class _HeroStats extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _MiniStat(
-                  icon: Icons.timer_rounded,
+                  icon: Icons.military_tech_rounded,
                   color: AppColors.visual,
-                  value: '${stats.duration.toStringAsFixed(1)} sa',
-                  label: 'SÜRE',
+                  value:
+                      '${Achievements.instance.unlockedCount}/${Achievements.instance.total}',
+                  label: 'ROZET',
                 ),
               ),
             ],

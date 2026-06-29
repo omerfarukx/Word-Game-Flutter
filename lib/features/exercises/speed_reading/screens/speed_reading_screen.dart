@@ -7,6 +7,7 @@ import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
 import '../../../../core/design/widgets/reveal.dart';
+import '../../../../core/feedback/achievements.dart';
 import '../../../statistics/providers/statistics_provider.dart';
 import '../controllers/speed_reading_controller.dart';
 
@@ -35,6 +36,7 @@ class _SpeedReadingScreenState extends State<SpeedReadingScreen> {
       context.read<StatisticsProvider>().addExerciseCompletion(
             _c.durationSeconds / 60,
           );
+      reportAchievements(context);
     } else if (_c.phase != ReadPhase.done) {
       _saved = false;
     }

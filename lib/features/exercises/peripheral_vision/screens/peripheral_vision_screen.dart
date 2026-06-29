@@ -11,6 +11,7 @@ import '../../../../core/design/widgets/game_scaffold.dart';
 import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../../core/feedback/achievements.dart';
 import '../../../../core/feedback/records.dart';
 import '../../../statistics/providers/statistics_provider.dart';
 import '../controllers/peripheral_controller.dart';
@@ -45,6 +46,8 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
       context.read<StatisticsProvider>().addExerciseCompletion(
             PeripheralController.gameSeconds / 60,
           );
+      reportAchievements(context,
+          score: _c.score, maxCombo: _c.maxCombo, isRecord: _record);
     }
     setState(() {});
   }

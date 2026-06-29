@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
+import 'core/feedback/achievements.dart';
 import 'core/feedback/music_service.dart';
 import 'core/feedback/records.dart';
 import 'core/feedback/sound_service.dart';
@@ -27,6 +28,7 @@ void main() async {
   await SoundService.instance.load();
   await MusicService.instance.init();
   await Records.instance.init();
+  await Achievements.instance.init();
 
   runApp(
     MultiProvider(

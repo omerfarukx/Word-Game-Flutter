@@ -7,6 +7,7 @@ import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/feedback/achievements.dart';
 import '../../../../core/feedback/records.dart';
 import '../../../statistics/providers/statistics_provider.dart';
 import '../controllers/schultz_controller.dart';
@@ -42,6 +43,7 @@ class _EyeFocusScreenState extends State<EyeFocusScreen> {
       context.read<StatisticsProvider>().addExerciseCompletion(
             _c.elapsedSeconds / 60,
           );
+      reportAchievements(context, isRecord: _record);
     }
     setState(() {});
   }

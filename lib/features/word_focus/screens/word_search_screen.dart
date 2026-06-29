@@ -10,6 +10,7 @@ import '../../../core/design/widgets/game_scaffold.dart';
 import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/design/widgets/timer_chip.dart';
+import '../../../core/feedback/achievements.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/words/word_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
@@ -49,6 +50,7 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordSearchController.gameSeconds / 60,
           );
+      reportAchievements(context, score: _c.score, isRecord: _record);
     }
     setState(() {});
   }

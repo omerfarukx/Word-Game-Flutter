@@ -11,6 +11,7 @@ import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/shaker.dart';
 import '../../../core/design/widgets/stat_pill.dart';
+import '../../../core/feedback/achievements.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
@@ -59,10 +60,13 @@ class _WordChainScreenState extends State<WordChainScreen> {
     if (_c.isOver && !_saved) {
       _saved = true;
       final stats = context.read<StatisticsProvider>();
-      if (_c.score > 0 && _c.score >= stats.bestWordChainScore) _confetti++;
+      final isRecord = _c.score > 0 && _c.score >= stats.bestWordChainScore;
+      if (isRecord) _confetti++;
       Records.instance.submit('word_chain', _c.score);
       stats.saveWordChainScore(_c.score);
       stats.addExerciseCompletion(WordChainController.gameSeconds / 60);
+      reportAchievements(context,
+          score: _c.score, maxCombo: _c.maxCombo, isRecord: isRecord);
     }
     setState(() {});
   }
