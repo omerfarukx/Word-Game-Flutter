@@ -10,6 +10,7 @@ import '../../../core/design/widgets/game_scaffold.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/shaker.dart';
 import '../../../core/design/widgets/stat_pill.dart';
+import '../../../core/feedback/records.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
@@ -58,6 +59,7 @@ class _WordChainScreenState extends State<WordChainScreen> {
       _saved = true;
       final stats = context.read<StatisticsProvider>();
       if (_c.score > 0 && _c.score >= stats.bestWordChainScore) _confetti++;
+      Records.instance.submit('word_chain', _c.score);
       stats.saveWordChainScore(_c.score);
       stats.addExerciseCompletion(WordChainController.gameSeconds / 60);
     }

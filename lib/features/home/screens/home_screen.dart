@@ -8,6 +8,7 @@ import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/aurora_background.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/feedback/music_service.dart';
+import '../../../core/feedback/records.dart';
 import '../../../core/feedback/sound_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
 
@@ -25,6 +26,8 @@ class Exercise {
     required this.icon,
     required this.route,
     required this.category,
+    this.recordId,
+    this.recordIsTime = false,
   });
 
   final String title;
@@ -32,6 +35,12 @@ class Exercise {
   final IconData icon;
   final String route;
   final String category;
+
+  /// Records key for this game's personal best, or null if it has none.
+  final String? recordId;
+
+  /// True when the best is a time (lower is better), shown as m:ss.
+  final bool recordIsTime;
 }
 
 const _categories = <_Category>[
@@ -46,6 +55,7 @@ const _exercises = <Exercise>[
     subtitle: 'Aynı olmayan çiftleri bul',
     icon: Icons.compare_arrows_rounded,
     route: RouteConstants.wordPairs,
+    recordId: 'word_pairs',
     category: 'Kelime Egzersizleri',
   ),
   Exercise(
@@ -53,6 +63,7 @@ const _exercises = <Exercise>[
     subtitle: 'Tanıma hızını artır',
     icon: Icons.flash_on_rounded,
     route: RouteConstants.wordRecognition,
+    recordId: 'word_recognition',
     category: 'Kelime Egzersizleri',
   ),
   Exercise(
@@ -60,6 +71,7 @@ const _exercises = <Exercise>[
     subtitle: 'İlişkili kelimeleri keşfet',
     icon: Icons.hub_rounded,
     route: RouteConstants.wordFocus,
+    recordId: 'word_focus',
     category: 'Kelime Egzersizleri',
   ),
   Exercise(
@@ -67,6 +79,7 @@ const _exercises = <Exercise>[
     subtitle: 'Gizli kelimeleri bul',
     icon: Icons.grid_on_rounded,
     route: RouteConstants.wordSearch,
+    recordId: 'word_search',
     category: 'Kelime Egzersizleri',
   ),
   Exercise(
@@ -74,6 +87,7 @@ const _exercises = <Exercise>[
     subtitle: 'Son harften zincir kur',
     icon: Icons.link_rounded,
     route: RouteConstants.wordChain,
+    recordId: 'word_chain',
     category: 'Kelime Egzersizleri',
   ),
   Exercise(
@@ -81,6 +95,7 @@ const _exercises = <Exercise>[
     subtitle: 'Harfleri bul ve seç',
     icon: Icons.search_rounded,
     route: RouteConstants.letterSearch,
+    recordId: 'letter_search',
     category: 'Görsel Egzersizler',
   ),
   Exercise(
@@ -88,6 +103,8 @@ const _exercises = <Exercise>[
     subtitle: 'Göz kaslarını güçlendir',
     icon: Icons.center_focus_strong_rounded,
     route: RouteConstants.eyeFocus,
+    recordId: 'schultz',
+    recordIsTime: true,
     category: 'Görsel Egzersizler',
   ),
   Exercise(
@@ -95,6 +112,7 @@ const _exercises = <Exercise>[
     subtitle: 'Çevreyi fark et',
     icon: Icons.blur_circular_rounded,
     route: RouteConstants.peripheralVision,
+    recordId: 'peripheral',
     category: 'Görsel Egzersizler',
   ),
   Exercise(
@@ -395,6 +413,16 @@ class _ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final id = exercise.recordId;
+    String? best;
+    if (id != null) {
+      final v = Records.instance.best(id);
+      if (v > 0) {
+        best = exercise.recordIsTime
+            ? '${v ~/ 60}:${(v % 60).toString().padLeft(2, '0')}'
+            : '$v';
+      }
+    }
     return DecoratedBox(
       decoration: Surfaces.tile(radius: 20),
       child: Material(
@@ -407,20 +435,27 @@ class _ExerciseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    gradient: AppGradients.forAccent(accent),
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                          color: accent.withValues(alpha: 0.4),
-                          blurRadius: 14,
-                          offset: const Offset(0, 5)),
-                    ],
-                  ),
-                  child: Icon(exercise.icon, color: Colors.white, size: 24),
+                Row(
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.forAccent(accent),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                              color: accent.withValues(alpha: 0.4),
+                              blurRadius: 14,
+                              offset: const Offset(0, 5)),
+                        ],
+                      ),
+                      child:
+                          Icon(exercise.icon, color: Colors.white, size: 24),
+                    ),
+                    const Spacer(),
+                    if (best != null) _BestBadge(text: best, accent: accent),
+                  ],
                 ),
                 const Spacer(),
                 Text(exercise.title, style: AppText.display(16)),
@@ -435,6 +470,33 @@ class _ExerciseCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _BestBadge extends StatelessWidget {
+  const _BestBadge({required this.text, required this.accent});
+  final String text;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: accent.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.emoji_events_rounded, size: 12, color: accent),
+          const SizedBox(width: 4),
+          Text(text,
+              style: AppText.body(11, weight: FontWeight.w700, color: accent)),
+        ],
       ),
     );
   }
