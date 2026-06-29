@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/juice.dart';
+
 /// Harf Arama: a grid of letters with one target letter highlighted; tap every
 /// copy of it as fast as you can. A visual-scanning exercise (Görsel category),
 /// deliberately distinct from the Kelime Bulma word search.
@@ -97,7 +99,10 @@ class LetterSearchController extends ChangeNotifier {
       if (found >= occurrences) {
         level++;
         timeLeft += 5;
+        Juice.levelUp();
         _buildRound();
+      } else {
+        combo >= 3 ? Juice.combo() : Juice.correct();
       }
     } else {
       combo = 0;
@@ -105,6 +110,7 @@ class LetterSearchController extends ChangeNotifier {
       timeLeft = max(1, timeLeft - 2);
       wrongCell = index;
       wrongTick++;
+      Juice.wrong();
       Timer(const Duration(milliseconds: 300), () {
         if (wrongCell == index) wrongCell = -1;
         notifyListeners();

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/juice.dart';
 import '../../../../core/words/word_service.dart';
 
 /// One grid card showing two stacked words. On a "different" card the two words
@@ -131,12 +132,16 @@ class WordPairsController extends ChangeNotifier {
       timeLeft += 2;
       if (found >= targets) {
         level++;
+        Juice.levelUp();
         _buildLevel();
+      } else {
+        combo >= 3 ? Juice.combo() : Juice.correct();
       }
     } else {
       card.wrong = true;
       wrongTick++;
       combo = 0;
+      Juice.wrong();
       score = max(0, score - 10);
       timeLeft = max(1, timeLeft - 3);
       Timer(const Duration(milliseconds: 350), () {

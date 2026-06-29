@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/juice.dart';
 import '../../../../core/text/turkish.dart';
 import '../../../../core/words/word_service.dart';
 
@@ -124,6 +125,7 @@ class WordRecognitionController extends ChangeNotifier {
     attempts++;
     lastCorrect = Tr.lower(answer.trim()) == current;
     if (lastCorrect) score++;
+    lastCorrect ? Juice.correct() : Juice.wrong();
     phase = RecogPhase.feedback;
     notifyListeners();
 

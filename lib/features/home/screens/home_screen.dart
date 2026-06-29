@@ -7,6 +7,7 @@ import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/aurora_background.dart';
 import '../../../core/design/widgets/reveal.dart';
+import '../../../core/feedback/sound_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
 
 class _Category {
@@ -144,17 +145,62 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('GÜNLÜK ANTRENMAN', style: AppText.label(11)),
-        const SizedBox(height: 6),
-        ShaderMask(
-          shaderCallback: (r) => AppGradients.word.createShader(r),
-          child: Text('Hızlı Okuma',
-              style: AppText.display(40, color: Colors.white)),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('GÜNLÜK ANTRENMAN', style: AppText.label(11)),
+              const SizedBox(height: 6),
+              ShaderMask(
+                shaderCallback: (r) => AppGradients.word.createShader(r),
+                child: Text('Hızlı Okuma',
+                    style: AppText.display(40, color: Colors.white)),
+              ),
+            ],
+          ),
         ),
+        const _MuteButton(),
       ],
+    );
+  }
+}
+
+class _MuteButton extends StatefulWidget {
+  const _MuteButton();
+
+  @override
+  State<_MuteButton> createState() => _MuteButtonState();
+}
+
+class _MuteButtonState extends State<_MuteButton> {
+  @override
+  Widget build(BuildContext context) {
+    final muted = SoundService.instance.muted;
+    return Material(
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppColors.stroke),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () async {
+          await SoundService.instance.setMuted(!muted);
+          if (mounted) setState(() {});
+        },
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(
+            muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+            color: muted ? AppColors.textLow : AppColors.word,
+            size: 22,
+          ),
+        ),
+      ),
     );
   }
 }

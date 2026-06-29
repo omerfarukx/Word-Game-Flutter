@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/feedback/juice.dart';
 import '../../../core/text/turkish.dart';
 import '../data/word_search_data.dart';
 
@@ -174,7 +175,10 @@ class WordSearchController extends ChangeNotifier {
         if (foundCount >= targets.length) {
           level++;
           timeLeft += 15;
+          Juice.levelUp();
           _buildPuzzle();
+        } else {
+          Juice.correct();
         }
         break;
       }

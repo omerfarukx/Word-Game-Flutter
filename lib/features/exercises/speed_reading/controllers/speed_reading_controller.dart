@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/juice.dart';
 import '../../../../data/speed_reading_data.dart';
 
 enum ReadSpeed { slow, medium, fast }
@@ -88,6 +89,7 @@ class SpeedReadingController extends ChangeNotifier {
       if (index >= words.length - 1) {
         t.cancel();
         phase = ReadPhase.done;
+        Juice.achievement();
       } else {
         index++;
       }

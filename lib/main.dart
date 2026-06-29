@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
+import 'core/feedback/sound_service.dart';
 import 'core/words/word_service.dart';
 import 'features/exercises/eye_focus/screens/eye_focus_screen.dart';
 import 'features/exercises/speed_reading/screens/speed_reading_screen.dart';
@@ -21,6 +22,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await WordService.load();
+  await SoundService.instance.load();
 
   runApp(
     MultiProvider(

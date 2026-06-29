@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/juice.dart';
+
 /// What the round is doing right now.
 enum PeriPhase { showing, respond, feedback, over }
 
@@ -87,11 +89,17 @@ class PeripheralController extends ChangeNotifier {
       if (combo > maxCombo) maxCombo = combo;
       score += 15 + (combo >= 3 ? 8 : 0);
       timeLeft += 1;
-      if (correctTaps % 5 == 0) level++;
+      if (correctTaps % 5 == 0) {
+        level++;
+        Juice.levelUp();
+      } else {
+        combo >= 3 ? Juice.combo() : Juice.correct();
+      }
     } else {
       combo = 0;
       score = max(0, score - 5);
       timeLeft = max(1, timeLeft - 2);
+      Juice.wrong();
     }
     phase = PeriPhase.feedback;
     notifyListeners();

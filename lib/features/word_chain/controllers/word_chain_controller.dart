@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/feedback/juice.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
 
@@ -74,6 +75,7 @@ class WordChainController extends ChangeNotifier {
       reject = problem;
       rejectTick++;
       combo = 0;
+      Juice.wrong();
       notifyListeners();
       return false;
     }
@@ -89,6 +91,7 @@ class WordChainController extends ChangeNotifier {
     score += base + bonus;
 
     if (word.length > longestWord.length) longestWord = word;
+    combo >= 3 ? Juice.combo() : Juice.correct();
     notifyListeners();
     return true;
   }

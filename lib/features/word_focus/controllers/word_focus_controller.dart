@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/feedback/juice.dart';
 import '../../../core/words/word_service.dart';
 import '../data/word_focus_data.dart';
 
@@ -117,6 +118,7 @@ class WordFocusController extends ChangeNotifier {
       if (combo > maxCombo) maxCombo = combo;
       score += 15 + (combo >= 3 ? 8 : 0);
       timeLeft += 2;
+      combo >= 3 ? Juice.combo() : Juice.correct();
       if (found >= correctCount) {
         _nextRound();
       }
@@ -124,6 +126,7 @@ class WordFocusController extends ChangeNotifier {
       opt.wrong = true;
       wrongTick++;
       combo = 0;
+      Juice.wrong();
       score = max(0, score - 8);
       timeLeft = max(1, timeLeft - 3);
       Timer(const Duration(milliseconds: 350), () {

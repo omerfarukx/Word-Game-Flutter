@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/juice.dart';
+
 /// Göz Odaklama — Schultz table: a 6x6 grid of the numbers 1..36 shuffled.
 /// Keep your eyes on the centre and find them in order. Rebuilt to fix the
 /// divide-by-zero score and to time the run with a proper stopwatch.
@@ -45,10 +47,16 @@ class SchultzController extends ChangeNotifier {
     if (value == currentTarget) {
       found.add(value);
       currentTarget++;
-      if (currentTarget > total) _complete();
+      if (currentTarget > total) {
+        _complete();
+        Juice.achievement();
+      } else {
+        Juice.correct();
+      }
     } else {
       wrongCount++;
       wrongCell = value;
+      Juice.wrong();
       notifyListeners();
       Timer(const Duration(milliseconds: 300), () {
         if (wrongCell == value) wrongCell = -1;
