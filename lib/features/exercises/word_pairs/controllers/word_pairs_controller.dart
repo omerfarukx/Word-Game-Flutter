@@ -50,6 +50,14 @@ class WordPairsController extends ChangeNotifier {
   /// Bumps on a wrong tap so the screen can flash/shake.
   int wrongTick = 0;
 
+  // Power-ups (per game)
+  int hints = 2;
+  int jokers = 1;
+  int freezes = 1;
+  int frozenTicks = 0;
+  int? hintIndex;
+  bool get isFrozen => frozenTicks > 0;
+
   Timer? _timer;
 
   void start() {
@@ -60,9 +68,19 @@ class WordPairsController extends ChangeNotifier {
     timeLeft = gameSeconds;
     isActive = true;
     isOver = false;
+    hints = 2;
+    jokers = 1;
+    freezes = 1;
+    frozenTicks = 0;
+    hintIndex = null;
     _buildLevel();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
       timeLeft--;
       if (timeLeft <= 0) {
         timeLeft = 0;
@@ -73,8 +91,48 @@ class WordPairsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void freeze() {
+    if (!isActive || freezes <= 0 || frozenTicks > 0) return;
+    freezes--;
+    frozenTicks = 5;
+    notifyListeners();
+  }
+
+  void useHint() {
+    if (!isActive || hints <= 0) return;
+    final i = cards.indexWhere((c) => c.isDifferent && !c.found);
+    if (i < 0) return;
+    hints--;
+    hintIndex = i;
+    notifyListeners();
+    Timer(const Duration(milliseconds: 1500), () {
+      if (hintIndex == i) hintIndex = null;
+      notifyListeners();
+    });
+  }
+
+  void useJoker() {
+    if (!isActive || jokers <= 0) return;
+    final i = cards.indexWhere((c) => c.isDifferent && !c.found);
+    if (i < 0) return;
+    jokers--;
+    final card = cards[i];
+    card.found = true;
+    found++;
+    score += 20;
+    if (found >= targets) {
+      level++;
+      Juice.levelUp();
+      _buildLevel();
+    } else {
+      Juice.correct();
+    }
+    notifyListeners();
+  }
+
   void _buildLevel() {
     found = 0;
+    hintIndex = null;
     targets = (2 + (level + 1) ~/ 2).clamp(2, _cardCount - 2);
     final minLen = (4 + (level - 1) ~/ 2).clamp(4, 7);
     final maxLen = minLen + 1;
