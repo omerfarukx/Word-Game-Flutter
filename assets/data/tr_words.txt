@@ -1,0 +1,60 @@
+# Türkçe kelime listesi — Kelime Zinciri ve diğer oyunların sözlüğü.
+# Boşluk veya satır ile ayrılmış; satır başı # ile yorum.
+# Başlangıç seti — daha büyük bir TDK listesiyle genişletilebilir.
+
+# meyveler
+elma armut çilek kiraz kavun karpuz portakal mandalina muz incir üzüm şeftali kayısı erik nar ayva limon greyfurt vişne dut böğürtlen ahududu nektarin hurma
+
+# sebzeler
+domates salatalık biber patlıcan kabak havuç patates soğan sarımsak marul ıspanak maydanoz nane roka turp pancar bezelye fasulye mercimek nohut lahana brokoli karnabahar kereviz pırasa enginar bamya
+
+# hayvanlar
+köpek kedi kuş balık eşek inek koyun keçi tavuk horoz ördek kaz hindi aslan kaplan ayı kurt tilki tavşan sincap geyik fil zürafa maymun yılan kertenkele kaplumbağa karınca kelebek sinek örümcek solucan fare yarasa baykuş kartal şahin leylek martı penguen timsah deve zebra panda koala fok yunus köpekbalığı ahtapot midye istiridye
+
+# ev eşyaları
+masa sandalye dolap koltuk yatak halı perde lamba ayna saat televizyon bilgisayar telefon kalem defter kitap çanta kutu şişe bardak tabak kaşık çatal bıçak tencere tava fincan kova fırça tarak sabun havlu yastık yorgan çarşaf battaniye anahtar kilit pencere kapı merdiven musluk
+
+# yerler
+okul hastane market cami kilise köprü sokak cadde meydan bahçe orman bakkal eczane fırın lokanta otel müze kütüphane stadyum sinema tiyatro hapishane kışla liman havaalanı istasyon durak köy kasaba şehir ülke
+
+# doğa
+deniz kum dalga kıyı sahil ada gemi kayık yelken çapa fener körfez boğaz şelale kaynak vadi tepe ova nehir dere göl pınar bataklık çöl vaha buzul mağara uçurum yanardağ deprem sel çığ
+
+# gökyüzü
+güneş yıldız bulut yağmur dolu rüzgar fırtına şimşek gökkuşağı buz ateş duman kıvılcım gölge ışık karanlık aydınlık şafak gündoğumu günbatımı
+
+# renkler
+kırmızı mavi yeşil sarı turuncu mor pembe siyah beyaz kahverengi lacivert bordo turkuaz altın gümüş bronz bakır demir çelik kurşun
+
+# vücut
+göz kulak burun ağız diş dudak yanak alın kirpik saç boyun omuz parmak tırnak ayak bacak topuk göğüs sırt karın bel kalp ciğer mide böbrek beyin kemik damar deri kan dirsek bilek avuç
+
+# insanlar
+anne baba kardeş abla teyze hala dayı amca dede nine kuzen yeğen gelin damat torun aile akraba komşu arkadaş misafir yabancı çocuk bebek genç yaşlı kadın erkek insan
+
+# meslekler
+öğretmen doktor mühendis avukat hemşire polis asker pilot şoför aşçı garson terzi berber marangoz demirci çiftçi balıkçı ressam yazar şair hakim savcı eczacı veteriner mimar bahçıvan çoban madenci itfaiyeci
+
+# fiiller
+koşmak yürümek atlamak yüzmek uçmak düşmek kalkmak oturmak durmak gülmek ağlamak bağırmak konuşmak dinlemek bakmak görmek okumak yazmak yemek içmek uyumak uyanmak çalışmak oynamak gezmek dönmek gelmek gitmek almak vermek tutmak bırakmak açmak kapamak bulmak aramak sevmek istemek düşünmek anlamak öğrenmek
+
+# sıfatlar
+büyük küçük uzun kısa geniş kalın ince ağır hafif sıcak soğuk ılık yeni eski temiz kirli hızlı yavaş güçlü zayıf güzel çirkin doğru yanlış kolay mutlu üzgün yorgun cesur korkak akıllı tembel çalışkan cömert cimri sessiz gürültülü
+
+# yiyecekler
+ekmek peynir zeytin tereyağı reçel yumurta süt yoğurt ayran kahve şeker tuz pirinç bulgur makarna çorba pilav köfte kebap döner lahmacun pide börek poğaça simit baklava kurabiye pasta dondurma çikolata bisküvi helva pekmez tahin salça turşu sirke bal komposto
+
+# zaman
+sabah öğle akşam gece hafta mevsim ilkbahar sonbahar pazartesi salı çarşamba perşembe cuma cumartesi pazar dakika saniye yüzyıl gelecek geçmiş bugün yarın dün
+
+# sanat ve müzik
+müzik resim heykel dans şiir roman hikaye masal şarkı türkü beste keman gitar piyano davul flüt org saz ney kanun perde sahne
+
+# spor
+top kale saha gol yarış güreş tenis basketbol voleybol futbol kayak boks satranç hentbol koşu yüzücü hakem antrenör forma şampiyon kupa madalya
+
+# ulaşım
+pusula harita yolculuk sefer bilet vagon istasyon uçak tren otobüs araba kamyon motor tekne vapur bisiklet metro tramvay helikopter roket denizaltı
+
+# kavramlar
+düşünce hayal fikir bilgi akıl mantık duygu sevgi korku öfke neşe hüzün umut özlem merak heyecan sabır cesaret gurur saygı barış savaş özgürlük adalet dürüstlük yalan gerçek rüya hatıra

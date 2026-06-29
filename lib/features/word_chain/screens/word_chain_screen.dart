@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../models/word_chain_game.dart';
+
+import '../../../core/design/app_colors.dart';
+import '../../../core/design/app_typography.dart';
+import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/shaker.dart';
+import '../../../core/design/widgets/stat_pill.dart';
+import '../../../core/text/turkish.dart';
+import '../../../core/words/word_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
+import '../controllers/word_chain_controller.dart';
+
+const _accent = AppColors.word;
 
 class WordChainScreen extends StatefulWidget {
   const WordChainScreen({super.key});
@@ -11,389 +22,635 @@ class WordChainScreen extends StatefulWidget {
 }
 
 class _WordChainScreenState extends State<WordChainScreen> {
-  late WordChainGame _game;
-  final _wordController = TextEditingController();
+  late final WordChainController _c =
+      WordChainController(WordService.instance)..addListener(_onChange);
+  final _input = TextEditingController();
+  final _focus = FocusNode();
+  final _scroll = ScrollController();
+
+  bool _saved = false;
+  int _lastLen = 0;
 
   @override
   void initState() {
     super.initState();
-    _game = WordChainGame();
-    _game.gameState.listen((state) {
-      if (!state.isGameActive && state.score > 0) {
-        if (!mounted) return;
-        context.read<StatisticsProvider>().saveWordChainScore(state.score);
-      }
-    });
+    _c.start();
+  }
+
+  void _onChange() {
+    if (_c.chain.length != _lastLen) {
+      _lastLen = _c.chain.length;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scroll.hasClients) {
+          _scroll.animateTo(
+            _scroll.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 280),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+    if (_c.isOver && !_saved) {
+      _saved = true;
+      final stats = context.read<StatisticsProvider>();
+      stats.saveWordChainScore(_c.score);
+      stats.addExerciseCompletion(WordChainController.gameSeconds / 60);
+    }
+    setState(() {});
+  }
+
+  void _submit() {
+    if (_input.text.trim().isEmpty) return;
+    _c.submit(_input.text);
+    _input.clear();
+    _focus.requestFocus();
+  }
+
+  void _restart() {
+    _saved = false;
+    _lastLen = 0;
+    _input.clear();
+    _c.start();
+    _focus.requestFocus();
   }
 
   @override
   void dispose() {
-    _wordController.dispose();
-    _game.dispose();
+    _c.removeListener(_onChange);
+    _c.dispose();
+    _input.dispose();
+    _focus.dispose();
+    _scroll.dispose();
     super.dispose();
-  }
-
-  void _submitWord() {
-    if (_wordController.text.isNotEmpty) {
-      _game.submitWord(_wordController.text.trim());
-      _wordController.clear();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kelime Zinciri'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Nasıl Oynanır?'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHelpItem(
-                        '1. Oyun Kuralları:',
-                        '• Her kelimenin son harfi ile yeni kelime türetin\n'
-                            '• Kelimeler en az 2 harf olmalıdır\n'
-                            '• Aynı kelimeyi tekrar kullanamazsınız',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildHelpItem(
-                        '2. Puanlama:',
-                        '• Her harf 10 puan değerindedir\n'
-                            '• 3 veya daha fazla doğru kelime art arda girildiğinde %50 bonus puan\n'
-                            '• Yanlış kelime girişinde combo sıfırlanır',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildHelpItem(
-                        '3. Süre:',
-                        '• Oyun süresi 90 saniyedir\n'
-                            '• Süre dolmadan önce mümkün olduğunca çok kelime türetmeye çalışın',
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Anladım'),
-                    ),
-                  ],
-                ),
-              );
-            },
+    return GameScaffold(
+      title: 'Kelime Zinciri',
+      accent: _accent,
+      trailing: _TimerChip(seconds: _c.timeLeft),
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              _StatRow(c: _c),
+              Expanded(
+                child: _c.chain.isEmpty
+                    ? const _EmptyHint()
+                    : _ChainList(words: _c.chain, scroll: _scroll),
+              ),
+              _InputBar(
+                controller: _c,
+                input: _input,
+                focus: _focus,
+                onSubmit: _submit,
+              ),
+            ],
           ),
+          if (_c.isOver)
+            _GameOverCard(c: _c, onRestart: _restart, onExit: () => Navigator.of(context).maybePop()),
         ],
-      ),
-      body: StreamBuilder<WordChainGameState>(
-        stream: _game.gameState,
-        builder: (context, snapshot) {
-          final gameState = snapshot.data;
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-
-          return Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [const Color(0xFF1A237E), const Color(0xFF0D47A1)]
-                    : [Colors.blue.shade100, Colors.blue.shade200],
-              ),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                child: Column(
-                  children: [
-                    // Üst bilgi kartları
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoCard(
-                            'Puan',
-                            '${gameState?.score ?? 0}',
-                            Icons.stars,
-                            Colors.amber,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildInfoCard(
-                            'Süre',
-                            '${gameState?.timeLeft ?? 90}',
-                            Icons.timer,
-                            (gameState?.timeLeft ?? 90) > 30
-                                ? Colors.green
-                                : Colors.red,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildInfoCard(
-                            'Combo',
-                            '${gameState?.combo ?? 0}',
-                            Icons.flash_on,
-                            Colors.orange,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Mevcut kelime ve ipucu
-                    if (gameState?.currentWord.isNotEmpty ?? false)
-                      Card(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          width: double.infinity,
-                          child: Column(
-                            children: [
-                              const Text(
-                                'Mevcut Kelime',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                gameState!.currentWord.toUpperCase(),
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '"${gameState.currentWord[gameState.currentWord.length - 1].toUpperCase()}" ile başlayan bir kelime girin',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 12),
-
-                    // Kelime girişi
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextField(
-                              controller: _wordController,
-                              decoration: InputDecoration(
-                                hintText: 'Kelime girin',
-                                border: InputBorder.none,
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.send),
-                                  onPressed: _submitWord,
-                                ),
-                              ),
-                              enabled: gameState?.isGameActive ?? false,
-                              onSubmitted: (_) => _submitWord(),
-                              textCapitalization: TextCapitalization.characters,
-                            ),
-                            if (gameState?.errorMessage != null)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Text(
-                                  gameState!.errorMessage!,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Başlat/Bitir düğmesi
-                    if (!(gameState?.isGameActive ?? false))
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => _game.startGame(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 32,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: const Text(
-                              'BAŞLAT',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          if (gameState != null && gameState.score > 0)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Oyun Bitti!',
-                                    style:
-                                        Theme.of(context).textTheme.titleLarge,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                      'En Uzun Kelime: ${gameState.longestWord} harf'),
-                                  Text(
-                                      'En Yüksek Combo: ${gameState.maxCombo}'),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-
-                    const SizedBox(height: 12),
-
-                    // Kullanılan kelimeler listesi
-                    Expanded(
-                      child: Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Kullanılan Kelimeler (${gameState?.usedWords.length ?? 0})',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const Divider(height: 1),
-                            Expanded(
-                              child: ListView.builder(
-                                padding: const EdgeInsets.all(8),
-                                itemCount: gameState?.usedWords.length ?? 0,
-                                itemBuilder: (context, index) {
-                                  final word = gameState!.usedWords[index];
-                                  return ListTile(
-                                    dense: true,
-                                    visualDensity: VisualDensity.compact,
-                                    title: Text(
-                                      word.toUpperCase(),
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    leading: CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.teal,
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    trailing: Text(
-                                      '${word.length * 10} puan',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
+}
 
-  Widget _buildInfoCard(
-      String label, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+// ── Timer ──────────────────────────────────────────────────────────────────
+class _TimerChip extends StatelessWidget {
+  const _TimerChip({required this.seconds});
+  final int seconds;
+
+  @override
+  Widget build(BuildContext context) {
+    final low = seconds <= 15;
+    final color = low ? AppColors.danger : AppColors.textHi;
+    final mm = (seconds ~/ 60).toString();
+    final ss = (seconds % 60).toString().padLeft(2, '0');
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      decoration: BoxDecoration(
+        color: low ? AppColors.danger.withValues(alpha: 0.14) : AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: low ? AppColors.danger.withValues(alpha: 0.5) : AppColors.stroke,
+        ),
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.timer_outlined, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text('$mm:$ss', style: AppText.display(16, color: color)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Stat row ─────────────────────────────────────────────────────────────────
+class _StatRow extends StatelessWidget {
+  const _StatRow({required this.c});
+  final WordChainController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      child: Row(
+        children: [
+          Expanded(child: StatPill(label: 'SKOR', value: '${c.score}')),
+          const SizedBox(width: 10),
+          Expanded(
+            child: StatPill(
+              label: 'KOMBO',
+              value: c.combo >= 1 ? 'x${c.combo}' : '–',
+              accent: _accent,
+              emphasized: c.combo >= 3,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: StatPill(
+              label: 'EN UZUN',
+              value: c.longestWord.isEmpty ? '–' : '${c.longestWord.length}',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Chain (signature element) ────────────────────────────────────────────────
+class _ChainList extends StatelessWidget {
+  const _ChainList({required this.words, required this.scroll});
+  final List<String> words;
+  final ScrollController scroll;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      controller: scroll,
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      itemCount: words.length,
+      itemBuilder: (context, i) => _ChainTile(
+        word: words[i],
+        isFirst: i == 0,
+        isLast: i == words.length - 1,
+        order: i + 1,
+      ),
+    );
+  }
+}
+
+class _ChainTile extends StatelessWidget {
+  const _ChainTile({
+    required this.word,
+    required this.isFirst,
+    required this.isLast,
+    required this.order,
+  });
+
+  final String word;
+  final bool isFirst;
+  final bool isLast;
+  final int order;
+
+  @override
+  Widget build(BuildContext context) {
+    final upper = Tr.upper(word);
+    final link = upper.substring(0, 1); // the connecting letter
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Rail: continuous line + node carrying the link letter.
+          SizedBox(
+            width: 46,
+            child: Column(
+              children: [
+                _Rail(visible: !isFirst),
+                _Node(letter: link, glow: isLast),
+                _Rail(visible: !isLast),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: _WordChip(upper: upper),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Rail extends StatelessWidget {
+  const _Rail({required this.visible});
+  final bool visible;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: Center(
+          child: Container(
+            width: 2,
+            color: visible ? AppColors.stroke : Colors.transparent,
+          ),
+        ),
+      );
+}
+
+class _Node extends StatelessWidget {
+  const _Node({required this.letter, required this.glow});
+  final String letter;
+  final bool glow;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: glow ? _accent : AppColors.surfaceHi,
+        border: Border.all(
+          color: glow ? _accent : AppColors.stroke,
+          width: 1.5,
+        ),
+        boxShadow: glow
+            ? [BoxShadow(color: _accent.withValues(alpha: 0.55), blurRadius: 16)]
+            : null,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: AppText.display(
+          16,
+          color: glow ? Colors.white : AppColors.wordSoft,
+        ),
+      ),
+    );
+  }
+}
+
+/// The word, with its first and last letters tinted to show what it links from
+/// and what the next word must link to.
+class _WordChip extends StatelessWidget {
+  const _WordChip({required this.upper});
+  final String upper;
+
+  @override
+  Widget build(BuildContext context) {
+    final chars = upper.split('');
+    final spans = <TextSpan>[];
+    for (var i = 0; i < chars.length; i++) {
+      final color = i == 0
+          ? _accent
+          : (i == chars.length - 1 ? AppColors.wordSoft : AppColors.textHi);
+      spans.add(TextSpan(text: chars[i], style: AppText.display(20, color: color)));
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.stroke),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: Text.rich(TextSpan(children: spans))),
+          Text('${chars.length}', style: AppText.label(12)),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyHint extends StatelessWidget {
+  const _EmptyHint();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 24),
+            Icon(Icons.link_rounded, size: 56, color: _accent.withValues(alpha: 0.6)),
+            const SizedBox(height: 16),
+            Text('Zinciri başlat', style: AppText.display(22)),
             const SizedBox(height: 8),
             Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              'Bir kelime yaz. Sonraki kelime onun son harfiyle başlasın.',
+              textAlign: TextAlign.center,
+              style: AppText.body(14, color: AppColors.textLow),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildHelpItem(String title, String content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+// ── Input ────────────────────────────────────────────────────────────────────
+class _InputBar extends StatelessWidget {
+  const _InputBar({
+    required this.controller,
+    required this.input,
+    required this.focus,
+    required this.onSubmit,
+  });
+
+  final WordChainController controller;
+  final TextEditingController input;
+  final FocusNode focus;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    final req = controller.requiredLetter;
+    final reject = controller.reject;
+    final prompt = req == null
+        ? 'İstediğin kelimeyle başla'
+        : '“${Tr.upper(req)}” ile başlayan bir kelime';
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        10,
+        16,
+        12 + MediaQuery.of(context).viewInsets.bottom,
+      ),
+      decoration: const BoxDecoration(
+        color: AppColors.bgDeep,
+        border: Border(top: BorderSide(color: AppColors.stroke)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: reject != null
+                ? Padding(
+                    key: ValueKey(controller.rejectTick),
+                    padding: const EdgeInsets.only(bottom: 8, left: 4),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline_rounded,
+                            size: 15, color: AppColors.danger),
+                        const SizedBox(width: 6),
+                        Text(controller.rejectMessage(reject),
+                            style: AppText.body(13, color: AppColors.danger)),
+                      ],
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(bottom: 8, left: 4),
+                    child: Text(prompt,
+                        style: AppText.body(13, color: AppColors.textLow)),
+                  ),
+          ),
+          Shaker(
+            trigger: controller.rejectTick,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: input,
+                    focusNode: focus,
+                    autofocus: true,
+                    enabled: controller.isActive,
+                    textInputAction: TextInputAction.done,
+                    textCapitalization: TextCapitalization.characters,
+                    onSubmitted: (_) => onSubmit(),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-ZçğıöşüÇĞİÖŞÜ]')),
+                    ],
+                    style: AppText.display(20),
+                    cursorColor: _accent,
+                    decoration: InputDecoration(
+                      hintText: 'kelime yaz…',
+                      hintStyle: AppText.body(16, color: AppColors.textLow),
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(color: AppColors.stroke),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(color: _accent, width: 1.6),
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(color: AppColors.stroke),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _SendButton(
+                  enabled: controller.isActive,
+                  onTap: onSubmit,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SendButton extends StatelessWidget {
+  const _SendButton({required this.enabled, required this.onTap});
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: enabled ? _accent : AppColors.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: enabled ? onTap : null,
+        child: const SizedBox(
+          width: 54,
+          height: 52,
+          child: Icon(Icons.arrow_upward_rounded, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Game over ────────────────────────────────────────────────────────────────
+class _GameOverCard extends StatelessWidget {
+  const _GameOverCard({
+    required this.c,
+    required this.onRestart,
+    required this.onExit,
+  });
+
+  final WordChainController c;
+  final VoidCallback onRestart;
+  final VoidCallback onExit;
+
+  @override
+  Widget build(BuildContext context) {
+    final best = context.watch<StatisticsProvider>().bestWordChainScore;
+    final isRecord = c.score >= best && c.score > 0;
+
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.6),
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.stroke),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(isRecord ? '🏆 Yeni Rekor!' : 'Süre Doldu',
+                    style: AppText.display(24, color: isRecord ? AppColors.reading : AppColors.textHi)),
+                const SizedBox(height: 4),
+                Text('${c.chain.length} kelimelik zincir',
+                    style: AppText.body(14, color: AppColors.textLow)),
+                const SizedBox(height: 20),
+                Text('${c.score}',
+                    style: AppText.display(56, color: _accent)),
+                Text('PUAN', style: AppText.label(11)),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(child: _MiniStat(label: 'EN İYİ', value: '$best')),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: _MiniStat(
+                            label: 'EN UZUN',
+                            value: c.longestWord.isEmpty
+                                ? '–'
+                                : Tr.upper(c.longestWord))),
+                    const SizedBox(width: 10),
+                    Expanded(child: _MiniStat(label: 'KOMBO', value: 'x${c.maxCombo}')),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _OutlineButton(label: 'Çıkış', onTap: onExit),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _FilledButton(label: 'Tekrar Oyna', onTap: onRestart),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 8),
-        Text(content),
-      ],
+      ),
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceHi,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          Text(value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppText.display(16)),
+          const SizedBox(height: 4),
+          Text(label, style: AppText.label(9)),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilledButton extends StatelessWidget {
+  const _FilledButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: _accent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: SizedBox(
+          height: 50,
+          child: Center(
+            child: Text(label,
+                style: AppText.body(15,
+                    weight: FontWeight.w700, color: Colors.white)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OutlineButton extends StatelessWidget {
+  const _OutlineButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppColors.stroke),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: SizedBox(
+          height: 50,
+          child: Center(
+            child: Text(label,
+                style: AppText.body(15,
+                    weight: FontWeight.w600, color: AppColors.textMid)),
+          ),
+        ),
+      ),
     );
   }
 }

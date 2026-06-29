@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
+import 'core/design/app_theme.dart';
+import 'core/words/word_service.dart';
 import 'features/exercises/eye_focus/screens/eye_focus_list_screen.dart';
 import 'features/exercises/speed_reading/screens/speed_reading_screen.dart';
 import 'features/exercises/word_pairs/screens/word_pairs_screen.dart';
@@ -20,6 +22,8 @@ import 'features/word_chain/screens/word_chain_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await WordService.load();
+
   runApp(
     MultiProvider(
       providers: [
@@ -32,18 +36,7 @@ void main() async {
       ],
       child: MaterialApp(
         title: AppConstants.appName,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF1976D2),
-            brightness: Brightness.dark,
-          ),
-          scaffoldBackgroundColor: const Color(0xFF1F2937),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-          ),
-        ),
+        theme: AppTheme.dark,
         initialRoute: RouteConstants.home,
         routes: {
           RouteConstants.home: (context) => const HomeScreen(),
