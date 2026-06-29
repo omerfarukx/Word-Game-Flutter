@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../app_typography.dart';
+import '../decorations.dart';
 
 /// A compact label-over-value tile used for score, combo, timer, etc.
 class StatPill extends StatelessWidget {
@@ -25,13 +26,9 @@ class StatPill extends StatelessWidget {
     final tint = accent ?? AppColors.textHi;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: emphasized ? tint.withValues(alpha: 0.14) : AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: emphasized ? tint.withValues(alpha: 0.5) : AppColors.stroke,
-        ),
-      ),
+      decoration: emphasized && accent != null
+          ? Surfaces.accentTile(accent!, radius: 16)
+          : Surfaces.tile(radius: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

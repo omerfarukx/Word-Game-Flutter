@@ -27,7 +27,15 @@ class GameScaffold extends StatelessWidget {
       body: Stack(
         children: [
           const _InkBackground(),
-          Positioned(top: -140, left: -80, child: _Glow(color: accent)),
+          Positioned(
+              top: -170,
+              left: -90,
+              child: _Glow(color: accent, size: 400, opacity: 0.26)),
+          const Positioned(
+              bottom: -210,
+              right: -130,
+              child: _Glow(color: AppColors.visual, size: 440, opacity: 0.10)),
+          const Positioned.fill(child: _Vignette()),
           SafeArea(
             child: Column(
               children: [
@@ -64,18 +72,38 @@ class _InkBackground extends StatelessWidget {
 }
 
 class _Glow extends StatelessWidget {
-  const _Glow({required this.color});
+  const _Glow({required this.color, this.size = 340, this.opacity = 0.22});
   final Color color;
+  final double size;
+  final double opacity;
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
         child: Container(
-          width: 340,
-          height: 340,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: RadialGradient(
-              colors: [color.withValues(alpha: 0.22), Colors.transparent],
+              colors: [color.withValues(alpha: opacity), Colors.transparent],
+            ),
+          ),
+        ),
+      );
+}
+
+/// Darkens the screen edges so content floats in the middle.
+class _Vignette extends StatelessWidget {
+  const _Vignette();
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              radius: 1.1,
+              colors: [Colors.transparent, AppColors.bgDeep.withValues(alpha: 0.6)],
+              stops: const [0.62, 1.0],
             ),
           ),
         ),

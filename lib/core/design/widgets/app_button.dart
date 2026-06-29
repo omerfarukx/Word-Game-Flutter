@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../app_typography.dart';
+import '../decorations.dart';
 
 /// Filled accent button — the primary action on any screen.
 class PrimaryButton extends StatelessWidget {
@@ -22,28 +23,46 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onTap != null;
-    return Material(
-      color: enabled ? color : color.withValues(alpha: 0.35),
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: SizedBox(
-          height: height,
-          child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                ],
-                Text(
-                  label,
-                  style: AppText.body(15,
-                      weight: FontWeight.w700, color: Colors.white),
+    return Opacity(
+      opacity: enabled ? 1 : 0.4,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: AppGradients.forAccent(color),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: enabled
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.45),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: SizedBox(
+              height: height,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: Colors.white, size: 20),
+                      if (label.isNotEmpty) const SizedBox(width: 8),
+                    ],
+                    if (label.isNotEmpty)
+                      Text(
+                        label,
+                        style: AppText.body(15,
+                            weight: FontWeight.w700, color: Colors.white),
+                      ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/design/app_colors.dart';
 import '../../../core/design/app_typography.dart';
+import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
 import '../../../core/design/widgets/shaker.dart';
 import '../../../core/design/widgets/stat_pill.dart';
@@ -277,13 +278,14 @@ class _Node extends StatelessWidget {
       height: 38,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: glow ? _accent : AppColors.surfaceHi,
+        gradient: glow ? AppGradients.word : null,
+        color: glow ? null : AppColors.surfaceHi,
         border: Border.all(
-          color: glow ? _accent : AppColors.stroke,
+          color: glow ? Colors.transparent : AppColors.stroke,
           width: 1.5,
         ),
         boxShadow: glow
-            ? [BoxShadow(color: _accent.withValues(alpha: 0.55), blurRadius: 16)]
+            ? [BoxShadow(color: _accent.withValues(alpha: 0.6), blurRadius: 20)]
             : null,
       ),
       alignment: Alignment.center,
@@ -316,11 +318,7 @@ class _WordChip extends StatelessWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.stroke),
-      ),
+      decoration: Surfaces.tile(radius: 14),
       child: Row(
         children: [
           Expanded(child: Text.rich(TextSpan(children: spans))),
@@ -479,16 +477,27 @@ class _SendButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: enabled ? _accent : AppColors.surface,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: enabled ? onTap : null,
-        child: const SizedBox(
-          width: 54,
-          height: 52,
-          child: Icon(Icons.arrow_upward_rounded, color: Colors.white),
+    return Opacity(
+      opacity: enabled ? 1 : 0.4,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: AppGradients.word,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: enabled
+              ? [BoxShadow(color: _accent.withValues(alpha: 0.45), blurRadius: 16, offset: const Offset(0, 5))]
+              : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: enabled ? onTap : null,
+            child: const SizedBox(
+              width: 54,
+              height: 52,
+              child: Icon(Icons.arrow_upward_rounded, color: Colors.white),
+            ),
+          ),
         ),
       ),
     );

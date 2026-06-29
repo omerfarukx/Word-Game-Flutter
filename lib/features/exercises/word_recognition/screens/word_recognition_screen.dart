@@ -251,15 +251,25 @@ class _Stage extends StatelessWidget {
         ),
     };
 
+    final glow = border == AppColors.stroke
+        ? const Color(0x55000000)
+        : border.withValues(alpha: 0.35);
     return Container(
       width: 260,
       height: 160,
       alignment: Alignment.center,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.surfaceHi, AppColors.surface],
+        ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: border, width: 1.5),
+        boxShadow: [
+          BoxShadow(color: glow, blurRadius: 24, offset: const Offset(0, 8)),
+        ],
       ),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 160),

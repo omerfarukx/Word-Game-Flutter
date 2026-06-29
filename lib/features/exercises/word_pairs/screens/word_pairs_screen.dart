@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
+import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
 import '../../../../core/design/widgets/shaker.dart';
@@ -174,21 +175,17 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (Color border, Color fill) = card.found
-        ? (AppColors.success, AppColors.success.withValues(alpha: 0.14))
+    final BoxDecoration deco = card.found
+        ? Surfaces.accentTile(AppColors.success, radius: 16)
         : card.wrong
-            ? (AppColors.danger, AppColors.danger.withValues(alpha: 0.16))
-            : (AppColors.stroke, AppColors.surface);
+            ? Surfaces.accentTile(AppColors.danger, radius: 16)
+            : Surfaces.tile(radius: 16);
 
     return GestureDetector(
       onTap: card.found ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: border, width: 1.5),
-        ),
+        decoration: deco,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

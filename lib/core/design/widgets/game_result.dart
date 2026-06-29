@@ -1,6 +1,8 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../app_typography.dart';
+import '../decorations.dart';
 import 'app_button.dart';
 
 /// One small stat shown in the result summary (e.g. "EN İYİ" / "320").
@@ -39,30 +41,44 @@ class GameResultOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
-      child: Container(
-        color: Colors.black.withValues(alpha: 0.62),
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.stroke),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isRecord ? '🏆 Yeni Rekor!' : title,
-                  textAlign: TextAlign.center,
-                  style: AppText.display(24,
-                      color: isRecord ? AppColors.reading : AppColors.textHi),
-                ),
-                const SizedBox(height: 18),
-                Text(bigValue, style: AppText.display(56, color: accent)),
-                Text(bigLabel, style: AppText.label(11)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          color: Colors.black.withValues(alpha: 0.55),
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: Surfaces.tile(radius: 26),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    isRecord ? '🏆 Yeni Rekor!' : title,
+                    textAlign: TextAlign.center,
+                    style: AppText.display(24,
+                        color: isRecord ? AppColors.reading : AppColors.textHi),
+                  ),
+                  const SizedBox(height: 18),
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: accent.withValues(alpha: 0.45),
+                          blurRadius: 36,
+                        ),
+                      ],
+                    ),
+                    child: ShaderMask(
+                      shaderCallback: (r) =>
+                          AppGradients.forAccent(accent).createShader(r),
+                      child: Text(bigValue,
+                          style: AppText.display(58, color: Colors.white)),
+                    ),
+                  ),
+                  Text(bigLabel, style: AppText.label(11)),
                 if (stats.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   Row(
@@ -93,6 +109,7 @@ class GameResultOverlay extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
