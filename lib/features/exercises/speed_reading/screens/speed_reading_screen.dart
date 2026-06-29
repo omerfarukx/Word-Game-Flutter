@@ -59,7 +59,7 @@ class _SpeedReadingScreenState extends State<SpeedReadingScreen> {
             ReadPhase.idle => _SpeedPicker(onPick: _c.start),
             ReadPhase.countdown => _Countdown(value: _c.countdown),
             ReadPhase.reading => _Reader(c: _c),
-            ReadPhase.done => const SizedBox.shrink(),
+            ReadPhase.done => const SizedBox.expand(),
           },
           if (_c.phase == ReadPhase.done)
             GameResultOverlay(

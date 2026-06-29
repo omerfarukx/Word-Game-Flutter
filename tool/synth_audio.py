@@ -38,8 +38,8 @@ def pad(freq, dur, detune=0.006, a=0.4, r=0.6):
         amp=1.0/k
         x+=amp*np.sin(2*np.pi*freq*k*t)
         x+=amp*np.sin(2*np.pi*freq*k*(1+detune)*t)
-    # one-pole lowpass
-    a_lp=0.06
+    # one-pole lowpass (brighter cutoff so pads aren't muffled)
+    a_lp=0.28
     y=np.zeros(n); acc=0.0
     # vectorized one-pole approximation via cumulative filtering
     b=a_lp
@@ -67,7 +67,7 @@ def reverb(x, ir_dur=0.5, decay=6.0, mix=0.25, lp=0.5):
     wet=wet/ (np.max(np.abs(wet))+1e-9)
     return x*(1-mix)+wet*mix*np.max(np.abs(x))
 
-def master(x, peak=0.89):
+def master(x, peak=0.96):
     x=np.tanh(x*1.1)
     x=x/(np.max(np.abs(x))+1e-9)*peak
     return x

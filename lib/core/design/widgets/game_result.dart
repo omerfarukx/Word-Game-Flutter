@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../app_typography.dart';
@@ -41,12 +40,10 @@ class GameResultOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          color: Colors.black.withValues(alpha: 0.55),
-          alignment: Alignment.center,
-          child: Padding(
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.74),
+        alignment: Alignment.center,
+        child: Padding(
             padding: const EdgeInsets.all(28),
             child: Container(
               padding: const EdgeInsets.all(24),
@@ -109,7 +106,6 @@ class GameResultOverlay extends StatelessWidget {
           ),
         ),
       ),
-    ),
     );
   }
 }

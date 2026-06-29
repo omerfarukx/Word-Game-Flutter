@@ -28,7 +28,7 @@ class MusicService {
   bool get muted => _muted;
 
   static const _prefKey = 'music_muted';
-  static const double _volume = 0.32;
+  static const double _volume = 0.5;
 
   Future<void> init() async {
     try {
