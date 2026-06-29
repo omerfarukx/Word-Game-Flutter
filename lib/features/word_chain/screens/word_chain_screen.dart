@@ -7,6 +7,7 @@ import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/shaker.dart';
 import '../../../core/design/widgets/stat_pill.dart';
@@ -102,6 +103,11 @@ class _WordChainScreenState extends State<WordChainScreen> {
           Column(
             children: [
               _StatRow(c: _c),
+              RecordChase(
+                accent: _accent,
+                best: Records.instance.best('word_chain'),
+                current: _c.score,
+              ),
               Expanded(
                 child: _c.chain.isEmpty
                     ? const _EmptyHint()

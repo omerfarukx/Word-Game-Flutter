@@ -7,6 +7,7 @@ import '../../../../core/design/widgets/app_button.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
@@ -106,6 +107,11 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
     return Column(
       children: [
         _StatRow(c: _c),
+        RecordChase(
+          accent: _accent,
+          best: Records.instance.best('word_recognition'),
+          current: _c.score,
+        ),
         Expanded(child: Center(child: _Stage(c: _c))),
         if (_c.phase == RecogPhase.input)
           _InputBar(input: _input, focus: _focus, onSubmit: _submit),

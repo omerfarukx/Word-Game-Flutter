@@ -9,6 +9,7 @@ import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/game_result.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/design/widgets/timer_chip.dart';
@@ -94,6 +95,11 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
     return Column(
       children: [
         _StatRow(c: _c),
+        RecordChase(
+          accent: _accent,
+          best: Records.instance.best('word_focus'),
+          current: _c.score,
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
           child: Row(

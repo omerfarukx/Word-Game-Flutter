@@ -7,6 +7,7 @@ import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/shaker.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
@@ -79,6 +80,11 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
           Column(
             children: [
               _StatRow(c: _c),
+              RecordChase(
+                accent: _accent,
+                best: Records.instance.best('word_pairs'),
+                current: _c.score,
+              ),
               _Prompt(found: _c.found, targets: _c.targets),
               Expanded(
                 child: Shaker(
