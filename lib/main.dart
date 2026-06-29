@@ -4,13 +4,11 @@ import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
 import 'core/words/word_service.dart';
-import 'features/exercises/eye_focus/screens/eye_focus_list_screen.dart';
+import 'features/exercises/eye_focus/screens/eye_focus_screen.dart';
 import 'features/exercises/speed_reading/screens/speed_reading_screen.dart';
 import 'features/exercises/word_pairs/screens/word_pairs_screen.dart';
 import 'features/exercises/letter_search/screens/letter_search_screen.dart';
-import 'features/exercises/speed_reading/screens/speed_reading_exercise_screen.dart';
 import 'features/home/screens/home_screen.dart';
-import 'features/exercises/speed_reading/providers/speed_reading_provider.dart';
 import 'features/exercises/word_recognition/screens/word_recognition_screen.dart';
 import 'features/exercises/peripheral_vision/screens/peripheral_vision_screen.dart';
 import 'features/word_focus/screens/word_focus_screen.dart';
@@ -28,9 +26,6 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => SpeedReadingProvider()..initialize(),
-        ),
-        ChangeNotifierProvider(
           create: (_) => StatisticsProvider(),
         ),
       ],
@@ -40,12 +35,12 @@ void main() async {
         initialRoute: RouteConstants.home,
         routes: {
           RouteConstants.home: (context) => const HomeScreen(),
-          RouteConstants.eyeFocus: (context) => const EyeFocusListScreen(),
+          RouteConstants.eyeFocus: (context) => const EyeFocusScreen(),
           RouteConstants.speedReading: (context) => const SpeedReadingScreen(),
           RouteConstants.wordPairs: (context) => const WordPairsScreen(),
           RouteConstants.letterSearch: (context) => const LetterSearchScreen(),
           RouteConstants.speedReadingExercise: (context) =>
-              const SpeedReadingExerciseScreen(),
+              const SpeedReadingScreen(),
           RouteConstants.wordRecognition: (context) =>
               const WordRecognitionScreen(),
           RouteConstants.peripheralVision: (context) =>

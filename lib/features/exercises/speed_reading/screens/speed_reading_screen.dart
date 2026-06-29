@@ -1,5 +1,16 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../core/design/app_colors.dart';
+import '../../../../core/design/app_typography.dart';
+import '../../../../core/design/decorations.dart';
+import '../../../../core/design/widgets/game_result.dart';
+import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/reveal.dart';
+import '../../../statistics/providers/statistics_provider.dart';
+import '../controllers/speed_reading_controller.dart';
+
+const _accent = AppColors.reading;
 
 class SpeedReadingScreen extends StatefulWidget {
   const SpeedReadingScreen({super.key});
@@ -9,223 +20,210 @@ class SpeedReadingScreen extends StatefulWidget {
 }
 
 class _SpeedReadingScreenState extends State<SpeedReadingScreen> {
-  final String _text = '''
-Hızlı okuma, gözün metni daha hızlı taraması ve beynin bilgiyi daha hızlı işlemesi prensibine dayanır. 
-Bu yeteneği geliştirmek için düzenli pratik yapmak gerekir. 
-Göz kaslarının eğitilmesi ve odaklanma yeteneğinin artırılması önemlidir.
-Hızlı okuma yaparken anlama oranının da yüksek olması hedeflenir.
-Bunun için okuma hızı kademeli olarak artırılmalıdır.
-''';
-
-  final List<String> _words = [];
-  String _currentWord = '';
-  int _currentIndex = 0;
-  bool _isPlaying = false;
-  Timer? _timer;
-  int _speed = 300; // milisaniye
-  bool _showSettings = false;
-  int _wordsPerMinute = 0;
+  final SpeedReadingController _c = SpeedReadingController();
+  bool _saved = false;
 
   @override
   void initState() {
     super.initState();
-    _words.addAll(_text.split(' '));
+    _c.addListener(_onChange);
+  }
+
+  void _onChange() {
+    if (_c.phase == ReadPhase.done && !_saved) {
+      _saved = true;
+      context.read<StatisticsProvider>().addExerciseCompletion(
+            _c.durationSeconds / 60,
+          );
+    } else if (_c.phase != ReadPhase.done) {
+      _saved = false;
+    }
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _c.removeListener(_onChange);
+    _c.dispose();
     super.dispose();
-  }
-
-  void _startExercise() {
-    setState(() {
-      _isPlaying = true;
-      _currentIndex = 0;
-      _currentWord = _words[_currentIndex];
-      _wordsPerMinute = (60000 / _speed).round();
-    });
-
-    _timer = Timer.periodic(Duration(milliseconds: _speed), (timer) {
-      setState(() {
-        if (_currentIndex < _words.length - 1) {
-          _currentIndex++;
-          _currentWord = _words[_currentIndex];
-        } else {
-          _stopExercise();
-        }
-      });
-    });
-  }
-
-  void _stopExercise() {
-    _timer?.cancel();
-    setState(() {
-      _isPlaying = false;
-      _currentWord = '';
-    });
-  }
-
-  void _updateSpeed(int newSpeed) {
-    setState(() {
-      _speed = newSpeed;
-      _wordsPerMinute = (60000 / _speed).round();
-      if (_isPlaying) {
-        _stopExercise();
-        _startExercise();
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        if (_isPlaying) {
-          _stopExercise();
-        }
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              if (_isPlaying) {
-                _stopExercise();
-              }
-              Navigator.of(context).pop();
-            },
-          ),
-          title: const Text('Hızlı Okuma'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                setState(() {
-                  _showSettings = !_showSettings;
-                });
-              },
-            ),
-          ],
-        ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              if (_showSettings) ...[
-                Card(
-                  margin: const EdgeInsets.all(16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Hız Ayarı (ms)',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '$_wordsPerMinute kelime/dk',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Slider(
-                          value: _speed.toDouble(),
-                          min: 100,
-                          max: 1000,
-                          divisions: 18,
-                          label: _speed.toString(),
-                          onChanged: (value) => _updateSpeed(value.toInt()),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const Divider(),
+    return GameScaffold(
+      title: 'Hızlı Okuma',
+      accent: _accent,
+      child: Stack(
+        children: [
+          switch (_c.phase) {
+            ReadPhase.idle => _SpeedPicker(onPick: _c.start),
+            ReadPhase.countdown => _Countdown(value: _c.countdown),
+            ReadPhase.reading => _Reader(c: _c),
+            ReadPhase.done => const SizedBox.shrink(),
+          },
+          if (_c.phase == ReadPhase.done)
+            GameResultOverlay(
+              accent: _accent,
+              title: 'Bitti! 📖',
+              bigValue: '${_c.speed.wpm}',
+              bigLabel: 'KELİME/DK',
+              stats: [
+                ResultStat('KELİME', '${_c.wordCount}'),
+                ResultStat('SÜRE', '${_c.durationSeconds} sn'),
+                ResultStat('TEMPO', _c.speed.label),
               ],
-              if (!_isPlaying)
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      _text,
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  ),
-                )
-              else
-                Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            border: Border.all(
-                              color: primaryColor,
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _currentWord,
-                            style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Hız: $_wordsPerMinute kelime/dk',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: ElevatedButton(
-                  onPressed: _isPlaying ? _stopExercise : _startExercise,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: Text(
-                    _isPlaying ? 'Durdur' : 'Başla',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ),
+              restartLabel: 'Yeni Metin',
+              onRestart: () => _c.start(_c.speed),
+              onExit: () => Navigator.of(context).maybePop(),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SpeedPicker extends StatelessWidget {
+  const _SpeedPicker({required this.onPick});
+  final void Function(ReadSpeed) onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Temponu seç', style: AppText.display(22)),
+          const SizedBox(height: 6),
+          Text('Kelimeler tek tek, seçtiğin hızda akacak. Sadece oku.',
+              style: AppText.body(14, color: AppColors.textLow)),
+          const SizedBox(height: 24),
+          for (var i = 0; i < ReadSpeed.values.length; i++) ...[
+            Reveal(
+              delay: Duration(milliseconds: i * 70),
+              child: _SpeedCard(
+                speed: ReadSpeed.values[i],
+                onTap: () => onPick(ReadSpeed.values[i]),
               ),
-            ],
+            ),
+            const SizedBox(height: 12),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SpeedCard extends StatelessWidget {
+  const _SpeedCard({required this.speed, required this.onTap});
+  final ReadSpeed speed;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: Surfaces.tile(radius: 18),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: AppGradients.reading,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                          color: _accent.withValues(alpha: 0.4),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5)),
+                    ],
+                  ),
+                  child: const Icon(Icons.bolt_rounded, color: Colors.white),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(speed.label, style: AppText.display(18)),
+                      const SizedBox(height: 4),
+                      Text(speed.blurb,
+                          style: AppText.body(13, color: AppColors.textLow)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded,
+                    color: _accent.withValues(alpha: 0.8)),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _Countdown extends StatelessWidget {
+  const _Countdown({required this.value});
+  final int value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ShaderMask(
+        shaderCallback: (r) => AppGradients.reading.createShader(r),
+        child: Text('$value',
+            key: ValueKey(value),
+            style: AppText.display(96, color: Colors.white)),
+      ),
+    );
+  }
+}
+
+class _Reader extends StatelessWidget {
+  const _Reader({required this.c});
+  final SpeedReadingController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: c.progress,
+              minHeight: 6,
+              backgroundColor: AppColors.surface,
+              valueColor: const AlwaysStoppedAnimation(_accent),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Text(
+              c.currentWord,
+              textAlign: TextAlign.center,
+              style: AppText.display(40, color: AppColors.textHi),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Text('${c.speed.wpm} kelime/dk',
+              style: AppText.label(12, color: AppColors.textLow)),
+        ),
+      ],
     );
   }
 }
