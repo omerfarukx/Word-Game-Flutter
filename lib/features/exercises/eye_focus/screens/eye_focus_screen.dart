@@ -7,6 +7,7 @@ import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/feedback/records.dart';
 import '../../../statistics/providers/statistics_provider.dart';
 import '../controllers/schultz_controller.dart';
 
@@ -22,6 +23,7 @@ class EyeFocusScreen extends StatefulWidget {
 class _EyeFocusScreenState extends State<EyeFocusScreen> {
   final SchultzController _c = SchultzController();
   bool _saved = false;
+  bool _record = false;
   int _confetti = 0;
 
   @override
@@ -35,6 +37,8 @@ class _EyeFocusScreenState extends State<EyeFocusScreen> {
     if (_c.isComplete && !_saved) {
       _saved = true;
       _confetti++;
+      _record = Records.instance
+          .submit('schultz', _c.elapsedSeconds, lowerIsBetter: true);
       context.read<StatisticsProvider>().addExerciseCompletion(
             _c.elapsedSeconds / 60,
           );
@@ -77,9 +81,11 @@ class _EyeFocusScreenState extends State<EyeFocusScreen> {
             GameResultOverlay(
               accent: _accent,
               title: 'Tamamlandı! 🎯',
+              isRecord: _record,
               bigValue: _fmt(_c.elapsedSeconds),
               bigLabel: 'SÜRE',
               stats: [
+                ResultStat('EN İYİ', _fmt(Records.instance.best('schultz'))),
                 ResultStat('YANLIŞ', '${_c.wrongCount}'),
                 const ResultStat('TABLO', '6×6'),
               ],

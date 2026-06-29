@@ -9,6 +9,7 @@ import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../../core/feedback/records.dart';
 import '../../../statistics/providers/statistics_provider.dart';
 import '../controllers/letter_search_controller.dart';
 
@@ -24,6 +25,7 @@ class LetterSearchScreen extends StatefulWidget {
 class _LetterSearchScreenState extends State<LetterSearchScreen> {
   final LetterSearchController _c = LetterSearchController();
   bool _saved = false;
+  bool _record = false;
   int _prevLevel = 1;
   int _confetti = 0;
 
@@ -41,6 +43,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
     }
     if (_c.isOver && !_saved) {
       _saved = true;
+      _record = Records.instance.submit('letter_search', _c.score);
       context.read<StatisticsProvider>().addExerciseCompletion(
             LetterSearchController.gameSeconds / 60,
           );
@@ -82,12 +85,13 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
             GameResultOverlay(
               accent: _accent,
               title: 'Süre Doldu',
+              isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',
               stats: [
+                ResultStat('EN İYİ', '${Records.instance.best('letter_search')}'),
                 ResultStat('SEVİYE', '${_c.level}'),
                 ResultStat('DOĞRULUK', '%${_c.accuracy}'),
-                ResultStat('KOMBO', 'x${_c.maxCombo}'),
               ],
               onRestart: _restart,
               onExit: () => Navigator.of(context).maybePop(),

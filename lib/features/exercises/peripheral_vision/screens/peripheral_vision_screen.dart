@@ -10,6 +10,7 @@ import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../../core/feedback/records.dart';
 import '../../../statistics/providers/statistics_provider.dart';
 import '../controllers/peripheral_controller.dart';
 
@@ -25,6 +26,7 @@ class PeripheralVisionScreen extends StatefulWidget {
 class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
   final PeripheralController _c = PeripheralController();
   bool _saved = false;
+  bool _record = false;
   int _confetti = 0;
 
   @override
@@ -37,7 +39,8 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
   void _onChange() {
     if (_c.isOver && !_saved) {
       _saved = true;
-      if (_c.score > 0 && _c.accuracy >= 70) _confetti++;
+      _record = Records.instance.submit('peripheral', _c.score);
+      if (_c.score > 0 && (_record || _c.accuracy >= 70)) _confetti++;
       context.read<StatisticsProvider>().addExerciseCompletion(
             PeripheralController.gameSeconds / 60,
           );
@@ -85,12 +88,13 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
             GameResultOverlay(
               accent: _accent,
               title: 'Süre Doldu',
+              isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',
               stats: [
+                ResultStat('EN İYİ', '${Records.instance.best('peripheral')}'),
                 ResultStat('DOĞRULUK', '%${_c.accuracy}'),
                 ResultStat('SEVİYE', '${_c.level}'),
-                ResultStat('KOMBO', 'x${_c.maxCombo}'),
               ],
               onRestart: _restart,
               onExit: () => Navigator.of(context).maybePop(),

@@ -12,6 +12,7 @@ import '../../../core/design/widgets/game_scaffold.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/design/widgets/timer_chip.dart';
+import '../../../core/feedback/records.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
@@ -31,12 +32,14 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
   late final WordFocusController _c =
       WordFocusController(WordService.instance)..addListener(_onChange);
   bool _saved = false;
+  bool _record = false;
   int _confetti = 0;
 
   void _onChange() {
     if (_c.phase == FocusPhase.over && !_saved) {
       _saved = true;
-      if (_c.score > 0 && _c.accuracy >= 70) _confetti++;
+      _record = Records.instance.submit('word_focus', _c.score);
+      if (_c.score > 0 && (_record || _c.accuracy >= 70)) _confetti++;
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordFocusController.gameSeconds / 60,
           );
@@ -71,12 +74,13 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
             GameResultOverlay(
               accent: _accent,
               title: 'Süre Doldu',
+              isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',
               stats: [
+                ResultStat('EN İYİ', '${Records.instance.best('word_focus')}'),
                 ResultStat('DOĞRULUK', '%${_c.accuracy}'),
                 ResultStat('KOMBO', 'x${_c.maxCombo}'),
-                ResultStat('TÜR', _c.type.label),
               ],
               onRestart: _restart,
               onExit: () => Navigator.of(context).maybePop(),

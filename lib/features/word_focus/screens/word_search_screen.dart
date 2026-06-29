@@ -9,6 +9,7 @@ import '../../../core/design/widgets/game_result.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/design/widgets/timer_chip.dart';
+import '../../../core/feedback/records.dart';
 import '../../../core/words/word_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
 import '../controllers/word_search_controller.dart';
@@ -25,6 +26,7 @@ class WordSearchScreen extends StatefulWidget {
 class _WordSearchScreenState extends State<WordSearchScreen> {
   final WordSearchController _c = WordSearchController();
   bool _saved = false;
+  bool _record = false;
   int _prevLevel = 1;
   int _confetti = 0;
 
@@ -42,6 +44,7 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
     }
     if (_c.isOver && !_saved) {
       _saved = true;
+      _record = Records.instance.submit('word_search', _c.score);
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordSearchController.gameSeconds / 60,
           );
@@ -97,9 +100,11 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
             GameResultOverlay(
               accent: _accent,
               title: 'Süre Doldu',
+              isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',
               stats: [
+                ResultStat('EN İYİ', '${Records.instance.best('word_search')}'),
                 ResultStat('SEVİYE', '${_c.level}'),
                 ResultStat('TEMA', _c.themeName),
               ],

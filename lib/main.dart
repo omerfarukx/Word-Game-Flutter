@@ -4,6 +4,7 @@ import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
 import 'core/feedback/music_service.dart';
+import 'core/feedback/records.dart';
 import 'core/feedback/sound_service.dart';
 import 'core/words/word_service.dart';
 import 'features/exercises/eye_focus/screens/eye_focus_screen.dart';
@@ -25,6 +26,7 @@ void main() async {
   await WordService.load();
   await SoundService.instance.load();
   await MusicService.instance.init();
+  await Records.instance.init();
 
   runApp(
     MultiProvider(

@@ -10,6 +10,7 @@ import '../../../../core/design/widgets/game_scaffold.dart';
 import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../../core/feedback/records.dart';
 import '../../../../core/text/turkish.dart';
 import '../../../../core/words/word_service.dart';
 import '../../../statistics/providers/statistics_provider.dart';
@@ -30,6 +31,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
   final _input = TextEditingController();
   final _focus = FocusNode();
   bool _saved = false;
+  bool _record = false;
   int _confetti = 0;
 
   void _onChange() {
@@ -40,7 +42,8 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
     }
     if (_c.phase == RecogPhase.over && !_saved) {
       _saved = true;
-      if (_c.score > 0 && _c.accuracy >= 70) _confetti++;
+      _record = Records.instance.submit('word_recognition', _c.score);
+      if (_c.score > 0 && (_record || _c.accuracy >= 70)) _confetti++;
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordRecognitionController.gameSeconds / 60,
           );
@@ -83,11 +86,12 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
             GameResultOverlay(
               accent: _accent,
               title: 'Süre Doldu',
+              isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'DOĞRU',
               stats: [
+                ResultStat('EN İYİ', '${Records.instance.best('word_recognition')}'),
                 ResultStat('DOĞRULUK', '%${_c.accuracy}'),
-                ResultStat('DENEME', '${_c.attempts}'),
                 ResultStat('ZORLUK', _c.difficulty.label),
               ],
               onRestart: _restart,

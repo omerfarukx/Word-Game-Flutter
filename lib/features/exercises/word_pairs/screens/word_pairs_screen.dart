@@ -11,6 +11,7 @@ import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/shaker.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../../core/feedback/records.dart';
 import '../../../../core/text/turkish.dart';
 import '../../../../core/words/word_service.dart';
 import '../../../statistics/providers/statistics_provider.dart';
@@ -29,6 +30,7 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
   late final WordPairsController _c =
       WordPairsController(WordService.instance)..addListener(_onChange);
   bool _saved = false;
+  bool _record = false;
   int _prevLevel = 1;
   int _confetti = 0;
 
@@ -45,6 +47,7 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
     }
     if (_c.isOver && !_saved) {
       _saved = true;
+      _record = Records.instance.submit('word_pairs', _c.score);
       context.read<StatisticsProvider>().addExerciseCompletion(
             WordPairsController.gameSeconds / 60,
           );
@@ -90,9 +93,11 @@ class _WordPairsScreenState extends State<WordPairsScreen> {
             GameResultOverlay(
               accent: _accent,
               title: 'Süre Doldu',
+              isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',
               stats: [
+                ResultStat('EN İYİ', '${Records.instance.best('word_pairs')}'),
                 ResultStat('SEVİYE', '${_c.level}'),
                 ResultStat('KOMBO', 'x${_c.maxCombo}'),
               ],
