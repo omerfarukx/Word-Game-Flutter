@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -24,9 +25,13 @@ class WordService {
   static Future<WordService> load() async {
     final raw = await rootBundle.loadString('assets/data/tr_words.txt');
     final words = <String>{};
-    for (final token in raw.split(RegExp(r'\s+'))) {
-      final w = Tr.lower(token.trim());
-      if (w.length >= 2 && Tr.lettersOnly.hasMatch(w)) words.add(w);
+    for (final line in const LineSplitter().convert(raw)) {
+      final trimmed = line.trim();
+      if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
+      for (final token in trimmed.split(RegExp(r'\s+'))) {
+        final w = Tr.lower(token);
+        if (w.length >= 2 && Tr.lettersOnly.hasMatch(w)) words.add(w);
+      }
     }
 
     final byFirst = <String, List<String>>{};
@@ -53,5 +58,21 @@ class WordService {
     final candidates = pool.where((w) => !exclude.contains(w)).toList();
     if (candidates.isEmpty) return null;
     return candidates[(random ?? Random()).nextInt(candidates.length)];
+  }
+
+  /// A random word whose length is within [minLen]..[maxLen], excluding
+  /// [exclude]. Returns null when nothing fits.
+  String? randomWord({
+    int minLen = 2,
+    int maxLen = 40,
+    Set<String> exclude = const {},
+    Random? random,
+  }) {
+    final pool = _words
+        .where((w) =>
+            w.length >= minLen && w.length <= maxLen && !exclude.contains(w))
+        .toList();
+    if (pool.isEmpty) return null;
+    return pool[(random ?? Random()).nextInt(pool.length)];
   }
 }
