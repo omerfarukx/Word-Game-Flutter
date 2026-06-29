@@ -48,6 +48,14 @@ class WordFocusController extends ChangeNotifier {
   int timeLeft = gameSeconds;
   int wrongTick = 0;
 
+  // Power-ups
+  int hints = 2;
+  int jokers = 1;
+  int freezes = 1;
+  int frozenTicks = 0;
+  int? hintIndex;
+  bool get isFrozen => frozenTicks > 0;
+
   final List<String> _recent = [];
   Timer? _timer;
 
@@ -63,10 +71,20 @@ class WordFocusController extends ChangeNotifier {
     correctTaps = 0;
     timeLeft = gameSeconds;
     _recent.clear();
+    hints = 2;
+    jokers = 1;
+    freezes = 1;
+    frozenTicks = 0;
+    hintIndex = null;
     phase = FocusPhase.playing;
     _nextRound();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
       timeLeft--;
       if (timeLeft <= 0) {
         timeLeft = 0;
@@ -77,7 +95,43 @@ class WordFocusController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void freeze() {
+    if (phase != FocusPhase.playing || freezes <= 0 || frozenTicks > 0) return;
+    freezes--;
+    frozenTicks = 5;
+    notifyListeners();
+  }
+
+  void useHint() {
+    if (phase != FocusPhase.playing || hints <= 0) return;
+    final i = options.indexWhere((o) => o.isMatch && !o.found);
+    if (i < 0) return;
+    hints--;
+    hintIndex = i;
+    notifyListeners();
+    Timer(const Duration(milliseconds: 1500), () {
+      if (hintIndex == i) hintIndex = null;
+      notifyListeners();
+    });
+  }
+
+  void useJoker() {
+    if (phase != FocusPhase.playing || jokers <= 0) return;
+    final i = options.indexWhere((o) => o.isMatch && !o.found);
+    if (i < 0) return;
+    jokers--;
+    final opt = options[i];
+    opt.found = true;
+    found++;
+    correctTaps++;
+    score += 15;
+    Juice.correct();
+    if (found >= correctCount) _nextRound();
+    notifyListeners();
+  }
+
   void _nextRound() {
+    hintIndex = null;
     final pool = WordFocusData.entries[type]!;
     var entry = pool[_rand.nextInt(pool.length)];
     var guard = 0;

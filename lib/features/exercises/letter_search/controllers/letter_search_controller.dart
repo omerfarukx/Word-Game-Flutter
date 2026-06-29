@@ -35,6 +35,14 @@ class LetterSearchController extends ChangeNotifier {
   bool isOver = false;
   int wrongTick = 0;
 
+  // Power-ups
+  int hints = 2;
+  int jokers = 1;
+  int freezes = 1;
+  int frozenTicks = 0;
+  final Set<int> hintCells = {};
+  bool get isFrozen => frozenTicks > 0;
+
   Timer? _timer;
 
   int get accuracy =>
@@ -50,9 +58,19 @@ class LetterSearchController extends ChangeNotifier {
     timeLeft = gameSeconds;
     isActive = true;
     isOver = false;
+    hints = 2;
+    jokers = 1;
+    freezes = 1;
+    frozenTicks = 0;
+    hintCells.clear();
     _buildRound();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
       timeLeft--;
       if (timeLeft <= 0) {
         timeLeft = 0;
@@ -63,9 +81,59 @@ class LetterSearchController extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _firstUnfoundTarget() {
+    for (var i = 0; i < grid.length; i++) {
+      if (grid[i] == target && !foundCells.contains(i)) return i;
+    }
+    return -1;
+  }
+
+  void freeze() {
+    if (!isActive || freezes <= 0 || frozenTicks > 0) return;
+    freezes--;
+    frozenTicks = 5;
+    notifyListeners();
+  }
+
+  void useHint() {
+    if (!isActive || hints <= 0) return;
+    final i = _firstUnfoundTarget();
+    if (i < 0) return;
+    hints--;
+    hintCells
+      ..clear()
+      ..add(i);
+    notifyListeners();
+    Timer(const Duration(milliseconds: 1500), () {
+      hintCells.clear();
+      notifyListeners();
+    });
+  }
+
+  void useJoker() {
+    if (!isActive || jokers <= 0) return;
+    final i = _firstUnfoundTarget();
+    if (i < 0) return;
+    jokers--;
+    found++;
+    correctTaps++;
+    foundCells.add(i);
+    score += 10;
+    if (found >= occurrences) {
+      level++;
+      timeLeft += 5;
+      Juice.levelUp();
+      _buildRound();
+    } else {
+      Juice.correct();
+    }
+    notifyListeners();
+  }
+
   void _buildRound() {
     found = 0;
     foundCells.clear();
+    hintCells.clear();
     wrongCell = -1;
     target = _alphabet[_rand.nextInt(_alphabet.length)];
     occurrences = (4 + level).clamp(4, 9);

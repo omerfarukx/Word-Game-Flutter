@@ -7,6 +7,7 @@ import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/power_bar.dart';
 import '../../../../core/feedback/achievements.dart';
 import '../../../../core/feedback/records.dart';
 import '../../../statistics/providers/statistics_provider.dart';
@@ -75,7 +76,14 @@ class _EyeFocusScreenState extends State<EyeFocusScreen> {
                 ),
               ),
               Expanded(child: Center(child: _Grid(c: _c))),
-              const SizedBox(height: 12),
+              PowerBar(
+                accent: _accent,
+                onHint: _c.useHint,
+                hints: _c.hints,
+                onFreeze: _c.freeze,
+                freezes: _c.freezes,
+                frozen: _c.isFrozen,
+              ),
             ],
           ),
           ConfettiBurst(trigger: _confetti),
@@ -211,12 +219,15 @@ class _Cell extends StatelessWidget {
     final value = c.numbers[index];
     final done = c.found.contains(value);
     final wrong = c.wrongCell == value;
+    final hint = c.hintCell == index;
 
     final deco = done
         ? Surfaces.accentTile(AppColors.success, radius: 12)
         : wrong
             ? Surfaces.accentTile(AppColors.danger, radius: 12)
-            : Surfaces.tile(radius: 12);
+            : hint
+                ? Surfaces.accentTile(_accent, radius: 12)
+                : Surfaces.tile(radius: 12);
 
     return GestureDetector(
       onTap: () => c.tapNumber(value),

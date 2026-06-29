@@ -9,6 +9,7 @@ import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/game_result.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/power_bar.dart';
 import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/stat_pill.dart';
@@ -117,6 +118,16 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
           ),
         ),
         Expanded(child: _Ring(c: _c)),
+        PowerBar(
+          accent: _accent,
+          onHint: _c.useHint,
+          hints: _c.hints,
+          onJoker: _c.useJoker,
+          jokers: _c.jokers,
+          onFreeze: _c.freeze,
+          freezes: _c.freezes,
+          frozen: _c.isFrozen,
+        ),
       ],
     );
   }
@@ -183,6 +194,7 @@ class _Ring extends StatelessWidget {
               delay: Duration(milliseconds: i * 40),
               child: _OptionChip(
                 option: c.options[i],
+                hinted: c.hintIndex == i,
                 onTap: () => c.tap(i),
               ),
             ),
@@ -225,8 +237,13 @@ class _CenterWord extends StatelessWidget {
 }
 
 class _OptionChip extends StatelessWidget {
-  const _OptionChip({required this.option, required this.onTap});
+  const _OptionChip({
+    required this.option,
+    required this.hinted,
+    required this.onTap,
+  });
   final FocusOption option;
+  final bool hinted;
   final VoidCallback onTap;
 
   @override
@@ -235,7 +252,9 @@ class _OptionChip extends StatelessWidget {
         ? Surfaces.accentTile(AppColors.success, radius: 16)
         : option.wrong
             ? Surfaces.accentTile(AppColors.danger, radius: 16)
-            : Surfaces.tile(radius: 16);
+            : hinted
+                ? Surfaces.accentTile(_accent, radius: 16)
+                : Surfaces.tile(radius: 16);
     return GestureDetector(
       onTap: option.found ? null : onTap,
       child: AnimatedContainer(

@@ -7,6 +7,7 @@ import '../../../../core/design/widgets/app_button.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/power_bar.dart';
 import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
@@ -115,6 +116,14 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
           current: _c.score,
         ),
         Expanded(child: Center(child: _Stage(c: _c))),
+        PowerBar(
+          accent: _accent,
+          onJoker: _c.useJoker,
+          jokers: _c.jokers,
+          onFreeze: _c.freeze,
+          freezes: _c.freezes,
+          frozen: _c.isFrozen,
+        ),
         if (_c.phase == RecogPhase.input)
           _InputBar(input: _input, focus: _focus, onSubmit: _submit),
       ],

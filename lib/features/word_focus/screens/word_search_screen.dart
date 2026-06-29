@@ -7,6 +7,7 @@ import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/game_result.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/power_bar.dart';
 import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/design/widgets/timer_chip.dart';
@@ -101,6 +102,16 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
               ),
               Expanded(child: Center(child: _Grid(c: _c))),
               _WordBank(c: _c),
+              PowerBar(
+                accent: _accent,
+                onHint: _c.useHint,
+                hints: _c.hints,
+                onJoker: _c.useJoker,
+                jokers: _c.jokers,
+                onFreeze: _c.freeze,
+                freezes: _c.freezes,
+                frozen: _c.isFrozen,
+              ),
             ],
           ),
           ConfettiBurst(trigger: _confetti),
@@ -210,13 +221,16 @@ class _Cell extends StatelessWidget {
     const n = WordSearchController.size;
     final found = c.foundCells.contains(id);
     final selected = c.selection.contains(id);
+    final hint = c.hintCells.contains(id);
     final letter = c.grid[id ~/ n][id % n];
 
     final (Color bg, Color fg) = found
         ? (AppColors.success.withValues(alpha: 0.30), Colors.white)
         : selected
             ? (_accent, Colors.white)
-            : (Colors.transparent, AppColors.textMid);
+            : hint
+                ? (_accent.withValues(alpha: 0.45), Colors.white)
+                : (Colors.transparent, AppColors.textMid);
 
     return Container(
       margin: const EdgeInsets.all(1.5),

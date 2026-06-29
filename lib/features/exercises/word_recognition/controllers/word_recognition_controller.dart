@@ -62,6 +62,12 @@ class WordRecognitionController extends ChangeNotifier {
   int attempts = 0;
   int timeLeft = gameSeconds;
 
+  // Power-ups
+  int jokers = 2;
+  int freezes = 1;
+  int frozenTicks = 0;
+  bool get isFrozen => frozenTicks > 0;
+
   final Set<String> _used = {};
   Timer? _gameTimer;
   Timer? _phaseTimer;
@@ -80,9 +86,17 @@ class WordRecognitionController extends ChangeNotifier {
     attempts = 0;
     timeLeft = gameSeconds;
     _used.clear();
+    jokers = 2;
+    freezes = 1;
+    frozenTicks = 0;
     _gameTimer?.cancel();
     _phaseTimer?.cancel();
     _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
       timeLeft--;
       if (timeLeft <= 0) {
         timeLeft = 0;
@@ -91,6 +105,19 @@ class WordRecognitionController extends ChangeNotifier {
       notifyListeners();
     });
     _nextRound();
+  }
+
+  void freeze() {
+    if (phase == RecogPhase.over || freezes <= 0 || frozenTicks > 0) return;
+    freezes--;
+    frozenTicks = 5;
+    notifyListeners();
+  }
+
+  void useJoker() {
+    if (jokers <= 0 || phase != RecogPhase.input) return;
+    jokers--;
+    submit(current); // auto-answer correctly
   }
 
   void _nextRound() {

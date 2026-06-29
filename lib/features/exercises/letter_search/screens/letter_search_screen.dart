@@ -7,6 +7,7 @@ import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/power_bar.dart';
 import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
@@ -86,7 +87,16 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
               ),
               _TargetBanner(c: _c),
               Expanded(child: Center(child: _Grid(c: _c))),
-              const SizedBox(height: 12),
+              PowerBar(
+                accent: _accent,
+                onHint: _c.useHint,
+                hints: _c.hints,
+                onJoker: _c.useJoker,
+                jokers: _c.jokers,
+                onFreeze: _c.freeze,
+                freezes: _c.freezes,
+                frozen: _c.isFrozen,
+              ),
             ],
           ),
           ConfettiBurst(trigger: _confetti),
@@ -226,11 +236,14 @@ class _Cell extends StatelessWidget {
   Widget build(BuildContext context) {
     final found = c.foundCells.contains(index);
     final wrong = c.wrongCell == index;
+    final hint = c.hintCells.contains(index);
     final deco = found
         ? Surfaces.accentTile(AppColors.success, radius: 12)
         : wrong
             ? Surfaces.accentTile(AppColors.danger, radius: 12)
-            : Surfaces.tile(radius: 12);
+            : hint
+                ? Surfaces.accentTile(_accent, radius: 12)
+                : Surfaces.tile(radius: 12);
 
     return GestureDetector(
       onTap: () => c.tap(index),

@@ -7,6 +7,7 @@ import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/power_bar.dart';
 import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/shaker.dart';
@@ -116,6 +117,14 @@ class _WordChainScreenState extends State<WordChainScreen> {
                 child: _c.chain.isEmpty
                     ? const _EmptyHint()
                     : _ChainList(words: _c.chain, scroll: _scroll),
+              ),
+              PowerBar(
+                accent: _accent,
+                onJoker: _c.useJoker,
+                jokers: _c.jokers,
+                onFreeze: _c.freeze,
+                freezes: _c.freezes,
+                frozen: _c.isFrozen,
               ),
               _InputBar(
                 controller: _c,

@@ -11,6 +11,7 @@ class SearchTarget {
   SearchTarget(this.word);
   final String word; // uppercase
   bool found = false;
+  List<int> cells = []; // encoded grid positions
 }
 
 /// Kelime Bulma: a themed word-search grid. Drag across a straight line of
@@ -44,6 +45,14 @@ class WordSearchController extends ChangeNotifier {
   bool isActive = false;
   bool isOver = false;
 
+  // Power-ups
+  int hints = 2;
+  int jokers = 1;
+  int freezes = 1;
+  int frozenTicks = 0;
+  final Set<int> hintCells = {};
+  bool get isFrozen => frozenTicks > 0;
+
   final List<String> _recentThemes = [];
   Timer? _timer;
 
@@ -55,10 +64,20 @@ class WordSearchController extends ChangeNotifier {
     timeLeft = gameSeconds;
     isActive = true;
     isOver = false;
+    hints = 2;
+    jokers = 1;
+    freezes = 1;
+    frozenTicks = 0;
+    hintCells.clear();
     _recentThemes.clear();
     _buildPuzzle();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
       timeLeft--;
       if (timeLeft <= 0) {
         timeLeft = 0;
@@ -66,6 +85,48 @@ class WordSearchController extends ChangeNotifier {
       }
       notifyListeners();
     });
+    notifyListeners();
+  }
+
+  void freeze() {
+    if (!isActive || freezes <= 0 || frozenTicks > 0) return;
+    freezes--;
+    frozenTicks = 5;
+    notifyListeners();
+  }
+
+  void useHint() {
+    if (!isActive || hints <= 0) return;
+    final t = targets.firstWhere((t) => !t.found, orElse: () => SearchTarget(''));
+    if (t.cells.isEmpty) return;
+    hints--;
+    hintCells
+      ..clear()
+      ..add(t.cells.first);
+    notifyListeners();
+    Timer(const Duration(milliseconds: 1600), () {
+      hintCells.clear();
+      notifyListeners();
+    });
+  }
+
+  void useJoker() {
+    if (!isActive || jokers <= 0) return;
+    final t = targets.firstWhere((t) => !t.found, orElse: () => SearchTarget(''));
+    if (t.cells.isEmpty) return;
+    jokers--;
+    t.found = true;
+    foundCells.addAll(t.cells);
+    score += t.word.length * 10;
+    timeLeft += 5;
+    if (foundCount >= targets.length) {
+      level++;
+      timeLeft += 15;
+      Juice.levelUp();
+      _buildPuzzle();
+    } else {
+      Juice.correct();
+    }
     notifyListeners();
   }
 
@@ -94,7 +155,8 @@ class WordSearchController extends ChangeNotifier {
     final placed = <SearchTarget>[];
     for (final word in candidates) {
       if (placed.length >= wordsPerPuzzle) break;
-      if (_tryPlace(word)) placed.add(SearchTarget(word));
+      final cells = _tryPlace(word);
+      if (cells != null) placed.add(SearchTarget(word)..cells = cells);
     }
     targets = placed;
 
@@ -107,7 +169,7 @@ class WordSearchController extends ChangeNotifier {
     }
   }
 
-  bool _tryPlace(String word) {
+  List<int>? _tryPlace(String word) {
     for (var attempt = 0; attempt < 80; attempt++) {
       final dir = _dirs[_rand.nextInt(_dirs.length)];
       final sr = _rand.nextInt(size);
@@ -126,12 +188,16 @@ class WordSearchController extends ChangeNotifier {
       }
       if (!ok) continue;
 
+      final cells = <int>[];
       for (var i = 0; i < word.length; i++) {
-        grid[sr + dir[0] * i][sc + dir[1] * i] = word[i];
+        final r = sr + dir[0] * i;
+        final c = sc + dir[1] * i;
+        grid[r][c] = word[i];
+        cells.add(r * size + c);
       }
-      return true;
+      return cells;
     }
-    return false;
+    return null;
   }
 
   // ── Drag selection ─────────────────────────────────────────────────────────

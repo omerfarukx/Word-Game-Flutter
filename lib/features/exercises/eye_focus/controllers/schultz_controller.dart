@@ -20,6 +20,13 @@ class SchultzController extends ChangeNotifier {
   final Set<int> found = {}; // numbers already tapped
   bool isComplete = false;
 
+  // Power-ups
+  int hints = 3;
+  int freezes = 1;
+  bool frozen = false;
+  int hintCell = -1;
+  bool get isFrozen => frozen;
+
   final Stopwatch _watch = Stopwatch();
   Timer? _ticker;
 
@@ -32,6 +39,10 @@ class SchultzController extends ChangeNotifier {
     wrongCell = -1;
     found.clear();
     isComplete = false;
+    hints = 3;
+    freezes = 1;
+    frozen = false;
+    hintCell = -1;
     _watch
       ..reset()
       ..start();
@@ -64,6 +75,32 @@ class SchultzController extends ChangeNotifier {
       });
     }
     notifyListeners();
+  }
+
+  void freeze() {
+    if (isComplete || freezes <= 0 || frozen) return;
+    freezes--;
+    frozen = true;
+    _watch.stop();
+    Timer(const Duration(seconds: 5), () {
+      frozen = false;
+      if (!isComplete) _watch.start();
+      notifyListeners();
+    });
+    notifyListeners();
+  }
+
+  void useHint() {
+    if (isComplete || hints <= 0) return;
+    final i = numbers.indexWhere((v) => v == currentTarget);
+    if (i < 0) return;
+    hints--;
+    hintCell = i;
+    notifyListeners();
+    Timer(const Duration(milliseconds: 1500), () {
+      if (hintCell == i) hintCell = -1;
+      notifyListeners();
+    });
   }
 
   void _complete() {

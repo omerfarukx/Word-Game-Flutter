@@ -35,6 +35,12 @@ class PeripheralController extends ChangeNotifier {
   bool isActive = false;
   bool isOver = false;
 
+  // Power-ups (no hint — it's a reaction game)
+  int jokers = 2;
+  int freezes = 1;
+  int frozenTicks = 0;
+  bool get isFrozen => frozenTicks > 0;
+
   Timer? _gameTimer;
   Timer? _phaseTimer;
 
@@ -53,8 +59,16 @@ class PeripheralController extends ChangeNotifier {
     timeLeft = gameSeconds;
     isActive = true;
     isOver = false;
+    jokers = 2;
+    freezes = 1;
+    frozenTicks = 0;
     _gameTimer?.cancel();
     _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
       timeLeft--;
       if (timeLeft <= 0) {
         timeLeft = 0;
@@ -63,6 +77,19 @@ class PeripheralController extends ChangeNotifier {
       notifyListeners();
     });
     _nextRound();
+  }
+
+  void freeze() {
+    if (!isActive || freezes <= 0 || frozenTicks > 0) return;
+    freezes--;
+    frozenTicks = 5;
+    notifyListeners();
+  }
+
+  void useJoker() {
+    if (jokers <= 0 || phase != PeriPhase.respond) return;
+    jokers--;
+    tap(litIndex); // auto-answer this round correctly
   }
 
   void _nextRound() {

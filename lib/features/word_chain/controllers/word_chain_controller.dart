@@ -36,6 +36,12 @@ class WordChainController extends ChangeNotifier {
   ChainReject? reject;
   int rejectTick = 0;
 
+  // Power-ups
+  int jokers = 2;
+  int freezes = 1;
+  int frozenTicks = 0;
+  bool get isFrozen => frozenTicks > 0;
+
   Timer? _timer;
 
   /// Letter the next word must start with, or null for the free first move.
@@ -53,8 +59,16 @@ class WordChainController extends ChangeNotifier {
     isActive = true;
     isOver = false;
     reject = null;
+    jokers = 2;
+    freezes = 1;
+    frozenTicks = 0;
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
       timeLeft--;
       if (timeLeft <= 0) {
         timeLeft = 0;
@@ -63,6 +77,25 @@ class WordChainController extends ChangeNotifier {
       notifyListeners();
     });
     notifyListeners();
+  }
+
+  void freeze() {
+    if (!isActive || freezes <= 0 || frozenTicks > 0) return;
+    freezes--;
+    frozenTicks = 5;
+    notifyListeners();
+  }
+
+  /// Auto-plays a valid next word from the dictionary.
+  void useJoker() {
+    if (!isActive || jokers <= 0) return;
+    final req = requiredLetter;
+    final word = req == null
+        ? _dict.randomWord(minLen: minWordLength, exclude: _used)
+        : _dict.randomStartingWith(req, exclude: _used);
+    if (word == null) return;
+    jokers--;
+    submit(word);
   }
 
   /// Returns true if the word was accepted.
