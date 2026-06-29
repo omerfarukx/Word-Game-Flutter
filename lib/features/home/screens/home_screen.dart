@@ -1,284 +1,135 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/constants/route_constants.dart';
+import '../../../core/design/app_colors.dart';
+import '../../../core/design/app_typography.dart';
+import '../../../core/design/decorations.dart';
+import '../../../core/design/widgets/aurora_background.dart';
+import '../../../core/design/widgets/reveal.dart';
+import '../../statistics/providers/statistics_provider.dart';
 
-class CategoryInfo {
-  final String name;
-  final Color color;
+class _Category {
+  const _Category(this.label, this.accent, this.icon);
+  final String label;
+  final Color accent;
   final IconData icon;
-
-  const CategoryInfo({
-    required this.name,
-    required this.color,
-    required this.icon,
-  });
 }
 
 class Exercise {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final String route;
-  final String category;
-
-  Exercise({
+  const Exercise({
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.route,
     required this.category,
   });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final String route;
+  final String category;
 }
+
+const _categories = <_Category>[
+  _Category('Kelime Egzersizleri', AppColors.word, Icons.text_fields_rounded),
+  _Category('Görsel Egzersizler', AppColors.visual, Icons.visibility_rounded),
+  _Category('Okuma Egzersizleri', AppColors.reading, Icons.menu_book_rounded),
+];
+
+const _exercises = <Exercise>[
+  Exercise(
+    title: 'Kelime Çiftleri',
+    subtitle: 'Aynı olmayan çiftleri bul',
+    icon: Icons.compare_arrows_rounded,
+    route: RouteConstants.wordPairs,
+    category: 'Kelime Egzersizleri',
+  ),
+  Exercise(
+    title: 'Kelime Tanıma',
+    subtitle: 'Tanıma hızını artır',
+    icon: Icons.flash_on_rounded,
+    route: RouteConstants.wordRecognition,
+    category: 'Kelime Egzersizleri',
+  ),
+  Exercise(
+    title: 'Kelime Odağı',
+    subtitle: 'İlişkili kelimeleri keşfet',
+    icon: Icons.hub_rounded,
+    route: RouteConstants.wordFocus,
+    category: 'Kelime Egzersizleri',
+  ),
+  Exercise(
+    title: 'Kelime Bulma',
+    subtitle: 'Gizli kelimeleri bul',
+    icon: Icons.grid_on_rounded,
+    route: RouteConstants.wordSearch,
+    category: 'Kelime Egzersizleri',
+  ),
+  Exercise(
+    title: 'Kelime Zinciri',
+    subtitle: 'Son harften zincir kur',
+    icon: Icons.link_rounded,
+    route: RouteConstants.wordChain,
+    category: 'Kelime Egzersizleri',
+  ),
+  Exercise(
+    title: 'Harf Arama',
+    subtitle: 'Harfleri bul ve seç',
+    icon: Icons.search_rounded,
+    route: RouteConstants.letterSearch,
+    category: 'Görsel Egzersizler',
+  ),
+  Exercise(
+    title: 'Göz Odaklama',
+    subtitle: 'Göz kaslarını güçlendir',
+    icon: Icons.center_focus_strong_rounded,
+    route: RouteConstants.eyeFocus,
+    category: 'Görsel Egzersizler',
+  ),
+  Exercise(
+    title: 'Çevresel Görüş',
+    subtitle: 'Çevreyi fark et',
+    icon: Icons.blur_circular_rounded,
+    route: RouteConstants.peripheralVision,
+    category: 'Görsel Egzersizler',
+  ),
+  Exercise(
+    title: 'Hızlı Okuma',
+    subtitle: 'Okuma hızını yükselt',
+    icon: Icons.speed_rounded,
+    route: RouteConstants.speedReadingExercise,
+    category: 'Okuma Egzersizleri',
+  ),
+];
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  Map<String, CategoryInfo> get categoryInfo => {
-        'Kelime Egzersizleri': const CategoryInfo(
-          name: 'Kelime Egzersizleri',
-          color: Color(0xFF8B5CF6),
-          icon: Icons.text_fields,
-        ),
-        'Görsel Egzersizler': const CategoryInfo(
-          name: 'Görsel Egzersizler',
-          color: Color(0xFF3B82F6),
-          icon: Icons.visibility,
-        ),
-        'Okuma Egzersizleri': const CategoryInfo(
-          name: 'Okuma Egzersizleri',
-          color: Color(0xFFF59E0B),
-          icon: Icons.menu_book,
-        ),
-      };
-
-  List<Exercise> get exercises => [
-        Exercise(
-          title: 'Kelime Çiftleri',
-          subtitle: 'Aynı olmayan kelime çiftlerini bulun',
-          icon: Icons.compare_arrows,
-          route: RouteConstants.wordPairs,
-          category: 'Kelime Egzersizleri',
-        ),
-        Exercise(
-          title: 'Kelime Tanıma',
-          subtitle: 'Kelime tanıma hızınızı artırın',
-          icon: Icons.flash_on,
-          route: RouteConstants.wordRecognition,
-          category: 'Kelime Egzersizleri',
-        ),
-        Exercise(
-          title: 'Kelime Odağı',
-          subtitle: 'Kelimeler arasındaki ilişkileri keşfedin',
-          icon: Icons.psychology,
-          route: RouteConstants.wordFocus,
-          category: 'Kelime Egzersizleri',
-        ),
-        Exercise(
-          title: 'Kelime Bulma',
-          subtitle: 'Gizli kelimeleri bulun',
-          icon: Icons.grid_on,
-          route: RouteConstants.wordSearch,
-          category: 'Kelime Egzersizleri',
-        ),
-        Exercise(
-          title: 'Kelime Zinciri',
-          subtitle: 'Son harften yeni kelimeler türetin',
-          icon: Icons.link,
-          route: RouteConstants.wordChain,
-          category: 'Kelime Egzersizleri',
-        ),
-        Exercise(
-          title: 'Harf Arama',
-          subtitle: 'Harfleri bulun ve seçin',
-          icon: Icons.search,
-          route: RouteConstants.letterSearch,
-          category: 'Görsel Egzersizler',
-        ),
-        Exercise(
-          title: 'Göz Odaklama',
-          subtitle: 'Göz kaslarınızı güçlendirin',
-          icon: Icons.remove_red_eye,
-          route: RouteConstants.eyeFocus,
-          category: 'Görsel Egzersizler',
-        ),
-        Exercise(
-          title: 'Çevresel Görüş',
-          subtitle: 'Merkeze odaklanırken çevreyi fark edin',
-          icon: Icons.visibility,
-          route: RouteConstants.peripheralVision,
-          category: 'Görsel Egzersizler',
-        ),
-        Exercise(
-          title: 'Hızlı Okuma',
-          subtitle: 'Okuma hızınızı artırın',
-          icon: Icons.speed,
-          route: RouteConstants.speedReadingExercise,
-          category: 'Okuma Egzersizleri',
-        ),
-      ];
-
   @override
   Widget build(BuildContext context) {
-    const isDark = true;
-    final categories = exercises.map((e) => e.category).toSet().toList();
+    var revealIndex = 0;
+    Duration nextDelay() => Duration(milliseconds: (revealIndex++) * 45);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF1F2937), Color(0xFF111827)],
-          ),
-        ),
-        child: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              const SliverAppBar(
-                floating: true,
-                backgroundColor: Color(0xFF1F2937),
-                elevation: 0,
-                automaticallyImplyLeading: false,
-                title: Text(
-                  'Hızlı Okuma',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildWelcomeCard(context, isDark),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final category = categories[index];
-                      final info = categoryInfo[category]!;
-                      return _buildCategorySection(
-                        context,
-                        info,
-                        exercises.where((e) => e.category == category).toList(),
-                        isDark,
-                      );
-                    },
-                    childCount: categories.length,
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _buildStatisticsCard(context, isDark),
-                ),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 16),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWelcomeCard(BuildContext context, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0EA5E9),
-            Color(0xFF0284C7),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0EA5E9).withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.emoji_events,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hoş Geldin!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Bugün kendini geliştirmeye hazır mısın?',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
+          const Positioned.fill(child: AuroraBackground(accent: AppColors.word)),
+          SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
               children: [
-                Icon(
-                  Icons.local_fire_department,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  '3 Günlük Seri!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Reveal(delay: nextDelay(), child: const _Header()),
+                const SizedBox(height: 20),
+                Reveal(delay: nextDelay(), child: const _HeroStats()),
+                const SizedBox(height: 8),
+                for (final cat in _categories) ...[
+                  const SizedBox(height: 18),
+                  Reveal(delay: nextDelay(), child: _SectionHeader(cat)),
+                  const SizedBox(height: 14),
+                  _CategoryGrid(category: cat, nextDelay: nextDelay),
+                ],
               ],
             ),
           ),
@@ -286,265 +137,244 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildCategorySection(
-    BuildContext context,
-    CategoryInfo info,
-    List<Exercise> categoryExercises,
-    bool isDark,
-  ) {
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Row(
+        Text('GÜNLÜK ANTRENMAN', style: AppText.label(11)),
+        const SizedBox(height: 6),
+        ShaderMask(
+          shaderCallback: (r) => AppGradients.word.createShader(r),
+          child: Text('Hızlı Okuma',
+              style: AppText.display(40, color: Colors.white)),
+        ),
+      ],
+    );
+  }
+}
+
+class _HeroStats extends StatelessWidget {
+  const _HeroStats();
+
+  @override
+  Widget build(BuildContext context) {
+    final stats = context.watch<StatisticsProvider>();
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: Surfaces.tile(radius: 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  color: info.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: AppGradients.word,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                        color: AppColors.word.withValues(alpha: 0.45),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6)),
+                  ],
                 ),
-                child: Icon(
-                  info.icon,
-                  color: info.color,
-                  size: 24,
+                child: const Icon(Icons.workspace_premium_rounded,
+                    color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 14),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('OKUMA DÜZEYİ', style: AppText.label(10)),
+                  const SizedBox(height: 2),
+                  Text(stats.readingLevel, style: AppText.display(22)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: _MiniStat(
+                  icon: Icons.local_fire_department_rounded,
+                  color: AppColors.reading,
+                  value: '${stats.streakDays}',
+                  label: 'GÜN SERİ',
                 ),
               ),
-              const SizedBox(width: 12),
-              Text(
-                info.name.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFE5E7EB),
-                  letterSpacing: 0.5,
+              const SizedBox(width: 10),
+              Expanded(
+                child: _MiniStat(
+                  icon: Icons.check_circle_rounded,
+                  color: AppColors.success,
+                  value: '${stats.completedExercises}',
+                  label: 'EGZERSİZ',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _MiniStat(
+                  icon: Icons.timer_rounded,
+                  color: AppColors.visual,
+                  value: '${stats.duration.toStringAsFixed(1)} sa',
+                  label: 'SÜRE',
                 ),
               ),
             ],
           ),
-        ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.95,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({
+    required this.icon,
+    required this.color,
+    required this.value,
+    required this.label,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: AppColors.bgDeep.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.stroke),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 8),
+          Text(value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppText.display(16)),
+          const SizedBox(height: 2),
+          Text(label, style: AppText.label(8)),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader(this.category);
+  final _Category category;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: category.accent.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: category.accent.withValues(alpha: 0.4)),
           ),
-          itemCount: categoryExercises.length,
-          itemBuilder: (context, index) {
-            final exercise = categoryExercises[index];
-            return _buildExerciseCard(
-              context,
-              exercise.title,
-              exercise.subtitle,
-              exercise.icon,
-              exercise.route,
-              info.color,
-              isDark,
-            );
-          },
+          child: Icon(category.icon, color: category.accent, size: 18),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(width: 10),
+        Text(category.label.toUpperCase(),
+            style: AppText.label(12, color: AppColors.textMid)),
       ],
     );
   }
+}
 
-  Widget _buildExerciseCard(
-    BuildContext context,
-    String title,
-    String subtitle,
-    IconData icon,
-    String route,
-    Color color,
-    bool isDark,
-  ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF374151),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            spreadRadius: 0,
-            offset: const Offset(0, 4),
-          ),
-        ],
+class _CategoryGrid extends StatelessWidget {
+  const _CategoryGrid({required this.category, required this.nextDelay});
+  final _Category category;
+  final Duration Function() nextDelay;
+
+  @override
+  Widget build(BuildContext context) {
+    final items =
+        _exercises.where((e) => e.category == category.label).toList();
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 1.02,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
+      itemCount: items.length,
+      itemBuilder: (context, i) => Reveal(
+        delay: nextDelay(),
+        child: _ExerciseCard(exercise: items[i], accent: category.accent),
+      ),
+    );
+  }
+}
+
+class _ExerciseCard extends StatelessWidget {
+  const _ExerciseCard({required this.exercise, required this.accent});
+  final Exercise exercise;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: Surfaces.tile(radius: 20),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () => Navigator.pushNamed(context, route),
+          onTap: () => Navigator.pushNamed(context, exercise.route),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: 46,
+                  height: 46,
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(16),
+                    gradient: AppGradients.forAccent(accent),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                          color: accent.withValues(alpha: 0.4),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5)),
+                    ],
                   ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 32,
-                  ),
+                  child: Icon(exercise.icon, color: Colors.white, size: 24),
                 ),
-                const SizedBox(height: 12),
+                const Spacer(),
+                Text(exercise.title, style: AppText.display(16)),
+                const SizedBox(height: 3),
                 Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFF9FAFB),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
+                  exercise.subtitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFFD1D5DB),
-                  ),
+                  style: AppText.body(12, color: AppColors.textLow),
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatisticsCard(BuildContext context, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF374151),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            spreadRadius: 0,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'GÜNLÜK İLERLEME',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade300,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatBox(
-                  'Okuma Düzeyi',
-                  'Şampiyon',
-                  Icons.emoji_events,
-                  Colors.amber,
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatBox(
-                  'Egzersiz',
-                  '24 Tamamlandı',
-                  Icons.check_circle,
-                  Colors.green,
-                  isDark,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatBox(
-                  'Süre',
-                  '2.5 Saat',
-                  Icons.timer,
-                  Colors.blue,
-                  isDark,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatBox(
-                  'Seri',
-                  '3 Gün',
-                  Icons.local_fire_department,
-                  Colors.orange,
-                  isDark,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatBox(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-    bool isDark,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFFF9FAFB),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFFD1D5DB),
-            ),
-          ),
-        ],
       ),
     );
   }
