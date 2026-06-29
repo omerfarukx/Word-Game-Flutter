@@ -13,7 +13,7 @@ import 'features/home/screens/home_screen.dart';
 import 'features/exercises/speed_reading/providers/speed_reading_provider.dart';
 import 'features/exercises/word_recognition/screens/word_recognition_screen.dart';
 import 'features/exercises/peripheral_vision/screens/peripheral_vision_list_screen.dart';
-import 'features/word_focus/screens/word_focus_list_screen.dart';
+import 'features/word_focus/screens/word_focus_screen.dart';
 import 'features/word_focus/screens/word_search_screen.dart';
 import 'features/statistics/providers/statistics_provider.dart';
 import 'features/statistics/screens/statistics_screen.dart';
@@ -50,7 +50,7 @@ void main() async {
               const WordRecognitionScreen(),
           RouteConstants.peripheralVision: (context) =>
               const PeripheralVisionListScreen(),
-          RouteConstants.wordFocus: (context) => const WordFocusListScreen(),
+          RouteConstants.wordFocus: (context) => const WordFocusScreen(),
           RouteConstants.wordSearch: (context) => const WordSearchScreen(),
           RouteConstants.statistics: (context) => const StatisticsScreen(),
           RouteConstants.wordChain: (context) => const WordChainScreen(),
