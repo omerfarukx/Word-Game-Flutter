@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:math';
-import 'dart:ui';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../controllers/letter_search_game_controller.dart';
-import '../widgets/letter_search_grid.dart';
-import '../widgets/target_words_display.dart';
-import '../widgets/game_dialogs.dart';
-import '../../../../data/achievements_data.dart';
-import '../../../../domain/models/achievement.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../core/design/app_colors.dart';
+import '../../../../core/design/app_typography.dart';
+import '../../../../core/design/decorations.dart';
+import '../../../../core/design/widgets/confetti.dart';
+import '../../../../core/design/widgets/game_result.dart';
+import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/stat_pill.dart';
+import '../../../../core/design/widgets/timer_chip.dart';
+import '../../../statistics/providers/statistics_provider.dart';
+import '../controllers/letter_search_controller.dart';
+
+const _accent = AppColors.visual;
 
 class LetterSearchScreen extends StatefulWidget {
   const LetterSearchScreen({super.key});
@@ -20,774 +22,219 @@ class LetterSearchScreen extends StatefulWidget {
 }
 
 class _LetterSearchScreenState extends State<LetterSearchScreen> {
-  final _gameController = LetterSearchGameController();
-  final List<Achievement> achievements = AchievementsData.achievements;
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  late SharedPreferences _prefs;
-
-  // Yeni özellikler için değişkenler
-  List<Achievement> unlockedAchievements = [];
-  bool hasFirstJoker = true; // İlk harfi gösteren joker
-  bool hasSecondJoker = true; // Tüm kelimeyi gösteren joker
-  int comboCount = 0;
-  int maxComboCount = 0;
-  bool isPerfectRound = true;
-  int noHintRoundsCount = 0;
-
-  // Ses dosyaları
-  static const String correctSound = 'sounds/correct.mp3';
-  static const String wrongSound = 'sounds/wrong.mp3';
-  static const String comboSound = 'sounds/combo.mp3';
-  static const String achievementSound = 'sounds/achievement.mp3';
-  static const String levelUpSound = 'sounds/level_up.mp3';
+  final LetterSearchController _c = LetterSearchController();
+  bool _saved = false;
+  int _prevLevel = 1;
+  int _confetti = 0;
 
   @override
   void initState() {
     super.initState();
-    _gameController.initializeGame();
-    _initPreferences();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _showStartDialog();
-      }
-    });
-    _loadSounds();
+    _c.addListener(_onChange);
+    _c.start();
   }
 
-  Future<void> _initPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      // Kayıtlı başarıları yükle
-      final savedAchievements =
-          _prefs.getStringList('unlockedAchievements') ?? [];
-      unlockedAchievements = achievements
-          .where((achievement) => savedAchievements.contains(achievement.id))
-          .toList();
-    });
-  }
-
-  Future<void> _loadSounds() async {
-    try {
-      await _audioPlayer.setSourceAsset(correctSound);
-    } catch (e) {
-      debugPrint('Ses yükleme hatası: $e');
+  void _onChange() {
+    if (_c.level != _prevLevel) {
+      _prevLevel = _c.level;
+      _confetti++;
     }
+    if (_c.isOver && !_saved) {
+      _saved = true;
+      context.read<StatisticsProvider>().addExerciseCompletion(
+            LetterSearchController.gameSeconds / 60,
+          );
+    }
+    setState(() {});
   }
 
-  void _playSound(String soundFile) async {
-    try {
-      await _audioPlayer.stop();
-      await _audioPlayer.setSourceAsset(soundFile);
-      await _audioPlayer.resume();
-    } catch (e) {
-      debugPrint('Ses çalma hatası: $e');
-    }
+  void _restart() {
+    _saved = false;
+    _prevLevel = 1;
+    _c.start();
   }
 
   @override
   void dispose() {
-    _gameController.dispose();
-    _audioPlayer.dispose();
+    _c.removeListener(_onChange);
+    _c.dispose();
     super.dispose();
-  }
-
-  void _showStartDialog() {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Oyunu Başlat'),
-          content: const Text('Hazır olduğunuzda başlayabilirsiniz!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _startCountDown();
-              },
-              child: const Text('BAŞLAT'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _startCountDown() {
-    if (!mounted) return;
-
-    void showCountDialog(int count) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Text(
-              count == 0 ? "BAŞLA!" : count.toString(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-            ),
-          );
-        },
-      );
-    }
-
-    showCountDialog(3);
-
-    Timer(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showCountDialog(2);
-    });
-
-    Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showCountDialog(1);
-    });
-
-    Timer(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showCountDialog(0);
-    });
-
-    Timer(const Duration(seconds: 4), () {
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      setState(() {
-        _gameController.isGameStarted = true;
-        _startGame();
-      });
-    });
-  }
-
-  void _startGame() {
-    _gameController.timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      setState(() {
-        if (_gameController.foundWordsCount >=
-            _gameController.targetWords.length) {
-          _playSound(levelUpSound);
-          _checkAchievements();
-          _gameController.refreshGame();
-          return;
-        }
-
-        if (_gameController.timeLeft > 0) {
-          _gameController.timeLeft--;
-        } else {
-          _gameOver();
-        }
-      });
-    });
-  }
-
-  void _handleWordFound() {
-    _playSound(correctSound);
-    comboCount++;
-    if (comboCount > maxComboCount) {
-      maxComboCount = comboCount;
-    }
-    if (comboCount >= 3) {
-      _playSound(comboSound);
-    }
-    // Zaman bonusu
-    setState(() {
-      _gameController.timeLeft += _gameController.timeLeft > 30 ? 5 : 3;
-      _gameController.score += comboCount >= 3 ? 15 : 10; // Kombo bonusu
-    });
-  }
-
-  void _handleWrongSelection() {
-    _playSound(wrongSound);
-    setState(() {
-      comboCount = 0;
-      isPerfectRound = false;
-      _gameController.timeLeft =
-          _gameController.timeLeft > 5 ? _gameController.timeLeft - 5 : 0;
-      _gameController.score = max(0, _gameController.score - 5);
-    });
-  }
-
-  bool _checkWordAtPosition(int row, int col, String word, int direction) {
-    if ((direction == 0 && col + word.length > 10) || // yatay
-        (direction == 1 && row + word.length > 10) || // dikey
-        (direction == 2 &&
-            (row + word.length > 10 || col + word.length > 10))) {
-      // çapraz
-      return false;
-    }
-
-    for (int i = 0; i < word.length; i++) {
-      int checkRow = row + (direction == 0 ? 0 : i);
-      int checkCol = col + (direction == 1 ? 0 : i);
-      if (_gameController.currentGrid[checkRow][checkCol] != word[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  void _useFirstJoker() {
-    if (!hasFirstJoker || !_gameController.isGameStarted) return;
-    setState(() {
-      hasFirstJoker = false;
-      // Henüz bulunmamış bir kelimenin ilk harfini göster
-      List<String> remainingWords = _gameController.targetWords
-          .where((word) => !_gameController.foundWords.contains(word))
-          .toList();
-
-      if (remainingWords.isNotEmpty) {
-        final random = Random();
-        final targetWord =
-            remainingWords[random.nextInt(remainingWords.length)];
-
-        // Kelimenin ilk harfini bul
-        for (int i = 0; i < 10; i++) {
-          for (int j = 0; j < 10; j++) {
-            if (_gameController.currentGrid[i][j] == targetWord[0]) {
-              // Tüm yönleri kontrol et
-              for (int direction = 0; direction < 8; direction++) {
-                if (_checkWordAtPosition(i, j, targetWord, direction)) {
-                  // Sadece ilk harfi işaretle
-                  _gameController.hintPositions = List.generate(
-                      10, (row) => List.generate(10, (col) => false));
-                  _gameController.hintPositions[i][j] = true;
-                  return;
-                }
-              }
-            }
-          }
-        }
-      }
-      isPerfectRound = false;
-    });
-  }
-
-  void _useSecondJoker() {
-    if (!hasSecondJoker || !_gameController.isGameStarted) return;
-    setState(() {
-      hasSecondJoker = false;
-      // Henüz bulunmamış bir kelimenin tüm harflerini göster
-      List<String> remainingWords = _gameController.targetWords
-          .where((word) => !_gameController.foundWords.contains(word))
-          .toList();
-
-      if (remainingWords.isNotEmpty) {
-        final random = Random();
-        final targetWord =
-            remainingWords[random.nextInt(remainingWords.length)];
-
-        // Kelimeyi tahtada bul
-        for (int i = 0; i < 10; i++) {
-          for (int j = 0; j < 10; j++) {
-            if (_gameController.currentGrid[i][j] == targetWord[0]) {
-              // Tüm yönleri kontrol et
-              for (int direction = 0; direction < 8; direction++) {
-                if (_checkWordAtPosition(i, j, targetWord, direction)) {
-                  _highlightWord(i, j, targetWord.length, direction);
-                  return;
-                }
-              }
-            }
-          }
-        }
-      }
-      isPerfectRound = false;
-    });
-  }
-
-  void _highlightWord(int startRow, int startCol, int length, int direction) {
-    final directions = [
-      [0, 1], // sağa
-      [1, 0], // aşağı
-      [1, 1], // sağ aşağı çapraz
-      [-1, 1], // sağ yukarı çapraz
-      [0, -1], // sola
-      [-1, 0], // yukarı
-      [-1, -1], // sol yukarı çapraz
-      [1, -1] // sol aşağı çapraz
-    ];
-
-    int dRow = directions[direction][0];
-    int dCol = directions[direction][1];
-
-    for (int i = 0; i < length; i++) {
-      int row = startRow + dRow * i;
-      int col = startCol + dCol * i;
-      _gameController.hintPositions[row][col] = true;
-    }
-  }
-
-  void _gameOver() {
-    _gameController.timer?.cancel();
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Oyun Bitti!'),
-          content: Text('Skorunuz: ${_gameController.score}'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _resetGame();
-              },
-              child: const Text('Yeniden Başla'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _resetGame() {
-    setState(() {
-      _gameController.isGameStarted = false;
-      _gameController.initializeGame();
-      hasFirstJoker = true;
-      hasSecondJoker = true;
-      comboCount = 0;
-      isPerfectRound = true;
-      _showStartDialog();
-    });
-  }
-
-  void _checkAchievements() {
-    for (var achievement in achievements) {
-      if (!unlockedAchievements.contains(achievement)) {
-        bool shouldUnlock = false;
-
-        switch (achievement.id) {
-          case 'first_win':
-            shouldUnlock = _gameController.score >= 100;
-            break;
-          case 'combo_master':
-            shouldUnlock = maxComboCount >= 5;
-            break;
-          case 'speed_demon':
-            shouldUnlock = _gameController.timeLeft > 25;
-            break;
-          case 'perfect_round':
-            shouldUnlock = isPerfectRound &&
-                _gameController.foundWordsCount >=
-                    _gameController.targetWords.length;
-            break;
-          case 'hint_master':
-            shouldUnlock = noHintRoundsCount >= 3;
-            break;
-        }
-
-        if (shouldUnlock) {
-          setState(() {
-            unlockedAchievements.add(achievement);
-            // Başarıyı kalıcı olarak kaydet
-            final savedAchievements =
-                unlockedAchievements.map((a) => a.id).toList();
-            _prefs.setStringList('unlockedAchievements', savedAchievements);
-          });
-          _showAchievementDialog(achievement);
-          _playSound(achievementSound);
-        }
-      }
-    }
-  }
-
-  void _showAchievementDialog(Achievement achievement) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.emoji_events, color: Colors.amber),
-            SizedBox(width: 8),
-            Text('Başarı Kazanıldı!'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(achievement.badgeAsset, height: 100),
-            const SizedBox(height: 16),
-            Text(
-              achievement.title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(achievement.description),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Harika!'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.6),
-            ),
+    return GameScaffold(
+      title: 'Harf Arama',
+      accent: _accent,
+      trailing: TimerChip(seconds: _c.timeLeft),
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              _StatRow(c: _c),
+              _TargetBanner(c: _c),
+              Expanded(child: Center(child: _Grid(c: _c))),
+              const SizedBox(height: 12),
+            ],
           ),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: isDark ? Colors.white : Colors.black87,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Harf Arama',
-          style: GoogleFonts.nunito(
-            fontWeight: FontWeight.w800,
-            fontSize: 24,
-            color: isDark ? Colors.white : Colors.black87,
-          ),
-        ),
-        actions: [
-          if (_gameController.isGameStarted) ...[
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
-              ),
-              child: IconButton(
-                onPressed: hasFirstJoker ? _useFirstJoker : null,
-                icon: Stack(
-                  children: [
-                    Icon(
-                      Icons.front_hand,
-                      color: hasFirstJoker
-                          ? Colors.amber
-                          : (isDark ? Colors.white60 : Colors.black38),
-                      size: 28,
-                    ),
-                    if (hasFirstJoker)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Text(
-                            '1',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                tooltip: 'İlk Harf Joker',
-              ),
+          ConfettiBurst(trigger: _confetti),
+          if (_c.isOver)
+            GameResultOverlay(
+              accent: _accent,
+              title: 'Süre Doldu',
+              bigValue: '${_c.score}',
+              bigLabel: 'PUAN',
+              stats: [
+                ResultStat('SEVİYE', '${_c.level}'),
+                ResultStat('DOĞRULUK', '%${_c.accuracy}'),
+                ResultStat('KOMBO', 'x${_c.maxCombo}'),
+              ],
+              onRestart: _restart,
+              onExit: () => Navigator.of(context).maybePop(),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
-              ),
-              child: IconButton(
-                onPressed: hasSecondJoker ? _useSecondJoker : null,
-                icon: Stack(
-                  children: [
-                    Icon(
-                      Icons.auto_fix_high,
-                      color: hasSecondJoker
-                          ? Colors.amber
-                          : (isDark ? Colors.white60 : Colors.black38),
-                      size: 28,
-                    ),
-                    if (hasSecondJoker)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Text(
-                            '1',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                tooltip: 'Tam Kelime Joker',
-              ),
-            ),
-          ],
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.help_outline,
-                size: 28,
-                color: isDark ? Colors.white70 : Colors.black54,
-              ),
-              tooltip: 'Nasıl Oynanır?',
-              onPressed: () => GameDialogs.showHelpDialog(context),
-            ),
-          ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [
-                    const Color(0xFF1A237E),
-                    const Color(0xFF0D47A1),
-                    const Color(0xFF01579B),
-                  ]
-                : [
-                    const Color(0xFF2196F3),
-                    const Color(0xFF1976D2),
-                    const Color(0xFF0D47A1),
-                  ],
-          ),
-        ),
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                backgroundBlendMode: BlendMode.overlay,
-                gradient: RadialGradient(
-                  center: Alignment.center,
-                  radius: 1.5,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.15),
-                    Colors.white.withValues(alpha: 0.05),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
+    );
+  }
+}
+
+class _StatRow extends StatelessWidget {
+  const _StatRow({required this.c});
+  final LetterSearchController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Row(
+        children: [
+          Expanded(child: StatPill(label: 'SKOR', value: '${c.score}')),
+          const SizedBox(width: 10),
+          Expanded(
+            child: StatPill(
+              label: 'KOMBO',
+              value: c.combo >= 1 ? 'x${c.combo}' : '–',
+              accent: _accent,
+              emphasized: c.combo >= 3,
             ),
-            SafeArea(
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.1),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: TargetWordsDisplay(
-                          targetWords: _gameController.targetWords,
-                          foundWords: _gameController.foundWords,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        color: (isDark ? Colors.white : Colors.black)
-                            .withValues(alpha: 0.1),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              LetterSearchGrid(
-                                currentGrid: _gameController.currentGrid,
-                                selectedCells: _gameController.selectedCells,
-                                foundCells: _gameController.foundCells,
-                                hintPositions: _gameController.hintPositions,
-                                onCellTap: (row, col) {
-                                  if (_gameController.handleCellSelection(
-                                      row, col)) {
-                                    setState(() {
-                                      if (_gameController.isWordFound) {
-                                        _handleWordFound();
-                                      } else if (_gameController
-                                          .isWrongSelection) {
-                                        _handleWrongSelection();
-                                      }
-                                    });
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.1),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.stars_rounded,
-                                  color: Colors.amber,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${_gameController.score}',
-                                  style: GoogleFonts.nunito(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.timer_outlined,
-                                  color: _gameController.timeLeft <= 10
-                                      ? Colors.red
-                                      : Colors.white,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${_gameController.timeLeft}',
-                                  style: GoogleFonts.nunito(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: _gameController.timeLeft <= 10
-                                        ? Colors.red
-                                        : Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.green,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${_gameController.foundWordsCount}/${_gameController.targetWords.length}',
-                                  style: GoogleFonts.nunito(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(child: StatPill(label: 'DOĞRULUK', value: '%${c.accuracy}')),
+        ],
+      ),
+    );
+  }
+}
+
+/// The "find this letter" banner: big target glyph + progress.
+class _TargetBanner extends StatelessWidget {
+  const _TargetBanner({required this.c});
+  final LetterSearchController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        decoration: Surfaces.tile(radius: 18),
+        child: Row(
+          children: [
+            Text('BUL', style: AppText.label(11)),
+            const SizedBox(width: 14),
+            Container(
+              width: 48,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: AppGradients.visual,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                      color: _accent.withValues(alpha: 0.5),
+                      blurRadius: 16,
+                      offset: const Offset(0, 5)),
                 ],
               ),
+              child: Text(c.target,
+                  style: AppText.display(26, color: Colors.white)),
             ),
-            if (!_gameController.isGameStarted)
-              Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Container(
-                    color: Colors.black.withValues(alpha: 0.3),
+            const Spacer(),
+            Text('${c.found} / ${c.occurrences}',
+                style: AppText.display(20, color: _accent)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Grid extends StatelessWidget {
+  const _Grid({required this.c});
+  final LetterSearchController c;
+
+  @override
+  Widget build(BuildContext context) {
+    const n = LetterSearchController.size;
+    return LayoutBuilder(
+      builder: (context, cons) {
+        final side =
+            (cons.maxWidth < cons.maxHeight ? cons.maxWidth : cons.maxHeight)
+                .clamp(240.0, 440.0)
+                .toDouble();
+        return SizedBox(
+          width: side,
+          height: side,
+          child: Column(
+            children: [
+              for (var r = 0; r < n; r++)
+                Expanded(
+                  child: Row(
+                    children: [
+                      for (var col = 0; col < n; col++)
+                        Expanded(child: _Cell(c: c, index: r * n + col)),
+                    ],
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Cell extends StatelessWidget {
+  const _Cell({required this.c, required this.index});
+  final LetterSearchController c;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final found = c.foundCells.contains(index);
+    final wrong = c.wrongCell == index;
+    final deco = found
+        ? Surfaces.accentTile(AppColors.success, radius: 12)
+        : wrong
+            ? Surfaces.accentTile(AppColors.danger, radius: 12)
+            : Surfaces.tile(radius: 12);
+
+    return GestureDetector(
+      onTap: () => c.tap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        margin: const EdgeInsets.all(3),
+        alignment: Alignment.center,
+        decoration: deco,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            c.grid[index],
+            style: AppText.display(
+              20,
+              color: found ? AppColors.success : AppColors.textMid,
+            ),
+          ),
         ),
       ),
     );
