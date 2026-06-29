@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/game_settings.dart';
 import '../../../../core/feedback/juice.dart';
 import '../../../../core/text/turkish.dart';
 import '../../../../core/words/word_service.dart';
@@ -84,7 +85,7 @@ class WordRecognitionController extends ChangeNotifier {
     difficulty = d;
     score = 0;
     attempts = 0;
-    timeLeft = gameSeconds;
+    timeLeft = GameSettings.instance.seconds(gameSeconds);
     _used.clear();
     jokers = 2;
     freezes = 1;

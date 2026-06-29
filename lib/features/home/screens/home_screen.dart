@@ -8,6 +8,7 @@ import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/aurora_background.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/feedback/achievements.dart';
+import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/music_service.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/feedback/sound_service.dart';
@@ -155,7 +156,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Reveal(delay: nextDelay(), child: const _Header()),
                 const SizedBox(height: 20),
                 Reveal(delay: nextDelay(), child: const _HeroStats()),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
+                Reveal(delay: nextDelay(), child: const _DifficultySelector()),
+                const SizedBox(height: 4),
                 for (final cat in _categories) ...[
                   const SizedBox(height: 18),
                   Reveal(delay: nextDelay(), child: _SectionHeader(cat)),
@@ -187,8 +190,8 @@ class _Header extends StatelessWidget {
               const SizedBox(height: 6),
               ShaderMask(
                 shaderCallback: (r) => AppGradients.word.createShader(r),
-                child: Text('Hızlı Okuma',
-                    style: AppText.display(40, color: Colors.white)),
+                child: Text('Kelime Atölyesi',
+                    style: AppText.display(36, color: Colors.white)),
               ),
             ],
           ),
@@ -301,12 +304,16 @@ class _HeroStats extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _MiniStat(
-                  icon: Icons.military_tech_rounded,
-                  color: AppColors.visual,
-                  value:
-                      '${Achievements.instance.unlockedCount}/${Achievements.instance.total}',
-                  label: 'ROZET',
+                child: GestureDetector(
+                  onTap: () =>
+                      Navigator.pushNamed(context, RouteConstants.achievements),
+                  child: _MiniStat(
+                    icon: Icons.military_tech_rounded,
+                    color: AppColors.visual,
+                    value:
+                        '${Achievements.instance.unlockedCount}/${Achievements.instance.total}',
+                    label: 'ROZET',
+                  ),
                 ),
               ),
             ],
@@ -471,6 +478,53 @@ class _ExerciseCard extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DifficultySelector extends StatefulWidget {
+  const _DifficultySelector();
+
+  @override
+  State<_DifficultySelector> createState() => _DifficultySelectorState();
+}
+
+class _DifficultySelectorState extends State<_DifficultySelector> {
+  @override
+  Widget build(BuildContext context) {
+    final cur = GameSettings.instance.difficulty;
+    return Row(
+      children: [
+        Text('ZORLUK', style: AppText.label(10)),
+        const SizedBox(width: 12),
+        for (var i = 0; i < GameDifficulty.values.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(child: _chip(GameDifficulty.values[i], cur)),
+        ],
+      ],
+    );
+  }
+
+  Widget _chip(GameDifficulty d, GameDifficulty cur) {
+    final sel = d == cur;
+    return GestureDetector(
+      onTap: () async {
+        await GameSettings.instance.set(d);
+        if (mounted) setState(() {});
+      },
+      child: Container(
+        height: 40,
+        alignment: Alignment.center,
+        decoration: sel
+            ? Surfaces.accentTile(AppColors.word, radius: 12)
+            : Surfaces.tile(radius: 12),
+        child: Text(
+          d.label,
+          style: AppText.body(13,
+              weight: FontWeight.w600,
+              color: sel ? AppColors.word : AppColors.textMid),
         ),
       ),
     );

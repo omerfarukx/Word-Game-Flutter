@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/juice.dart';
 import '../../../core/text/turkish.dart';
 import '../data/word_search_data.dart';
@@ -61,7 +62,7 @@ class WordSearchController extends ChangeNotifier {
   void start() {
     level = 1;
     score = 0;
-    timeLeft = gameSeconds;
+    timeLeft = GameSettings.instance.seconds(gameSeconds);
     isActive = true;
     isOver = false;
     hints = 2;

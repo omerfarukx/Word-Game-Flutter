@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/game_settings.dart';
 import '../../../../core/feedback/juice.dart';
 
 /// What the round is doing right now.
@@ -56,7 +57,7 @@ class PeripheralController extends ChangeNotifier {
     attempts = 0;
     correctTaps = 0;
     level = 1;
-    timeLeft = gameSeconds;
+    timeLeft = GameSettings.instance.seconds(gameSeconds);
     isActive = true;
     isOver = false;
     jokers = 2;

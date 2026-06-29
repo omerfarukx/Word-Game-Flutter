@@ -4,6 +4,7 @@ import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
 import 'core/feedback/achievements.dart';
+import 'core/feedback/game_settings.dart';
 import 'core/feedback/music_service.dart';
 import 'core/feedback/records.dart';
 import 'core/feedback/sound_service.dart';
@@ -20,6 +21,7 @@ import 'features/word_focus/screens/word_search_screen.dart';
 import 'features/statistics/providers/statistics_provider.dart';
 import 'features/statistics/screens/statistics_screen.dart';
 import 'features/word_chain/screens/word_chain_screen.dart';
+import 'features/achievements/screens/achievements_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +31,7 @@ void main() async {
   await MusicService.instance.init();
   await Records.instance.init();
   await Achievements.instance.init();
+  await GameSettings.instance.init();
 
   runApp(
     MultiProvider(
@@ -57,6 +60,8 @@ void main() async {
           RouteConstants.wordSearch: (context) => const WordSearchScreen(),
           RouteConstants.statistics: (context) => const StatisticsScreen(),
           RouteConstants.wordChain: (context) => const WordChainScreen(),
+          RouteConstants.achievements: (context) =>
+              const AchievementsScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/game_settings.dart';
 import '../../../../core/feedback/juice.dart';
 
 /// Harf Arama: a grid of letters with one target letter highlighted; tap every
@@ -55,7 +56,7 @@ class LetterSearchController extends ChangeNotifier {
     maxCombo = 0;
     attempts = 0;
     correctTaps = 0;
-    timeLeft = gameSeconds;
+    timeLeft = GameSettings.instance.seconds(gameSeconds);
     isActive = true;
     isOver = false;
     hints = 2;

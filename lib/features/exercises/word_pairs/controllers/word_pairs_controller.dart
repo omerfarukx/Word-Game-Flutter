@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/feedback/game_settings.dart';
 import '../../../../core/feedback/juice.dart';
 import '../../../../core/words/word_service.dart';
 
@@ -65,7 +66,7 @@ class WordPairsController extends ChangeNotifier {
     combo = 0;
     maxCombo = 0;
     level = 1;
-    timeLeft = gameSeconds;
+    timeLeft = GameSettings.instance.seconds(gameSeconds);
     isActive = true;
     isOver = false;
     hints = 2;

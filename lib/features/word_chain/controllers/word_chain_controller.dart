@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/juice.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
@@ -55,7 +56,7 @@ class WordChainController extends ChangeNotifier {
     combo = 0;
     maxCombo = 0;
     longestWord = '';
-    timeLeft = gameSeconds;
+    timeLeft = GameSettings.instance.seconds(gameSeconds);
     isActive = true;
     isOver = false;
     reject = null;

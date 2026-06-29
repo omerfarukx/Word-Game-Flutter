@@ -1,6 +1,6 @@
 class AppConstants {
   // Uygulama Genel Sabitleri
-  static const String appName = 'Hızlı Okuma';
+  static const String appName = 'Kelime Atölyesi';
   static const String appVersion = '1.0.0';
 
   // Abonelik Tipleri
