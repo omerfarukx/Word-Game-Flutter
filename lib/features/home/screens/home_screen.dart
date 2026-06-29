@@ -7,6 +7,7 @@ import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/aurora_background.dart';
 import '../../../core/design/widgets/reveal.dart';
+import '../../../core/feedback/music_service.dart';
 import '../../../core/feedback/sound_service.dart';
 import '../../statistics/providers/statistics_provider.dart';
 
@@ -105,8 +106,19 @@ const _exercises = <Exercise>[
   ),
 ];
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    MusicService.instance.play(MusicTrack.word);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +200,9 @@ class _MuteButtonState extends State<_MuteButton> {
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: () async {
-          await SoundService.instance.setMuted(!muted);
+          final next = !muted;
+          await SoundService.instance.setMuted(next);
+          await MusicService.instance.setMuted(next);
           if (mounted) setState(() {});
         },
         child: SizedBox(
