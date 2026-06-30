@@ -59,3 +59,7 @@ build/
 *.cache
 *.cache.dill
 *.cache.dill.track.dill 
+# Android signing (NEVER commit)
+android/key.properties
+*.jks
+*.keystore

@@ -1,4 +1,4 @@
-package com.example.hizli_okuma_oyunu
+package com.fargame.kelimeatolyesi
 
 import io.flutter.embedding.android.FlutterActivity
 
