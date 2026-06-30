@@ -15,6 +15,7 @@ import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/music_service.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/feedback/sound_service.dart';
+import '../../../core/iap/purchases.dart';
 import '../../../core/onboarding/guides.dart';
 import '../../onboarding/onboarding_screen.dart';
 import '../../statistics/providers/statistics_provider.dart';
@@ -208,12 +209,60 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
                   ),
                 ),
+                const _RemoveAdsBar(),
                 const BannerAdSlot(),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A slim "remove ads" call-to-action shown just above the banner — only when
+/// the purchase is available and not yet owned. Disappears once bought.
+class _RemoveAdsBar extends StatelessWidget {
+  const _RemoveAdsBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Purchases.instance,
+      builder: (context, _) {
+        if (!Purchases.instance.canBuy) return const SizedBox.shrink();
+        final price = Purchases.instance.price ?? '';
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: Purchases.instance.buyRemoveAds,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: Surfaces.tile(
+                    radius: 14, border: AppColors.word.withValues(alpha: 0.4)),
+                child: Row(
+                  children: [
+                    const Icon(Icons.block_rounded,
+                        size: 18, color: AppColors.word),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text('Reklamları Kaldır',
+                          style: AppText.body(14, weight: FontWeight.w600)),
+                    ),
+                    if (price.isNotEmpty)
+                      Text(price,
+                          style: AppText.display(15, color: AppColors.word)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

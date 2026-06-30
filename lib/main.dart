@@ -10,6 +10,7 @@ import 'core/feedback/game_settings.dart';
 import 'core/feedback/music_service.dart';
 import 'core/feedback/records.dart';
 import 'core/feedback/sound_service.dart';
+import 'core/iap/purchases.dart';
 import 'core/onboarding/guides.dart';
 import 'core/words/word_service.dart';
 import 'features/exercises/eye_focus/screens/eye_focus_screen.dart';
@@ -39,6 +40,7 @@ void main() async {
   await Guides.instance.init();
   await DailyChallenge.instance.init();
   await AdService.instance.init();
+  await Purchases.instance.init();
 
   // Registers itself with WidgetsBinding (kept alive); fires the app-open ad
   // when the app returns to the foreground.
