@@ -29,6 +29,7 @@ class WordChainController extends ChangeNotifier {
   int maxCombo = 0;
   String longestWord = '';
   int timeLeft = gameSeconds;
+  int lives = 0; // survival mode only
   bool isActive = false;
   bool isOver = false;
 
@@ -57,6 +58,7 @@ class WordChainController extends ChangeNotifier {
     maxCombo = 0;
     longestWord = '';
     timeLeft = GameSettings.instance.seconds(gameSeconds);
+    lives = GameSettings.survivalLives;
     isActive = true;
     isOver = false;
     reject = null;
@@ -64,23 +66,26 @@ class WordChainController extends ChangeNotifier {
     freezes = 1;
     frozenTicks = 0;
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (frozenTicks > 0) {
-        frozenTicks--;
+    if (!GameSettings.instance.survival) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (frozenTicks > 0) {
+          frozenTicks--;
+          notifyListeners();
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          _finish();
+        }
         notifyListeners();
-        return;
-      }
-      timeLeft--;
-      if (timeLeft <= 0) {
-        timeLeft = 0;
-        _finish();
-      }
-      notifyListeners();
-    });
+      });
+    }
     notifyListeners();
   }
 
   void freeze() {
+    if (GameSettings.instance.survival) return; // no clock to freeze
     if (!isActive || freezes <= 0 || frozenTicks > 0) return;
     freezes--;
     frozenTicks = 5;
@@ -110,6 +115,13 @@ class WordChainController extends ChangeNotifier {
       rejectTick++;
       combo = 0;
       Juice.wrong();
+      if (GameSettings.instance.survival) {
+        lives--;
+        if (lives <= 0) {
+          lives = 0;
+          _finish();
+        }
+      }
       notifyListeners();
       return false;
     }

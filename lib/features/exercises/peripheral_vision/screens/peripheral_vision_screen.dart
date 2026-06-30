@@ -8,11 +8,13 @@ import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/lives_chip.dart';
 import '../../../../core/design/widgets/power_bar.dart';
 import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
 import '../../../../core/feedback/achievements.dart';
+import '../../../../core/feedback/game_settings.dart';
 import '../../../../core/feedback/records.dart';
 import '../../../statistics/providers/statistics_provider.dart';
 import '../controllers/peripheral_controller.dart';
@@ -67,10 +69,13 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final survival = GameSettings.instance.survival;
     return GameScaffold(
       title: 'Çevresel Görüş',
       accent: _accent,
-      trailing: TimerChip(seconds: _c.timeLeft),
+      trailing: survival
+          ? LivesChip(lives: _c.lives, max: GameSettings.survivalLives)
+          : TimerChip(seconds: _c.timeLeft),
       child: Stack(
         children: [
           Column(
@@ -95,7 +100,7 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
                 accent: _accent,
                 onJoker: _c.useJoker,
                 jokers: _c.jokers,
-                onFreeze: _c.freeze,
+                onFreeze: survival ? null : _c.freeze,
                 freezes: _c.freezes,
                 frozen: _c.isFrozen,
               ),
@@ -105,7 +110,7 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
           if (_c.isOver)
             GameResultOverlay(
               accent: _accent,
-              title: 'Süre Doldu',
+              title: survival ? 'Canın Bitti' : 'Süre Doldu',
               isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',

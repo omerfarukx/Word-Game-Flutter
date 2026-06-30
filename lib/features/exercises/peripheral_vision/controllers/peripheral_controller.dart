@@ -32,6 +32,7 @@ class PeripheralController extends ChangeNotifier {
   int attempts = 0;
   int correctTaps = 0;
   int timeLeft = gameSeconds;
+  int lives = 0; // survival mode only
   int level = 1;
   bool isActive = false;
   bool isOver = false;
@@ -58,29 +59,33 @@ class PeripheralController extends ChangeNotifier {
     correctTaps = 0;
     level = 1;
     timeLeft = GameSettings.instance.seconds(gameSeconds);
+    lives = GameSettings.survivalLives;
     isActive = true;
     isOver = false;
     jokers = 2;
     freezes = 1;
     frozenTicks = 0;
     _gameTimer?.cancel();
-    _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (frozenTicks > 0) {
-        frozenTicks--;
+    if (!GameSettings.instance.survival) {
+      _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (frozenTicks > 0) {
+          frozenTicks--;
+          notifyListeners();
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          _end();
+        }
         notifyListeners();
-        return;
-      }
-      timeLeft--;
-      if (timeLeft <= 0) {
-        timeLeft = 0;
-        _end();
-      }
-      notifyListeners();
-    });
+      });
+    }
     _nextRound();
   }
 
   void freeze() {
+    if (GameSettings.instance.survival) return; // no clock to freeze
     if (!isActive || freezes <= 0 || frozenTicks > 0) return;
     freezes--;
     frozenTicks = 5;
@@ -128,6 +133,15 @@ class PeripheralController extends ChangeNotifier {
       score = max(0, score - 5);
       timeLeft = max(1, timeLeft - 2);
       Juice.wrong();
+      if (GameSettings.instance.survival) {
+        lives--;
+        if (lives <= 0) {
+          lives = 0;
+          _end();
+          notifyListeners();
+          return;
+        }
+      }
     }
     phase = PeriPhase.feedback;
     notifyListeners();

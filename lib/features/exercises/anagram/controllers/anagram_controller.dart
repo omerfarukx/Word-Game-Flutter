@@ -45,6 +45,7 @@ class AnagramController extends ChangeNotifier {
   int maxCombo = 0;
   int solved = 0;
   int timeLeft = gameSeconds;
+  int lives = 0; // survival mode only
   bool isActive = false;
   bool isOver = false;
 
@@ -85,6 +86,7 @@ class AnagramController extends ChangeNotifier {
     maxCombo = 0;
     solved = 0;
     timeLeft = GameSettings.instance.seconds(gameSeconds);
+    lives = GameSettings.survivalLives;
     isActive = true;
     isOver = false;
     rejectTick = 0;
@@ -96,19 +98,22 @@ class AnagramController extends ChangeNotifier {
     frozenTicks = 0;
     _loadWord();
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (frozenTicks > 0) {
-        frozenTicks--;
+    // Survival mode swaps the clock for lives — no countdown.
+    if (!GameSettings.instance.survival) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (frozenTicks > 0) {
+          frozenTicks--;
+          notifyListeners();
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          _finish();
+        }
         notifyListeners();
-        return;
-      }
-      timeLeft--;
-      if (timeLeft <= 0) {
-        timeLeft = 0;
-        _finish();
-      }
-      notifyListeners();
-    });
+      });
+    }
     notifyListeners();
   }
 
@@ -230,6 +235,13 @@ class AnagramController extends ChangeNotifier {
       Juice.wrong();
       // Return the player's tiles (keep any locked prefix) after the shake.
       placement.removeRange(locked, placement.length);
+      if (GameSettings.instance.survival) {
+        lives--;
+        if (lives <= 0) {
+          lives = 0;
+          _finish();
+        }
+      }
       notifyListeners();
     }
   }
@@ -263,6 +275,7 @@ class AnagramController extends ChangeNotifier {
   }
 
   void freeze() {
+    if (GameSettings.instance.survival) return; // no clock to freeze
     if (!isActive || celebrating || freezes <= 0 || frozenTicks > 0) return;
     freezes--;
     frozenTicks = 5;

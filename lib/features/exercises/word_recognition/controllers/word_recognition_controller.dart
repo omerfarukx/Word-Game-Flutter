@@ -62,6 +62,7 @@ class WordRecognitionController extends ChangeNotifier {
   int score = 0;
   int attempts = 0;
   int timeLeft = gameSeconds;
+  int lives = 0; // survival mode only
 
   // Power-ups
   int jokers = 2;
@@ -86,29 +87,33 @@ class WordRecognitionController extends ChangeNotifier {
     score = 0;
     attempts = 0;
     timeLeft = GameSettings.instance.seconds(gameSeconds);
+    lives = GameSettings.survivalLives;
     _used.clear();
     jokers = 2;
     freezes = 1;
     frozenTicks = 0;
     _gameTimer?.cancel();
     _phaseTimer?.cancel();
-    _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (frozenTicks > 0) {
-        frozenTicks--;
+    if (!GameSettings.instance.survival) {
+      _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (frozenTicks > 0) {
+          frozenTicks--;
+          notifyListeners();
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          _end();
+        }
         notifyListeners();
-        return;
-      }
-      timeLeft--;
-      if (timeLeft <= 0) {
-        timeLeft = 0;
-        _end();
-      }
-      notifyListeners();
-    });
+      });
+    }
     _nextRound();
   }
 
   void freeze() {
+    if (GameSettings.instance.survival) return; // no clock to freeze
     if (phase == RecogPhase.over || freezes <= 0 || frozenTicks > 0) return;
     freezes--;
     frozenTicks = 5;
@@ -154,6 +159,14 @@ class WordRecognitionController extends ChangeNotifier {
     lastCorrect = Tr.lower(answer.trim()) == current;
     if (lastCorrect) score++;
     lastCorrect ? Juice.correct() : Juice.wrong();
+    if (!lastCorrect && GameSettings.instance.survival) {
+      lives--;
+      if (lives <= 0) {
+        lives = 0;
+        _end();
+        return;
+      }
+    }
     phase = RecogPhase.feedback;
     notifyListeners();
 

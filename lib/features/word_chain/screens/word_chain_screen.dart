@@ -8,12 +8,14 @@ import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/count_up.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/lives_chip.dart';
 import '../../../core/design/widgets/power_bar.dart';
 import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/shaker.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/feedback/achievements.dart';
+import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
@@ -100,10 +102,13 @@ class _WordChainScreenState extends State<WordChainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final survival = GameSettings.instance.survival;
     return GameScaffold(
       title: 'Kelime Zinciri',
       accent: _accent,
-      trailing: _TimerChip(seconds: _c.timeLeft),
+      trailing: survival
+          ? LivesChip(lives: _c.lives, max: GameSettings.survivalLives)
+          : _TimerChip(seconds: _c.timeLeft),
       child: Stack(
         children: [
           Column(
@@ -123,7 +128,7 @@ class _WordChainScreenState extends State<WordChainScreen> {
                 accent: _accent,
                 onJoker: _c.useJoker,
                 jokers: _c.jokers,
-                onFreeze: _c.freeze,
+                onFreeze: survival ? null : _c.freeze,
                 freezes: _c.freezes,
                 frozen: _c.isFrozen,
               ),
@@ -567,7 +572,12 @@ class _GameOverCard extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(isRecord ? '🏆 Yeni Rekor!' : 'Süre Doldu',
+                Text(
+                    isRecord
+                        ? '🏆 Yeni Rekor!'
+                        : (GameSettings.instance.survival
+                            ? 'Canın Bitti'
+                            : 'Süre Doldu'),
                     style: AppText.display(24, color: isRecord ? AppColors.reading : AppColors.textHi)),
                 const SizedBox(height: 4),
                 Text('${c.chain.length} kelimelik zincir',

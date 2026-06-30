@@ -47,6 +47,7 @@ class WordFocusController extends ChangeNotifier {
   int attempts = 0;
   int correctTaps = 0;
   int timeLeft = gameSeconds;
+  int lives = 0; // survival mode only
   int wrongTick = 0;
 
   // Power-ups
@@ -73,6 +74,7 @@ class WordFocusController extends ChangeNotifier {
     attempts = 0;
     correctTaps = 0;
     timeLeft = GameSettings.instance.seconds(gameSeconds);
+    lives = GameSettings.survivalLives;
     _recent.clear();
     hints = 2;
     jokers = 1;
@@ -84,23 +86,26 @@ class WordFocusController extends ChangeNotifier {
     _hintTimer?.cancel();
     _wrongTimer?.cancel();
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (frozenTicks > 0) {
-        frozenTicks--;
+    if (!GameSettings.instance.survival) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (frozenTicks > 0) {
+          frozenTicks--;
+          notifyListeners();
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          _end();
+        }
         notifyListeners();
-        return;
-      }
-      timeLeft--;
-      if (timeLeft <= 0) {
-        timeLeft = 0;
-        _end();
-      }
-      notifyListeners();
-    });
+      });
+    }
     notifyListeners();
   }
 
   void freeze() {
+    if (GameSettings.instance.survival) return; // no clock to freeze
     if (phase != FocusPhase.playing || freezes <= 0 || frozenTicks > 0) return;
     freezes--;
     frozenTicks = 5;
@@ -190,6 +195,13 @@ class WordFocusController extends ChangeNotifier {
       Juice.wrong();
       score = max(0, score - 8);
       timeLeft = max(1, timeLeft - 3);
+      if (GameSettings.instance.survival) {
+        lives--;
+        if (lives <= 0) {
+          lives = 0;
+          _end();
+        }
+      }
       _wrongTimer?.cancel();
       _wrongTimer = Timer(const Duration(milliseconds: 350), () {
         opt.wrong = false;

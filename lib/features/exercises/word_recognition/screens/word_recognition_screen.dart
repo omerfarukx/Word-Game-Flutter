@@ -8,12 +8,14 @@ import '../../../../core/design/widgets/app_button.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
 import '../../../../core/design/widgets/game_scaffold.dart';
+import '../../../../core/design/widgets/lives_chip.dart';
 import '../../../../core/design/widgets/power_bar.dart';
 import '../../../../core/design/widgets/record_chase.dart';
 import '../../../../core/design/widgets/reveal.dart';
 import '../../../../core/design/widgets/stat_pill.dart';
 import '../../../../core/design/widgets/timer_chip.dart';
 import '../../../../core/feedback/achievements.dart';
+import '../../../../core/feedback/game_settings.dart';
 import '../../../../core/feedback/records.dart';
 import '../../../../core/text/turkish.dart';
 import '../../../../core/words/word_service.dart';
@@ -79,10 +81,15 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
   @override
   Widget build(BuildContext context) {
     final idle = _c.phase == RecogPhase.idle;
+    final survival = GameSettings.instance.survival;
     return GameScaffold(
       title: 'Kelime Tanıma',
       accent: _accent,
-      trailing: idle ? null : TimerChip(seconds: _c.timeLeft),
+      trailing: idle
+          ? null
+          : (survival
+              ? LivesChip(lives: _c.lives, max: GameSettings.survivalLives)
+              : TimerChip(seconds: _c.timeLeft)),
       child: Stack(
         children: [
           idle ? _DifficultyPicker(onPick: _c.start) : _play(),
@@ -90,7 +97,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
           if (_c.phase == RecogPhase.over)
             GameResultOverlay(
               accent: _accent,
-              title: 'Süre Doldu',
+              title: survival ? 'Canın Bitti' : 'Süre Doldu',
               isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'DOĞRU',
@@ -121,7 +128,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
           accent: _accent,
           onJoker: _c.useJoker,
           jokers: _c.jokers,
-          onFreeze: _c.freeze,
+          onFreeze: GameSettings.instance.survival ? null : _c.freeze,
           freezes: _c.freezes,
           frozen: _c.isFrozen,
         ),

@@ -192,6 +192,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Reveal(delay: nextDelay(), child: const _DailyCard()),
                 const SizedBox(height: 12),
                 Reveal(delay: nextDelay(), child: const _DifficultySelector()),
+                const SizedBox(height: 10),
+                Reveal(delay: nextDelay(), child: const _ModeSelector()),
                 const SizedBox(height: 4),
                 for (final cat in _categories) ...[
                   const SizedBox(height: 18),
@@ -857,6 +859,67 @@ class _DifficultySelectorState extends State<_DifficultySelector> {
           style: AppText.body(13,
               weight: FontWeight.w600,
               color: sel ? AppColors.word : AppColors.textMid),
+        ),
+      ),
+    );
+  }
+}
+
+class _ModeSelector extends StatefulWidget {
+  const _ModeSelector();
+
+  @override
+  State<_ModeSelector> createState() => _ModeSelectorState();
+}
+
+class _ModeSelectorState extends State<_ModeSelector> {
+  @override
+  Widget build(BuildContext context) {
+    final cur = GameSettings.instance.mode;
+    return Row(
+      children: [
+        Text('MOD', style: AppText.label(10)),
+        const SizedBox(width: 12),
+        for (var i = 0; i < GameMode.values.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(child: _chip(GameMode.values[i], cur)),
+        ],
+      ],
+    );
+  }
+
+  Widget _chip(GameMode m, GameMode cur) {
+    final sel = m == cur;
+    final accent =
+        m == GameMode.survival ? AppColors.danger : AppColors.word;
+    return GestureDetector(
+      onTap: () async {
+        await GameSettings.instance.setMode(m);
+        if (mounted) setState(() {});
+      },
+      child: Container(
+        height: 40,
+        alignment: Alignment.center,
+        decoration: sel
+            ? Surfaces.accentTile(accent, radius: 12)
+            : Surfaces.tile(radius: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (m == GameMode.survival)
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Icon(Icons.favorite_rounded,
+                    size: 14,
+                    color: sel ? accent : AppColors.textMid),
+              ),
+            Text(
+              m.label,
+              style: AppText.body(13,
+                  weight: FontWeight.w600,
+                  color: sel ? accent : AppColors.textMid),
+            ),
+          ],
         ),
       ),
     );

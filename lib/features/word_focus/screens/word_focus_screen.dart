@@ -9,12 +9,14 @@ import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
 import '../../../core/design/widgets/game_result.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
+import '../../../core/design/widgets/lives_chip.dart';
 import '../../../core/design/widgets/power_bar.dart';
 import '../../../core/design/widgets/record_chase.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/design/widgets/stat_pill.dart';
 import '../../../core/design/widgets/timer_chip.dart';
 import '../../../core/feedback/achievements.dart';
+import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/text/turkish.dart';
 import '../../../core/words/word_service.dart';
@@ -67,10 +69,15 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
   @override
   Widget build(BuildContext context) {
     final idle = _c.phase == FocusPhase.idle;
+    final survival = GameSettings.instance.survival;
     return GameScaffold(
       title: 'Kelime Odağı',
       accent: _accent,
-      trailing: idle ? null : TimerChip(seconds: _c.timeLeft),
+      trailing: idle
+          ? null
+          : (survival
+              ? LivesChip(lives: _c.lives, max: GameSettings.survivalLives)
+              : TimerChip(seconds: _c.timeLeft)),
       child: Stack(
         children: [
           idle ? _TypePicker(onPick: _c.start) : _play(),
@@ -78,7 +85,7 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
           if (_c.phase == FocusPhase.over)
             GameResultOverlay(
               accent: _accent,
-              title: 'Süre Doldu',
+              title: survival ? 'Canın Bitti' : 'Süre Doldu',
               isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',
@@ -124,7 +131,7 @@ class _WordFocusScreenState extends State<WordFocusScreen> {
           hints: _c.hints,
           onJoker: _c.useJoker,
           jokers: _c.jokers,
-          onFreeze: _c.freeze,
+          onFreeze: GameSettings.instance.survival ? null : _c.freeze,
           freezes: _c.freezes,
           frozen: _c.isFrozen,
         ),

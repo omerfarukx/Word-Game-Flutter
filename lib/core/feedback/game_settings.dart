@@ -3,6 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum GameDifficulty { easy, normal, hard }
 
+enum GameMode { normal, survival }
+
+extension GameModeX on GameMode {
+  String get label => switch (this) {
+        GameMode.normal => 'Normal',
+        GameMode.survival => 'Hayatta Kalma',
+      };
+}
+
 extension GameDifficultyX on GameDifficulty {
   String get label => switch (this) {
         GameDifficulty.easy => 'Kolay',
@@ -25,7 +34,14 @@ class GameSettings extends ChangeNotifier {
   static final GameSettings instance = GameSettings._();
 
   GameDifficulty difficulty = GameDifficulty.normal;
+  GameMode mode = GameMode.normal;
   static const _key = 'difficulty';
+  static const _modeKey = 'game_mode';
+
+  /// Lives the player starts with in Survival mode.
+  static const int survivalLives = 3;
+
+  bool get survival => mode == GameMode.survival;
 
   Future<void> init() async {
     try {
@@ -33,6 +49,10 @@ class GameSettings extends ChangeNotifier {
       final i = prefs.getInt(_key);
       if (i != null && i >= 0 && i < GameDifficulty.values.length) {
         difficulty = GameDifficulty.values[i];
+      }
+      final m = prefs.getInt(_modeKey);
+      if (m != null && m >= 0 && m < GameMode.values.length) {
+        mode = GameMode.values[m];
       }
     } catch (_) {}
   }
@@ -43,6 +63,15 @@ class GameSettings extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_key, d.index);
+    } catch (_) {}
+  }
+
+  Future<void> setMode(GameMode m) async {
+    mode = m;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_modeKey, m.index);
     } catch (_) {}
   }
 
