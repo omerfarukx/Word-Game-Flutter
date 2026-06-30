@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
+import '../../../../core/design/decorations.dart';
 import '../../../../core/design/widgets/app_button.dart';
 import '../../../../core/design/widgets/confetti.dart';
 import '../../../../core/design/widgets/game_result.dart';
@@ -286,23 +287,28 @@ class _Stage extends StatelessWidget {
     final glow = border == AppColors.stroke
         ? const Color(0x55000000)
         : border.withValues(alpha: 0.35);
+    // A correct answer washes the whole card green (glow + gradient), matching
+    // the success flash every other game gives.
+    final decoration = border == AppColors.success
+        ? Surfaces.accentTile(AppColors.success, radius: 24)
+        : BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.surfaceHi, AppColors.surface],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: border, width: 1.5),
+            boxShadow: [
+              BoxShadow(color: glow, blurRadius: 24, offset: const Offset(0, 8)),
+            ],
+          );
     return Container(
       width: 260,
       height: 160,
       alignment: Alignment.center,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [AppColors.surfaceHi, AppColors.surface],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: border, width: 1.5),
-        boxShadow: [
-          BoxShadow(color: glow, blurRadius: 24, offset: const Offset(0, 8)),
-        ],
-      ),
+      decoration: decoration,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 160),
         child: child,

@@ -6,6 +6,7 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/confetti.dart';
+import '../../../core/design/widgets/count_up.dart';
 import '../../../core/design/widgets/game_scaffold.dart';
 import '../../../core/design/widgets/power_bar.dart';
 import '../../../core/design/widgets/record_chase.dart';
@@ -572,7 +573,7 @@ class _GameOverCard extends StatelessWidget {
                 Text('${c.chain.length} kelimelik zincir',
                     style: AppText.body(14, color: AppColors.textLow)),
                 const SizedBox(height: 20),
-                Text('${c.score}',
+                CountUp('${c.score}',
                     style: AppText.display(56, color: _accent)),
                 Text('PUAN', style: AppText.label(11)),
                 const SizedBox(height: 20),

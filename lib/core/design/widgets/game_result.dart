@@ -3,6 +3,7 @@ import '../app_colors.dart';
 import '../app_typography.dart';
 import '../decorations.dart';
 import 'app_button.dart';
+import 'count_up.dart';
 
 /// One small stat shown in the result summary (e.g. "EN İYİ" / "320").
 class ResultStat {
@@ -71,7 +72,7 @@ class GameResultOverlay extends StatelessWidget {
                     child: ShaderMask(
                       shaderCallback: (r) =>
                           AppGradients.forAccent(accent).createShader(r),
-                      child: Text(bigValue,
+                      child: CountUp(bigValue,
                           style: AppText.display(58, color: Colors.white)),
                     ),
                   ),
