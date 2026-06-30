@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'daily_challenge.dart';
+
 /// Per-game personal bests, persisted. Loaded into memory once so reads and
 /// "is this a record?" checks are synchronous; writes go through to prefs.
 class Records {
@@ -39,6 +41,8 @@ class Records {
       _values[id] = value;
       _prefs?.setInt('$_prefix$id', value);
     }
+    // Higher-score games may satisfy today's daily challenge.
+    if (!lowerIsBetter) DailyChallenge.instance.onScore(id, value);
     return isRecord;
   }
 }

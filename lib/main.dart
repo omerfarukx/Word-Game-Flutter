@@ -4,6 +4,7 @@ import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
 import 'core/feedback/achievements.dart';
+import 'core/feedback/daily_challenge.dart';
 import 'core/feedback/game_settings.dart';
 import 'core/feedback/music_service.dart';
 import 'core/feedback/records.dart';
@@ -35,6 +36,7 @@ void main() async {
   await Achievements.instance.init();
   await GameSettings.instance.init();
   await Guides.instance.init();
+  await DailyChallenge.instance.init();
 
   runApp(
     MultiProvider(

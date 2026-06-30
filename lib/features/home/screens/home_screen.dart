@@ -9,6 +9,7 @@ import '../../../core/design/widgets/aurora_background.dart';
 import '../../../core/design/widgets/how_to_sheet.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/feedback/achievements.dart';
+import '../../../core/feedback/daily_challenge.dart';
 import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/music_service.dart';
 import '../../../core/feedback/records.dart';
@@ -170,6 +171,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Rebuild the whole home when stats change (e.g. after finishing a game),
+    // so the daily-challenge card and record badges refresh on return.
+    context.watch<StatisticsProvider>();
     var revealIndex = 0;
     Duration nextDelay() => Duration(milliseconds: (revealIndex++) * 45);
 
@@ -184,6 +188,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Reveal(delay: nextDelay(), child: const _Header()),
                 const SizedBox(height: 20),
                 Reveal(delay: nextDelay(), child: const _HeroStats()),
+                const SizedBox(height: 12),
+                Reveal(delay: nextDelay(), child: const _DailyCard()),
                 const SizedBox(height: 12),
                 Reveal(delay: nextDelay(), child: const _DifficultySelector()),
                 const SizedBox(height: 4),
@@ -698,6 +704,111 @@ class _ExerciseCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DailyCard extends StatelessWidget {
+  const _DailyCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final task = DailyChallenge.instance.today;
+    final done = DailyChallenge.instance.doneToday;
+    final streak = DailyChallenge.instance.streak;
+    final accent = task.accent;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => Navigator.pushNamed(context, task.route),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                accent.withValues(alpha: 0.22),
+                accent.withValues(alpha: 0.06),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: accent.withValues(alpha: 0.5)),
+            boxShadow: [
+              BoxShadow(
+                  color: accent.withValues(alpha: 0.18),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: AppGradients.forAccent(accent),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                        color: accent.withValues(alpha: 0.45),
+                        blurRadius: 14,
+                        offset: const Offset(0, 5)),
+                  ],
+                ),
+                child: Icon(done ? Icons.check_rounded : task.icon,
+                    color: Colors.white, size: 26),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('GÜNLÜK MEYDAN OKUMA',
+                            style: AppText.label(10, color: accent)),
+                        if (streak > 0) ...[
+                          const SizedBox(width: 8),
+                          Text('🔥 $streak',
+                              style: AppText.label(10, color: AppColors.reading)),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(task.title, style: AppText.display(18)),
+                    const SizedBox(height: 2),
+                    Text(
+                      done
+                          ? 'Tamamlandı! Yarın yeni meydan okuma.'
+                          : 'Hedef: ${task.target} puan',
+                      style: AppText.body(12,
+                          color: done ? AppColors.success : AppColors.textLow),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              done
+                  ? const Icon(Icons.verified_rounded,
+                      color: AppColors.success, size: 26)
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.forAccent(accent),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text('Oyna',
+                          style: AppText.body(13,
+                              weight: FontWeight.w700, color: Colors.white)),
+                    ),
+            ],
           ),
         ),
       ),
