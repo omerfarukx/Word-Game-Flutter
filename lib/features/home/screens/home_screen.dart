@@ -93,6 +93,14 @@ const _exercises = <Exercise>[
     category: 'Kelime Egzersizleri',
   ),
   Exercise(
+    title: 'Karışık Harfler',
+    subtitle: 'Harflerden kelime kur',
+    icon: Icons.shuffle_rounded,
+    route: RouteConstants.anagram,
+    recordId: 'anagram',
+    category: 'Kelime Egzersizleri',
+  ),
+  Exercise(
     title: 'Harf Arama',
     subtitle: 'Harfleri bul ve seç',
     icon: Icons.search_rounded,
@@ -196,8 +204,45 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
+        _HeaderButton(
+          icon: Icons.bar_chart_rounded,
+          color: AppColors.word,
+          onTap: () => Navigator.pushNamed(context, RouteConstants.statistics),
+        ),
+        const SizedBox(width: 10),
         const _MuteButton(),
       ],
+    );
+  }
+}
+
+class _HeaderButton extends StatelessWidget {
+  const _HeaderButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppColors.stroke),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(icon, color: color, size: 22),
+        ),
+      ),
     );
   }
 }
@@ -241,12 +286,43 @@ class _MuteButtonState extends State<_MuteButton> {
   }
 }
 
+/// One progression tier: the exercise count where it unlocks and its name.
+class _Level {
+  const _Level(this.floor, this.name);
+  final int floor;
+  final String name;
+}
+
+const _levels = <_Level>[
+  _Level(0, 'Başlangıç'),
+  _Level(5, 'Orta'),
+  _Level(15, 'İleri'),
+  _Level(30, 'Uzman'),
+  _Level(50, 'Şampiyon'),
+];
+
+/// Current tier and the next one (null at the top) for a given completed count.
+(_Level current, _Level? next) _levelFor(int completed) {
+  var current = _levels.first;
+  for (final l in _levels) {
+    if (completed >= l.floor) current = l;
+  }
+  final idx = _levels.indexOf(current);
+  final next = idx + 1 < _levels.length ? _levels[idx + 1] : null;
+  return (current, next);
+}
+
 class _HeroStats extends StatelessWidget {
   const _HeroStats();
 
   @override
   Widget build(BuildContext context) {
     final stats = context.watch<StatisticsProvider>();
+    final (level, next) = _levelFor(stats.completedExercises);
+    final progress = next == null
+        ? 1.0
+        : ((stats.completedExercises - level.floor) / (next.floor - level.floor))
+            .clamp(0.0, 1.0);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: Surfaces.tile(radius: 22),
@@ -272,17 +348,31 @@ class _HeroStats extends StatelessWidget {
                     color: Colors.white, size: 28),
               ),
               const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('OKUMA DÜZEYİ', style: AppText.label(10)),
-                  const SizedBox(height: 2),
-                  Text(stats.readingLevel, style: AppText.display(22)),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('OKUMA DÜZEYİ', style: AppText.label(10)),
+                    const SizedBox(height: 2),
+                    Text(level.name, style: AppText.display(22)),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
+          _LevelBar(
+            progress: progress,
+            caption: next == null
+                ? 'En üst seviyedesin 🏆'
+                : 'Sonraki: ${next.name} • ${next.floor - stats.completedExercises} egzersiz',
+          ),
+          const SizedBox(height: 16),
+          _DailyGoal(
+            done: stats.todayCount,
+            goal: StatisticsProvider.dailyGoal,
+          ),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -356,6 +446,93 @@ class _MiniStat extends StatelessWidget {
               style: AppText.display(16)),
           const SizedBox(height: 2),
           Text(label, style: AppText.label(8)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Gradient XP bar showing how far into the current level the player is.
+class _LevelBar extends StatelessWidget {
+  const _LevelBar({required this.progress, required this.caption});
+  final double progress;
+  final String caption;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Stack(
+            children: [
+              Container(
+                height: 9,
+                color: AppColors.bgDeep.withValues(alpha: 0.6),
+              ),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progress == 0 ? 0.0 : progress.clamp(0.04, 1.0),
+                child: Container(
+                  height: 9,
+                  decoration: BoxDecoration(
+                    gradient: AppGradients.word,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 7),
+        Text(caption, style: AppText.body(11, color: AppColors.textLow)),
+      ],
+    );
+  }
+}
+
+/// Compact daily-goal strip: a segment per target exercise, filled as the
+/// player completes them, flipping to a success state once the goal is met.
+class _DailyGoal extends StatelessWidget {
+  const _DailyGoal({required this.done, required this.goal});
+  final int done;
+  final int goal;
+
+  @override
+  Widget build(BuildContext context) {
+    final met = done >= goal;
+    final accent = met ? AppColors.success : AppColors.word;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: met ? 0.12 : 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: accent.withValues(alpha: met ? 0.5 : 0.25)),
+      ),
+      child: Row(
+        children: [
+          Icon(met ? Icons.check_circle_rounded : Icons.flag_rounded,
+              size: 18, color: accent),
+          const SizedBox(width: 8),
+          Text('GÜNLÜK HEDEF', style: AppText.label(10, color: AppColors.textMid)),
+          const Spacer(),
+          for (var i = 0; i < goal; i++) ...[
+            if (i > 0) const SizedBox(width: 5),
+            Container(
+              width: 18,
+              height: 6,
+              decoration: BoxDecoration(
+                color: i < done ? accent : AppColors.stroke,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ],
+          const SizedBox(width: 10),
+          Text(
+            met ? 'Tamam!' : '$done/$goal',
+            style: AppText.body(12, weight: FontWeight.w700, color: accent),
+          ),
         ],
       ),
     );

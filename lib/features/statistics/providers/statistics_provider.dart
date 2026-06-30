@@ -13,10 +13,26 @@ class StatisticsProvider with ChangeNotifier {
   final List<int> _wordChainScores = [];
   List<int> get wordChainScores => List.unmodifiable(_wordChainScores);
 
+  // Günlük hedef takibi
+  String _todayKey = '';
+  int _todayCount = 0;
+
+  /// Bir günde tamamlanması hedeflenen egzersiz sayısı.
+  static const int dailyGoal = 3;
+
   String get readingLevel => _readingLevel;
   int get completedExercises => _completedExercises;
   double get duration => _duration;
   int get streakDays => _streakDays;
+
+  /// Bugün tamamlanan egzersiz sayısı (gün değişince sıfırlanır).
+  int get todayCount => _todayKey == _dayKey(DateTime.now()) ? _todayCount : 0;
+
+  /// Günlük hedef tamamlandı mı?
+  bool get dailyGoalMet => todayCount >= dailyGoal;
+
+  static String _dayKey(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   StatisticsProvider() {
     _loadStatistics();
@@ -42,6 +58,10 @@ class StatisticsProvider with ChangeNotifier {
       _wordChainScores.addAll(scores.map((s) => int.parse(s)));
     }
 
+    _todayKey = prefs.getString('todayKey') ?? '';
+    _todayCount = prefs.getInt('todayCount') ?? 0;
+
+    _refreshReadingLevel();
     notifyListeners();
   }
 
@@ -61,6 +81,9 @@ class StatisticsProvider with ChangeNotifier {
     // Kelime zinciri skorlarını kaydet
     await prefs.setStringList(
         'wordChainScores', _wordChainScores.map((s) => s.toString()).toList());
+
+    await prefs.setString('todayKey', _todayKey);
+    await prefs.setInt('todayCount', _todayCount);
   }
 
   void updateReadingLevel(String level) {
@@ -88,7 +111,16 @@ class StatisticsProvider with ChangeNotifier {
       _streakDays = 1;
     }
 
+    // Günlük hedef sayacı — gün değiştiyse sıfırdan başla.
+    final today = _dayKey(now);
+    if (_todayKey != today) {
+      _todayKey = today;
+      _todayCount = 0;
+    }
+    _todayCount++;
+
     _lastExerciseDate = now;
+    _refreshReadingLevel();
     _saveStatistics();
     notifyListeners();
   }
@@ -100,8 +132,8 @@ class StatisticsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Okuma düzeyini hesapla
-  void calculateReadingLevel() {
+  /// Okuma düzeyini tamamlanan egzersiz sayısından türetir (yan etkisiz).
+  void _refreshReadingLevel() {
     if (_completedExercises >= 50) {
       _readingLevel = 'Şampiyon';
     } else if (_completedExercises >= 30) {
@@ -113,6 +145,11 @@ class StatisticsProvider with ChangeNotifier {
     } else {
       _readingLevel = 'Başlangıç';
     }
+  }
+
+  // Okuma düzeyini hesapla + kalıcılaştır.
+  void calculateReadingLevel() {
+    _refreshReadingLevel();
     _saveStatistics();
     notifyListeners();
   }
