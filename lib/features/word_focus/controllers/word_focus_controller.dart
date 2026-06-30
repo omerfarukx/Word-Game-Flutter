@@ -59,6 +59,8 @@ class WordFocusController extends ChangeNotifier {
 
   final List<String> _recent = [];
   Timer? _timer;
+  Timer? _hintTimer;
+  Timer? _wrongTimer;
 
   int get accuracy =>
       attempts == 0 ? 0 : ((correctTaps / attempts) * 100).round();
@@ -79,6 +81,8 @@ class WordFocusController extends ChangeNotifier {
     hintIndex = null;
     phase = FocusPhase.playing;
     _nextRound();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (frozenTicks > 0) {
@@ -110,7 +114,8 @@ class WordFocusController extends ChangeNotifier {
     hints--;
     hintIndex = i;
     notifyListeners();
-    Timer(const Duration(milliseconds: 1500), () {
+    _hintTimer?.cancel();
+    _hintTimer = Timer(const Duration(milliseconds: 1500), () {
       if (hintIndex == i) hintIndex = null;
       notifyListeners();
     });
@@ -124,6 +129,7 @@ class WordFocusController extends ChangeNotifier {
     final opt = options[i];
     opt.found = true;
     found++;
+    attempts++;
     correctTaps++;
     score += 15;
     Juice.correct();
@@ -184,7 +190,8 @@ class WordFocusController extends ChangeNotifier {
       Juice.wrong();
       score = max(0, score - 8);
       timeLeft = max(1, timeLeft - 3);
-      Timer(const Duration(milliseconds: 350), () {
+      _wrongTimer?.cancel();
+      _wrongTimer = Timer(const Duration(milliseconds: 350), () {
         opt.wrong = false;
         notifyListeners();
       });
@@ -200,6 +207,8 @@ class WordFocusController extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     super.dispose();
   }
 }

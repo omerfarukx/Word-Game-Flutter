@@ -45,6 +45,8 @@ class LetterSearchController extends ChangeNotifier {
   bool get isFrozen => frozenTicks > 0;
 
   Timer? _timer;
+  Timer? _hintTimer;
+  Timer? _wrongTimer;
 
   int get accuracy =>
       attempts == 0 ? 0 : ((correctTaps / attempts) * 100).round();
@@ -65,6 +67,8 @@ class LetterSearchController extends ChangeNotifier {
     frozenTicks = 0;
     hintCells.clear();
     _buildRound();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (frozenTicks > 0) {
@@ -105,7 +109,8 @@ class LetterSearchController extends ChangeNotifier {
       ..clear()
       ..add(i);
     notifyListeners();
-    Timer(const Duration(milliseconds: 1500), () {
+    _hintTimer?.cancel();
+    _hintTimer = Timer(const Duration(milliseconds: 1500), () {
       hintCells.clear();
       notifyListeners();
     });
@@ -117,6 +122,7 @@ class LetterSearchController extends ChangeNotifier {
     if (i < 0) return;
     jokers--;
     found++;
+    attempts++;
     correctTaps++;
     foundCells.add(i);
     score += 10;
@@ -180,7 +186,8 @@ class LetterSearchController extends ChangeNotifier {
       wrongCell = index;
       wrongTick++;
       Juice.wrong();
-      Timer(const Duration(milliseconds: 300), () {
+      _wrongTimer?.cancel();
+      _wrongTimer = Timer(const Duration(milliseconds: 300), () {
         if (wrongCell == index) wrongCell = -1;
         notifyListeners();
       });
@@ -197,6 +204,8 @@ class LetterSearchController extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     super.dispose();
   }
 }

@@ -60,6 +60,8 @@ class WordPairsController extends ChangeNotifier {
   bool get isFrozen => frozenTicks > 0;
 
   Timer? _timer;
+  Timer? _hintTimer;
+  Timer? _wrongTimer;
 
   void start() {
     score = 0;
@@ -75,6 +77,8 @@ class WordPairsController extends ChangeNotifier {
     frozenTicks = 0;
     hintIndex = null;
     _buildLevel();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (frozenTicks > 0) {
@@ -106,7 +110,8 @@ class WordPairsController extends ChangeNotifier {
     hints--;
     hintIndex = i;
     notifyListeners();
-    Timer(const Duration(milliseconds: 1500), () {
+    _hintTimer?.cancel();
+    _hintTimer = Timer(const Duration(milliseconds: 1500), () {
       if (hintIndex == i) hintIndex = null;
       notifyListeners();
     });
@@ -203,7 +208,8 @@ class WordPairsController extends ChangeNotifier {
       Juice.wrong();
       score = max(0, score - 10);
       timeLeft = max(1, timeLeft - 3);
-      Timer(const Duration(milliseconds: 350), () {
+      _wrongTimer?.cancel();
+      _wrongTimer = Timer(const Duration(milliseconds: 350), () {
         card.wrong = false;
         notifyListeners();
       });
@@ -220,6 +226,8 @@ class WordPairsController extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     super.dispose();
   }
 }

@@ -56,6 +56,7 @@ class WordSearchController extends ChangeNotifier {
 
   final List<String> _recentThemes = [];
   Timer? _timer;
+  Timer? _hintTimer;
 
   int get foundCount => targets.where((t) => t.found).length;
 
@@ -72,6 +73,7 @@ class WordSearchController extends ChangeNotifier {
     hintCells.clear();
     _recentThemes.clear();
     _buildPuzzle();
+    _hintTimer?.cancel();
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (frozenTicks > 0) {
@@ -105,7 +107,8 @@ class WordSearchController extends ChangeNotifier {
       ..clear()
       ..add(t.cells.first);
     notifyListeners();
-    Timer(const Duration(milliseconds: 1600), () {
+    _hintTimer?.cancel();
+    _hintTimer = Timer(const Duration(milliseconds: 1600), () {
       hintCells.clear();
       notifyListeners();
     });
@@ -264,6 +267,7 @@ class WordSearchController extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    _hintTimer?.cancel();
     super.dispose();
   }
 }

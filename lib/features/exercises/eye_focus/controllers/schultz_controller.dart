@@ -29,6 +29,9 @@ class SchultzController extends ChangeNotifier {
 
   final Stopwatch _watch = Stopwatch();
   Timer? _ticker;
+  Timer? _freezeTimer;
+  Timer? _hintTimer;
+  Timer? _wrongTimer;
 
   int get elapsedSeconds => _watch.elapsed.inSeconds;
 
@@ -46,6 +49,9 @@ class SchultzController extends ChangeNotifier {
     _watch
       ..reset()
       ..start();
+    _freezeTimer?.cancel();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!isComplete) notifyListeners();
@@ -69,7 +75,8 @@ class SchultzController extends ChangeNotifier {
       wrongCell = value;
       Juice.wrong();
       notifyListeners();
-      Timer(const Duration(milliseconds: 300), () {
+      _wrongTimer?.cancel();
+      _wrongTimer = Timer(const Duration(milliseconds: 300), () {
         if (wrongCell == value) wrongCell = -1;
         notifyListeners();
       });
@@ -82,7 +89,8 @@ class SchultzController extends ChangeNotifier {
     freezes--;
     frozen = true;
     _watch.stop();
-    Timer(const Duration(seconds: 5), () {
+    _freezeTimer?.cancel();
+    _freezeTimer = Timer(const Duration(seconds: 5), () {
       frozen = false;
       if (!isComplete) _watch.start();
       notifyListeners();
@@ -97,7 +105,8 @@ class SchultzController extends ChangeNotifier {
     hints--;
     hintCell = i;
     notifyListeners();
-    Timer(const Duration(milliseconds: 1500), () {
+    _hintTimer?.cancel();
+    _hintTimer = Timer(const Duration(milliseconds: 1500), () {
       if (hintCell == i) hintCell = -1;
       notifyListeners();
     });
@@ -106,6 +115,7 @@ class SchultzController extends ChangeNotifier {
   void _complete() {
     _watch.stop();
     _ticker?.cancel();
+    _freezeTimer?.cancel();
     isComplete = true;
   }
 
@@ -113,6 +123,9 @@ class SchultzController extends ChangeNotifier {
   void dispose() {
     _watch.stop();
     _ticker?.cancel();
+    _freezeTimer?.cancel();
+    _hintTimer?.cancel();
+    _wrongTimer?.cancel();
     super.dispose();
   }
 }
