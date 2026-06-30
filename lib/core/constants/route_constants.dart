@@ -11,5 +11,6 @@ class RouteConstants {
   static const String wordSearch = '/word-search';
   static const String statistics = '/statistics';
   static const String wordChain = '/word-chain';
+  static const String anagram = '/anagram';
   static const String achievements = '/achievements';
 }

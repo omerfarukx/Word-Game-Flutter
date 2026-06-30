@@ -91,5 +91,13 @@ class Exercise {
           icon: Icons.link,
           color: Colors.teal,
         ),
+        Exercise(
+          title: 'Karışık Harfler',
+          description: 'Karışık harflerden kelime kurun',
+          route: RouteConstants.anagram,
+          category: 'Kelime Egzersizleri',
+          icon: Icons.shuffle,
+          color: Colors.purple,
+        ),
       ];
 }

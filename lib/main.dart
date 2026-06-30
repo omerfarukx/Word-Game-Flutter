@@ -21,6 +21,7 @@ import 'features/word_focus/screens/word_search_screen.dart';
 import 'features/statistics/providers/statistics_provider.dart';
 import 'features/statistics/screens/statistics_screen.dart';
 import 'features/word_chain/screens/word_chain_screen.dart';
+import 'features/exercises/anagram/screens/anagram_screen.dart';
 import 'features/achievements/screens/achievements_screen.dart';
 
 void main() async {
@@ -60,6 +61,7 @@ void main() async {
           RouteConstants.wordSearch: (context) => const WordSearchScreen(),
           RouteConstants.statistics: (context) => const StatisticsScreen(),
           RouteConstants.wordChain: (context) => const WordChainScreen(),
+          RouteConstants.anagram: (context) => const AnagramScreen(),
           RouteConstants.achievements: (context) =>
               const AchievementsScreen(),
         },
