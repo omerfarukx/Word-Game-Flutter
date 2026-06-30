@@ -160,6 +160,43 @@ class PeripheralController extends ChangeNotifier {
     isOver = true;
   }
 
+  void grant(String type) {
+    switch (type) {
+      case 'joker':
+        jokers++;
+      case 'freeze':
+        freezes++;
+    }
+    notifyListeners();
+  }
+
+  void revive() {
+    if (!isOver) return;
+    isOver = false;
+    isActive = true;
+    if (GameSettings.instance.survival) {
+      lives = GameSettings.survivalLives;
+    } else {
+      timeLeft += 25;
+      _gameTimer?.cancel();
+      _gameTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (frozenTicks > 0) {
+          frozenTicks--;
+          notifyListeners();
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          _end();
+        }
+        notifyListeners();
+      });
+    }
+    _nextRound();
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _gameTimer?.cancel();

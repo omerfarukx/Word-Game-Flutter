@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/ads/ad_service.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/decorations.dart';
@@ -27,6 +28,9 @@ class _EyeFocusScreenState extends State<EyeFocusScreen> {
   bool _saved = false;
   bool _record = false;
   int _confetti = 0;
+
+  void _refill(String type) =>
+      AdService.instance.showRewarded(onReward: () => _c.grant(type));
 
   @override
   void initState() {
@@ -83,6 +87,7 @@ class _EyeFocusScreenState extends State<EyeFocusScreen> {
                 onFreeze: _c.freeze,
                 freezes: _c.freezes,
                 frozen: _c.isFrozen,
+                onRefill: AdService.instance.enabled ? _refill : null,
               ),
             ],
           ),

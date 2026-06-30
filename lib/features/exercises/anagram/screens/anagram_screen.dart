@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/ads/ad_service.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/decorations.dart';
@@ -36,7 +37,17 @@ class _AnagramScreenState extends State<AnagramScreen> {
 
   bool _saved = false;
   bool _isRecord = false;
+  bool _revived = false;
   int _confetti = 0;
+
+  void _refill(String type) =>
+      AdService.instance.showRewarded(onReward: () => _c.grant(type));
+
+  void _continue() => AdService.instance.showRewarded(onReward: () {
+        _revived = true;
+        _saved = false;
+        _c.revive();
+      });
 
   @override
   void initState() {
@@ -60,6 +71,7 @@ class _AnagramScreenState extends State<AnagramScreen> {
   void _restart() {
     _saved = false;
     _isRecord = false;
+    _revived = false;
     _c.start();
   }
 
@@ -117,6 +129,7 @@ class _AnagramScreenState extends State<AnagramScreen> {
                 onFreeze: survival ? null : _c.freeze,
                 freezes: _c.freezes,
                 frozen: _c.isFrozen,
+                onRefill: AdService.instance.enabled ? _refill : null,
               ),
             ],
           ),
@@ -127,6 +140,8 @@ class _AnagramScreenState extends State<AnagramScreen> {
               isRecord: _isRecord,
               onRestart: _restart,
               onExit: () => Navigator.of(context).maybePop(),
+              onContinue:
+                  (!_revived && AdService.instance.enabled) ? _continue : null,
             ),
         ],
       ),
@@ -440,12 +455,14 @@ class _GameOverCard extends StatelessWidget {
     required this.isRecord,
     required this.onRestart,
     required this.onExit,
+    this.onContinue,
   });
 
   final AnagramController c;
   final bool isRecord;
   final VoidCallback onRestart;
   final VoidCallback onExit;
+  final VoidCallback? onContinue;
 
   @override
   Widget build(BuildContext context) {
@@ -498,6 +515,10 @@ class _GameOverCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
+                if (onContinue != null) ...[
+                  _ContinueButton(onTap: onContinue!),
+                  const SizedBox(height: 12),
+                ],
                 Row(
                   children: [
                     Expanded(child: _OutlineButton(label: 'Çıkış', onTap: onExit)),
@@ -538,6 +559,51 @@ class _MiniStat extends StatelessWidget {
           const SizedBox(height: 4),
           Text(label, style: AppText.label(9)),
         ],
+      ),
+    );
+  }
+}
+
+class _ContinueButton extends StatelessWidget {
+  const _ContinueButton({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: AppGradients.word,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+                color: _accent.withValues(alpha: 0.45),
+                blurRadius: 16,
+                offset: const Offset(0, 6)),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: SizedBox(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.play_circle_fill_rounded,
+                      color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Text('Reklamla Devam Et',
+                      style: AppText.body(15,
+                          weight: FontWeight.w700, color: Colors.white)),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -26,6 +26,8 @@ class GameResultOverlay extends StatelessWidget {
     required this.onExit,
     this.isRecord = false,
     this.restartLabel = 'Tekrar Oyna',
+    this.onContinue,
+    this.continueLabel = 'Reklamla Devam Et',
   });
 
   final Color accent;
@@ -37,6 +39,10 @@ class GameResultOverlay extends StatelessWidget {
   final VoidCallback onExit;
   final bool isRecord;
   final String restartLabel;
+
+  /// When set, shows a "watch ad to continue" button above the actions.
+  final VoidCallback? onContinue;
+  final String continueLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +95,14 @@ class GameResultOverlay extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 24),
+                if (onContinue != null) ...[
+                  _ContinueButton(
+                    label: continueLabel,
+                    accent: accent,
+                    onTap: onContinue!,
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Row(
                   children: [
                     Expanded(child: GhostButton(label: 'Çıkış', onTap: onExit)),
@@ -103,6 +117,57 @@ class GameResultOverlay extends StatelessWidget {
                   ],
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ContinueButton extends StatelessWidget {
+  const _ContinueButton({
+    required this.label,
+    required this.accent,
+    required this.onTap,
+  });
+  final String label;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: AppGradients.forAccent(accent),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+                color: accent.withValues(alpha: 0.45),
+                blurRadius: 16,
+                offset: const Offset(0, 6)),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            child: SizedBox(
+              height: 52,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.play_circle_fill_rounded,
+                      color: Colors.white, size: 22),
+                  const SizedBox(width: 8),
+                  Text(label,
+                      style: AppText.body(15,
+                          weight: FontWeight.w700, color: Colors.white)),
+                ],
+              ),
             ),
           ),
         ),

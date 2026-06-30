@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/ads/ad_service.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/decorations.dart';
@@ -29,8 +30,18 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
   final LetterSearchController _c = LetterSearchController();
   bool _saved = false;
   bool _record = false;
+  bool _revived = false;
   int _prevLevel = 1;
   int _confetti = 0;
+
+  void _refill(String type) =>
+      AdService.instance.showRewarded(onReward: () => _c.grant(type));
+
+  void _continue() => AdService.instance.showRewarded(onReward: () {
+        _revived = true;
+        _saved = false;
+        _c.revive();
+      });
 
   @override
   void initState() {
@@ -58,6 +69,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
 
   void _restart() {
     _saved = false;
+    _revived = false;
     _prevLevel = 1;
     _c.start();
   }
@@ -96,6 +108,7 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
                 onFreeze: _c.freeze,
                 freezes: _c.freezes,
                 frozen: _c.isFrozen,
+                onRefill: AdService.instance.enabled ? _refill : null,
               ),
             ],
           ),
@@ -114,6 +127,8 @@ class _LetterSearchScreenState extends State<LetterSearchScreen> {
               ],
               onRestart: _restart,
               onExit: () => Navigator.of(context).maybePop(),
+              onContinue:
+                  (!_revived && AdService.instance.enabled) ? _continue : null,
             ),
         ],
       ),

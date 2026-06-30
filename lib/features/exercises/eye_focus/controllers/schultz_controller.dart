@@ -119,6 +119,16 @@ class SchultzController extends ChangeNotifier {
     isComplete = true;
   }
 
+  void grant(String type) {
+    switch (type) {
+      case 'hint':
+        hints++;
+      case 'freeze':
+        freezes++;
+    }
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _watch.stop();

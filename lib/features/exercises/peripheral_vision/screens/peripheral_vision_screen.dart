@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/ads/ad_service.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/widgets/confetti.dart';
@@ -32,7 +33,17 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
   final PeripheralController _c = PeripheralController();
   bool _saved = false;
   bool _record = false;
+  bool _revived = false;
   int _confetti = 0;
+
+  void _refill(String type) =>
+      AdService.instance.showRewarded(onReward: () => _c.grant(type));
+
+  void _continue() => AdService.instance.showRewarded(onReward: () {
+        _revived = true;
+        _saved = false;
+        _c.revive();
+      });
 
   @override
   void initState() {
@@ -57,6 +68,7 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
 
   void _restart() {
     _saved = false;
+    _revived = false;
     _c.start();
   }
 
@@ -103,6 +115,7 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
                 onFreeze: survival ? null : _c.freeze,
                 freezes: _c.freezes,
                 frozen: _c.isFrozen,
+                onRefill: AdService.instance.enabled ? _refill : null,
               ),
             ],
           ),
@@ -111,6 +124,8 @@ class _PeripheralVisionScreenState extends State<PeripheralVisionScreen> {
             GameResultOverlay(
               accent: _accent,
               title: survival ? 'Canın Bitti' : 'Süre Doldu',
+              onContinue:
+                  (!_revived && AdService.instance.enabled) ? _continue : null,
               isRecord: _record,
               bigValue: '${_c.score}',
               bigLabel: 'PUAN',

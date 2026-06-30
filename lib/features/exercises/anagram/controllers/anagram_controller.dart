@@ -287,6 +287,48 @@ class AnagramController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reward: add one of the named power-up.
+  void grant(String type) {
+    switch (type) {
+      case 'hint':
+        hints++;
+      case 'joker':
+        jokers++;
+      case 'freeze':
+        freezes++;
+    }
+    notifyListeners();
+  }
+
+  /// Reward: continue after game over — more time (or refilled lives in
+  /// survival) and resume play, keeping the score.
+  void revive() {
+    if (!isOver) return;
+    isOver = false;
+    isActive = true;
+    celebrating = false;
+    if (GameSettings.instance.survival) {
+      lives = GameSettings.survivalLives;
+    } else {
+      timeLeft += 25;
+      _timer?.cancel();
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (frozenTicks > 0) {
+          frozenTicks--;
+          notifyListeners();
+          return;
+        }
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          _finish();
+        }
+        notifyListeners();
+      });
+    }
+    notifyListeners();
+  }
+
   void _finish() {
     _timer?.cancel();
     isActive = false;

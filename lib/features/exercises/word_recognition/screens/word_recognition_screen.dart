@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/ads/ad_service.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/design/app_typography.dart';
 import '../../../../core/design/decorations.dart';
@@ -38,7 +39,17 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
   final _focus = FocusNode();
   bool _saved = false;
   bool _record = false;
+  bool _revived = false;
   int _confetti = 0;
+
+  void _refill(String type) =>
+      AdService.instance.showRewarded(onReward: () => _c.grant(type));
+
+  void _continue() => AdService.instance.showRewarded(onReward: () {
+        _revived = true;
+        _saved = false;
+        _c.revive();
+      });
 
   void _onChange() {
     if (_c.phase == RecogPhase.input) {
@@ -65,6 +76,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
 
   void _restart() {
     _saved = false;
+    _revived = false;
     _input.clear();
     _c.start(_c.difficulty);
   }
@@ -108,6 +120,8 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
               ],
               onRestart: _restart,
               onExit: () => Navigator.of(context).maybePop(),
+              onContinue:
+                  (!_revived && AdService.instance.enabled) ? _continue : null,
             ),
         ],
       ),
@@ -131,6 +145,7 @@ class _WordRecognitionScreenState extends State<WordRecognitionScreen> {
           onFreeze: GameSettings.instance.survival ? null : _c.freeze,
           freezes: _c.freezes,
           frozen: _c.isFrozen,
+          onRefill: AdService.instance.enabled ? _refill : null,
         ),
         if (_c.phase == RecogPhase.input)
           _InputBar(input: _input, focus: _focus, onSubmit: _submit),

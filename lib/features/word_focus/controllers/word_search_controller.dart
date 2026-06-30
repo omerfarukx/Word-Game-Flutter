@@ -264,6 +264,40 @@ class WordSearchController extends ChangeNotifier {
     isOver = true;
   }
 
+  void grant(String type) {
+    switch (type) {
+      case 'hint':
+        hints++;
+      case 'joker':
+        jokers++;
+      case 'freeze':
+        freezes++;
+    }
+    notifyListeners();
+  }
+
+  void revive() {
+    if (!isOver) return;
+    isOver = false;
+    isActive = true;
+    timeLeft += 25;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (frozenTicks > 0) {
+        frozenTicks--;
+        notifyListeners();
+        return;
+      }
+      timeLeft--;
+      if (timeLeft <= 0) {
+        timeLeft = 0;
+        _end();
+      }
+      notifyListeners();
+    });
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
