@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches AppColors.bgDeep so the native launch screen blends into the
+         Flutter splash with no white flash. -->
+    <color name="splash_dark">#FF080C17</color>
+</resources>

@@ -1,4 +1,5 @@
 class RouteConstants {
+  static const String splash = '/splash';
   static const String home = '/home';
   static const String wordRecognition = '/word-recognition';
   static const String eyeFocus = '/eye-focus';

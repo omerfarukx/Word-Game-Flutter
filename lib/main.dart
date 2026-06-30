@@ -1,18 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'core/ads/ad_service.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
-import 'core/feedback/achievements.dart';
-import 'core/feedback/daily_challenge.dart';
-import 'core/feedback/game_settings.dart';
-import 'core/feedback/music_service.dart';
-import 'core/feedback/records.dart';
-import 'core/feedback/sound_service.dart';
-import 'core/iap/purchases.dart';
-import 'core/onboarding/guides.dart';
-import 'core/words/word_service.dart';
 import 'features/exercises/eye_focus/screens/eye_focus_screen.dart';
 import 'features/exercises/speed_reading/screens/speed_reading_screen.dart';
 import 'features/exercises/word_pairs/screens/word_pairs_screen.dart';
@@ -27,25 +17,12 @@ import 'features/statistics/screens/statistics_screen.dart';
 import 'features/word_chain/screens/word_chain_screen.dart';
 import 'features/exercises/anagram/screens/anagram_screen.dart';
 import 'features/achievements/screens/achievements_screen.dart';
+import 'features/splash/splash_screen.dart';
 
-void main() async {
+void main() {
+  // Heavy init runs inside the splash (see bootstrap()), so the animated
+  // splash paints immediately instead of waiting behind a blank native screen.
   WidgetsFlutterBinding.ensureInitialized();
-
-  await WordService.load();
-  await SoundService.instance.load();
-  await MusicService.instance.init();
-  await Records.instance.init();
-  await Achievements.instance.init();
-  await GameSettings.instance.init();
-  await Guides.instance.init();
-  await DailyChallenge.instance.init();
-  await AdService.instance.init();
-  await Purchases.instance.init();
-
-  // Registers itself with WidgetsBinding (kept alive); fires the app-open ad
-  // when the app returns to the foreground.
-  AppLifecycleListener(onResume: AdService.instance.showAppOpenIfReady);
-
   runApp(
     MultiProvider(
       providers: [
@@ -56,8 +33,9 @@ void main() async {
       child: MaterialApp(
         title: AppConstants.appName,
         theme: AppTheme.dark,
-        initialRoute: RouteConstants.home,
+        initialRoute: RouteConstants.splash,
         routes: {
+          RouteConstants.splash: (context) => const SplashScreen(),
           RouteConstants.home: (context) => const HomeScreen(),
           RouteConstants.eyeFocus: (context) => const EyeFocusScreen(),
           RouteConstants.speedReading: (context) => const SpeedReadingScreen(),
