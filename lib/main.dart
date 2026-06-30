@@ -8,6 +8,7 @@ import 'core/feedback/game_settings.dart';
 import 'core/feedback/music_service.dart';
 import 'core/feedback/records.dart';
 import 'core/feedback/sound_service.dart';
+import 'core/onboarding/guides.dart';
 import 'core/words/word_service.dart';
 import 'features/exercises/eye_focus/screens/eye_focus_screen.dart';
 import 'features/exercises/speed_reading/screens/speed_reading_screen.dart';
@@ -33,6 +34,7 @@ void main() async {
   await Records.instance.init();
   await Achievements.instance.init();
   await GameSettings.instance.init();
+  await Guides.instance.init();
 
   runApp(
     MultiProvider(

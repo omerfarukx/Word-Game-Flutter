@@ -6,12 +6,15 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/design/app_typography.dart';
 import '../../../core/design/decorations.dart';
 import '../../../core/design/widgets/aurora_background.dart';
+import '../../../core/design/widgets/how_to_sheet.dart';
 import '../../../core/design/widgets/reveal.dart';
 import '../../../core/feedback/achievements.dart';
 import '../../../core/feedback/game_settings.dart';
 import '../../../core/feedback/music_service.dart';
 import '../../../core/feedback/records.dart';
 import '../../../core/feedback/sound_service.dart';
+import '../../../core/onboarding/guides.dart';
+import '../../onboarding/onboarding_screen.dart';
 import '../../statistics/providers/statistics_provider.dart';
 
 class _Category {
@@ -146,6 +149,23 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     MusicService.instance.play(MusicTrack.word);
+    if (!Guides.instance.onboarded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showOnboarding());
+    }
+  }
+
+  void _showOnboarding() {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: true,
+        pageBuilder: (_, __, ___) => OnboardingScreen(
+          onDone: () {
+            Guides.instance.setOnboarded();
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -597,6 +617,29 @@ class _ExerciseCard extends StatelessWidget {
   final Exercise exercise;
   final Color accent;
 
+  /// First time a game is opened we show its rules with a "Play" button; after
+  /// that we go straight in. (Long-press always re-opens the rules.)
+  void _open(BuildContext context) {
+    final route = exercise.route;
+    final guide = Guides.instance.forRoute(route);
+    if (guide != null && !Guides.instance.isSeen(route)) {
+      showHowTo(context,
+          guide: guide,
+          primaryLabel: 'Oyna',
+          onPrimary: () {
+            Guides.instance.markSeen(route);
+            Navigator.pushNamed(context, route);
+          });
+    } else {
+      Navigator.pushNamed(context, route);
+    }
+  }
+
+  void _showGuide(BuildContext context) {
+    final guide = Guides.instance.forRoute(exercise.route);
+    if (guide != null) showHowTo(context, guide: guide, primaryLabel: 'Kapat');
+  }
+
   @override
   Widget build(BuildContext context) {
     final id = exercise.recordId;
@@ -615,7 +658,8 @@ class _ExerciseCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () => Navigator.pushNamed(context, exercise.route),
+          onTap: () => _open(context),
+          onLongPress: () => _showGuide(context),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
