@@ -1,36 +1,37 @@
-"""Generates Google Play store assets from raw app screenshots.
+"""Vibrant Google Play marketing graphics (reference-style) for Kelime Atölyesi.
 
-Inputs : store/raw/01.png .. 08.png  (real 1080x2400 app screenshots)
-Outputs: store/screenshots/01.png .. 08.png  (1080x1920 marketing images)
-         store/assets/feature_graphic.png     (1024x500)
-         store/assets/icon_512.png            (512x512)
+Each 1080x1920 panel = bright violet gradient + decorative blobs/sparkles +
+a BIG bold Turkish headline + colourful feature badges + the real app screen
+shown in a tilted phone mockup. Plus feature graphic (1024x500) & 512 icon.
 
-Each marketing image = brand gradient + violet glow + a Turkish headline +
-the screenshot inside a rounded, glowing phone frame. Run:  python tool/gen_store_images.py
-Requires Pillow.
+Inputs : store/raw/01..08.png  (real app screenshots)
+Run    : python tool/gen_store_images.py   (needs Pillow)
 """
 import os
+import math
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, "store", "raw")
 OUT_SHOTS = os.path.join(ROOT, "store", "screenshots")
 OUT_ASSETS = os.path.join(ROOT, "store", "assets")
+LOGO = os.path.join(OUT_ASSETS, "logo_candidates", "cross_A.png")
 os.makedirs(OUT_SHOTS, exist_ok=True)
-os.makedirs(OUT_ASSETS, exist_ok=True)
 
 W, H = 1080, 1920
-BG_TOP, BG_BOT = (13, 19, 34), (8, 12, 23)
-VIOLET = (139, 92, 246)
-VIOLET_HI = (165, 133, 255)
-VIOLET_LO = (109, 84, 240)
-VIOLET_LT = (183, 164, 251)
-WHITE = (236, 240, 250)
+# Bright marketing gradient (top -> bottom)
+G_TOP = (138, 92, 246)     # vivid violet
+G_BOT = (67, 32, 138)      # deep violet
+MAGENTA = (217, 70, 239)
+WHITE = (255, 255, 255)
+AMBER = (251, 191, 36)
+CYAN = (45, 212, 238)
+INK = (40, 22, 84)
 
 BOLD = ["C:/Windows/Fonts/segoeuib.ttf", "C:/Windows/Fonts/arialbd.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
-REG = ["C:/Windows/Fonts/segoeui.ttf", "C:/Windows/Fonts/arial.ttf",
-       "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+XBOLD = ["C:/Windows/Fonts/seguibl.ttf", "C:/Windows/Fonts/segoeuib.ttf",
+         "C:/Windows/Fonts/arialbd.ttf"]
 
 
 def font(opts, size):
@@ -42,130 +43,157 @@ def font(opts, size):
     return ImageFont.load_default()
 
 
-def vgradient(w, h, top, bot):
+def vgrad(w, h, top, bot):
     col = Image.new("RGB", (1, h))
     for y in range(h):
         t = y / (h - 1)
         col.putpixel((0, y), tuple(int(top[i] + (bot[i] - top[i]) * t) for i in range(3)))
-    return col.resize((w, h))
+    return col.resize((w, h)).convert("RGBA")
 
 
-def brand_bg(w, h, glow_xy=None, glow_r=420, glow_a=95):
-    bg = vgradient(w, h, BG_TOP, BG_BOT).convert("RGBA")
-    gx, gy = glow_xy or (w // 2, int(h * 0.16))
-    glow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    ImageDraw.Draw(glow).ellipse(
-        [gx - glow_r, gy - glow_r, gx + glow_r, gy + glow_r],
-        fill=(VIOLET[0], VIOLET[1], VIOLET[2], glow_a))
-    glow = glow.filter(ImageFilter.GaussianBlur(150))
-    # a teal kiss at bottom for depth
-    teal = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    ImageDraw.Draw(teal).ellipse(
-        [w // 2 - 360, h - 260, w // 2 + 360, h + 360], fill=(34, 211, 238, 36))
-    teal = teal.filter(ImageFilter.GaussianBlur(160))
-    bg = Image.alpha_composite(bg, glow)
-    bg = Image.alpha_composite(bg, teal)
-    return bg
+def blob(size_wh, xy, r, color, alpha, blur):
+    layer = Image.new("RGBA", size_wh, (0, 0, 0, 0))
+    ImageDraw.Draw(layer).ellipse([xy[0]-r, xy[1]-r, xy[0]+r, xy[1]+r],
+                                  fill=(color[0], color[1], color[2], alpha))
+    return layer.filter(ImageFilter.GaussianBlur(blur))
 
 
 def rounded(img, rad):
     img = img.convert("RGBA")
-    mask = Image.new("L", img.size, 0)
-    ImageDraw.Draw(mask).rounded_rectangle([0, 0, img.size[0], img.size[1]], rad, fill=255)
-    img.putalpha(mask)
+    m = Image.new("L", img.size, 0)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, img.size[0], img.size[1]], rad, fill=255)
+    img.putalpha(m)
     return img
 
 
-def centered(draw, text, y, fnt, fill):
-    w = draw.textlength(text, font=fnt)
-    draw.text(((W - w) / 2, y), text, font=fnt, fill=fill)
+def fit_font(draw, text, opts, start, max_w):
+    sz = start
+    while sz > 28:
+        f = font(opts, sz)
+        if draw.textlength(text, font=f) <= max_w:
+            return f
+        sz -= 3
+    return font(opts, sz)
 
 
-# (raw file, line1, line2)
-SHOTS = [
-    ("01.png", "10 oyun,", "tek uygulamada"),
-    ("02.png", "Karışık harflerden", "kelime kur"),
-    ("03.png", "Farklı çiftleri", "yakala"),
-    ("04.png", "Eş & zıt anlam,", "kelime ailesi"),
-    ("05.png", "Hayatta Kalma:", "canınla yarış"),
-    ("06.png", "Rekor kır,", "rozet topla"),
-    ("07.png", "Kombolarla", "puanı patlat"),
-    ("08.png", "Kelimelerle", "zihnini çalıştır"),
+def bg_panel():
+    bg = vgrad(W, H, G_TOP, G_BOT)
+    bg = Image.alpha_composite(bg, blob((W, H), (W*0.85, H*0.08), 520, MAGENTA, 120, 200))
+    bg = Image.alpha_composite(bg, blob((W, H), (W*0.12, H*0.30), 420, (167, 139, 250), 90, 200))
+    bg = Image.alpha_composite(bg, blob((W, H), (W*0.5, H*1.02), 620, (50, 20, 110), 150, 220))
+    # sparkles
+    spark = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(spark)
+    pts = [(140, 360, 7), (980, 520, 6), (120, 1180, 6), (960, 1280, 8),
+           (220, 1500, 5), (860, 1620, 6), (520, 250, 5)]
+    for x, y, r in pts:
+        sd.ellipse([x-r, y-r, x+r, y+r], fill=(255, 255, 255, 150))
+    bg = Image.alpha_composite(bg, spark)
+    return bg
+
+
+def badge(text, fg, bg_col, fsize=34):
+    f = font(BOLD, fsize)
+    tw = int(ImageDraw.Draw(Image.new("RGB", (10, 10))).textlength(text, font=f))
+    padx, pady = 26, 16
+    w, h = tw + padx*2, fsize + pady*2
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([0, 0, w, h], h//2, fill=bg_col)
+    d.text((w/2, h/2), text, font=f, fill=fg, anchor="mm")
+    return img
+
+
+def phone(raw, target_w, tilt):
+    sc = Image.open(os.path.join(RAW, raw)).convert("RGB")
+    pw = target_w
+    ph = int(pw * sc.height / sc.width)
+    sc = sc.resize((pw, ph))
+    frame = Image.new("RGBA", (pw + 24, ph + 24), (0, 0, 0, 0))
+    ImageDraw.Draw(frame).rounded_rectangle([0, 0, pw+24, ph+24], 60, fill=(15, 18, 30, 255))
+    frame.alpha_composite(rounded(sc, 44), (12, 12))
+    frame = rounded(frame, 60)
+    if tilt:
+        frame = frame.rotate(tilt, expand=True, resample=Image.BICUBIC)
+    return frame
+
+
+# (raw, line1, line2, [(badge_text, fg, bg)], tilt)
+PANELS = [
+    ("01.png", "10 OYUN", "TEK UYGULAMADA",
+     [("ÇEVRİMDIŞI", INK, AMBER), ("ÜCRETSİZ", WHITE, MAGENTA)], -5),
+    ("02.png", "KARIŞIK HARFLERDEN", "KELİME KUR",
+     [("ANAGRAM", INK, AMBER)], 5),
+    ("03.png", "FARKLI ÇİFTLERİ", "YAKALA",
+     [("DİKKAT & HIZ", INK, CYAN)], -5),
+    ("04.png", "EŞ & ZIT ANLAM", "KELİME AİLESİ",
+     [("KELİME BİLGİSİ", WHITE, MAGENTA)], 5),
+    ("05.png", "SÜRE YOK,", "CANINLA YARIŞ",
+     [("HAYATTA KALMA", INK, AMBER)], -5),
+    ("06.png", "REKOR KIR,", "ROZET TOPLA",
+     [("SEVİYE & BAŞARIM", INK, CYAN)], 5),
+    ("07.png", "KOMBO YAP,", "PUANI PATLAT",
+     [("JUICE!", INK, AMBER)], -5),
+    ("08.png", "KELİMELERLE", "ZİHNİNİ ÇALIŞTIR",
+     [("HEMEN İNDİR", INK, AMBER)], 0),
 ]
 
 
-def make_shot(raw, l1, l2, out):
-    bg = brand_bg(W, H)
+def make_panel(raw, l1, l2, badges, tilt, out):
+    bg = bg_panel()
     d = ImageDraw.Draw(bg)
-    fb = font(BOLD, 76)
-    centered(d, l1, 132, fb, WHITE)
-    centered(d, l2, 224, fb, VIOLET_LT)
+    # headline
+    f1 = fit_font(d, l1, BOLD, 70, W - 150)
+    f2 = fit_font(d, l2, XBOLD, 92, W - 130)
+    d.text((W/2, 150), l1, font=f1, fill=(255, 255, 255, 235), anchor="mm")
+    y2 = 150 + f1.size//2 + f2.size//2 + 14
+    # accent underline glow behind line2
+    d.text((W/2, y2), l2, font=f2, fill=AMBER, anchor="mm")
 
-    sc = Image.open(os.path.join(RAW, raw)).convert("RGB")
-    pw = 600
-    ph = int(pw * sc.height / sc.width)
-    sc = sc.resize((pw, ph))
-    px, py = (W - pw) // 2, 392
-
-    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(glow).rounded_rectangle(
-        [px - 14, py - 14, px + pw + 14, py + ph + 14], 60,
-        fill=(VIOLET[0], VIOLET[1], VIOLET[2], 130))
-    glow = glow.filter(ImageFilter.GaussianBlur(46))
-    bg = Image.alpha_composite(bg, glow)
-
+    # phone
+    ph = phone(raw, 560, tilt)
+    px = (W - ph.width)//2
+    py = 470
+    # shadow
     sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(sh).rounded_rectangle(
-        [px, py + 22, px + pw, py + ph + 22], 50, fill=(0, 0, 0, 170))
-    sh = sh.filter(ImageFilter.GaussianBlur(34))
+    ImageDraw.Draw(sh).rounded_rectangle([px+20, py+34, px+ph.width-20, py+ph.height-10], 60, fill=(0, 0, 0, 150))
+    sh = sh.filter(ImageFilter.GaussianBlur(40))
     bg = Image.alpha_composite(bg, sh)
+    bg.alpha_composite(ph, (px, py))
 
-    bg.alpha_composite(rounded(sc, 44), (px, py))
-    ImageDraw.Draw(bg).rounded_rectangle(
-        [px, py, px + pw, py + ph], 44, outline=(60, 74, 110, 255), width=4)
+    # badges (bottom area)
+    bx = 70
+    by = H - 150
+    badge_imgs = [badge(t, fg, bgc) for (t, fg, bgc) in badges]
+    total = sum(b.width for b in badge_imgs) + 20*(len(badge_imgs)-1)
+    bx = (W - total)//2
+    for b in badge_imgs:
+        bg.alpha_composite(b, (bx, by - b.height//2))
+        bx += b.width + 20
+
     bg.convert("RGB").save(out, quality=95)
-
-
-def mark(size):
-    """The violet rounded-square 'K' app mark."""
-    img = vgradient(size, size, VIOLET_HI, VIOLET_LO).convert("RGBA")
-    img = rounded(img, int(size * 0.28))
-    d = ImageDraw.Draw(img)
-    f = font(BOLD, int(size * 0.62))
-    t = "K"
-    w = d.textlength(t, font=f)
-    bbox = f.getbbox(t)
-    th = bbox[3] - bbox[1]
-    d.text(((size - w) / 2, (size - th) / 2 - bbox[1]), t, font=f, fill=WHITE)
-    return img
-
-
-def make_icon():
-    s = 512
-    canvas = Image.new("RGBA", (s, s), (8, 12, 23, 255))
-    canvas.alpha_composite(mark(s), (0, 0))
-    canvas.convert("RGB").save(os.path.join(OUT_ASSETS, "icon_512.png"))
 
 
 def make_feature():
     fw, fh = 1024, 500
-    bg = brand_bg(fw, fh, glow_xy=(250, 250), glow_r=320, glow_a=110)
-    m = mark(190)
-    bg.alpha_composite(m, (90, (fh - 190) // 2))
+    bg = vgrad(fw, fh, G_TOP, G_BOT)
+    bg = Image.alpha_composite(bg, blob((fw, fh), (fw*0.85, fh*0.1), 320, MAGENTA, 130, 130))
+    bg = Image.alpha_composite(bg, blob((fw, fh), (fw*0.1, fh*0.9), 300, (167, 139, 250), 90, 140))
+    logo = rounded(Image.open(LOGO).convert("RGBA").resize((210, 210)), 60)
+    bg.alpha_composite(logo, (90, (fh-210)//2))
     d = ImageDraw.Draw(bg)
-    d.text((330, 188), "Kelime Atölyesi", font=font(BOLD, 76), fill=WHITE)
-    d.text((332, 280), "Kelimelerle zihnini çalıştır", font=font(REG, 36), fill=VIOLET_LT)
+    d.text((340, 178), "Kelime Atölyesi", font=font(XBOLD, 82), fill=WHITE)
+    d.text((344, 284), "10 oyun · kelime & zekâ", font=font(BOLD, 38), fill=AMBER)
     bg.convert("RGB").save(os.path.join(OUT_ASSETS, "feature_graphic.png"))
 
 
 def main():
-    for i, (raw, l1, l2) in enumerate(SHOTS, 1):
+    for i, (raw, l1, l2, badges, tilt) in enumerate(PANELS, 1):
         out = os.path.join(OUT_SHOTS, f"{i:02d}.png")
-        make_shot(raw, l1, l2, out)
-        print("screenshot", out)
-    make_icon()
+        make_panel(raw, l1, l2, badges, tilt, out)
+        print("panel", out)
     make_feature()
-    print("icon + feature graphic done")
+    print("feature graphic done")
 
 
 if __name__ == "__main__":

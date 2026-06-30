@@ -6,7 +6,6 @@ import '../../core/bootstrap.dart';
 import '../../core/constants/route_constants.dart';
 import '../../core/design/app_colors.dart';
 import '../../core/design/app_typography.dart';
-import '../../core/design/decorations.dart';
 import '../../core/design/widgets/aurora_background.dart';
 
 /// Animated launch screen: an aurora backdrop, a glowing app mark that springs
@@ -163,7 +162,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-/// The glowing app mark — a violet gradient rounded square with a "K".
+/// The glowing app mark — the crossword logo with a pulsing violet halo.
 class _Mark extends StatelessWidget {
   const _Mark({required this.glow});
   final double glow;
@@ -171,22 +170,20 @@ class _Mark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 104,
-      height: 104,
+      width: 116,
+      height: 116,
       decoration: BoxDecoration(
-        gradient: AppGradients.word,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.word.withValues(alpha: 0.35 + 0.35 * glow),
-            blurRadius: 40 + 30 * glow,
+            color: AppColors.word.withValues(alpha: 0.30 + 0.35 * glow),
+            blurRadius: 40 + 32 * glow,
             spreadRadius: 2,
           ),
         ],
       ),
-      alignment: Alignment.center,
-      child: Text('K',
-          style: AppText.display(60, color: Colors.white, letterSpacing: 0)),
+      child: Image.asset('assets/images/logo.png',
+          width: 116, height: 116, filterQuality: FilterQuality.medium),
     );
   }
 }
