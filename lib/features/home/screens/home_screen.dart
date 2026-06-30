@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/ads/ad_service.dart';
 import '../../../core/constants/route_constants.dart';
 import '../../../core/design/app_colors.dart';
 import '../../../core/design/app_typography.dart';
@@ -182,7 +183,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Positioned.fill(child: AuroraBackground(accent: AppColors.word)),
           SafeArea(
-            child: ListView(
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
               children: [
                 Reveal(delay: nextDelay(), child: const _Header()),
@@ -201,6 +205,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 14),
                   _CategoryGrid(category: cat, nextDelay: nextDelay),
                 ],
+              ],
+                  ),
+                ),
+                const BannerAdSlot(),
               ],
             ),
           ),

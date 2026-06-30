@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ads/ad_service.dart';
 import '../../feedback/music_service.dart';
 import '../app_colors.dart';
 import '../app_typography.dart';
@@ -82,7 +83,11 @@ class _TopBar extends StatelessWidget {
         children: [
           _IconButton(
             icon: Icons.arrow_back_rounded,
-            onTap: onBack ?? () => Navigator.of(context).maybePop(),
+            onTap: onBack ??
+                () {
+                  AdService.instance.maybeShowInterstitial();
+                  Navigator.of(context).maybePop();
+                },
           ),
           const SizedBox(width: 12),
           Expanded(

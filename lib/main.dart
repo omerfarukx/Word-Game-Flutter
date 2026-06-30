@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'core/ads/ad_service.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/route_constants.dart';
 import 'core/design/app_theme.dart';
@@ -37,6 +38,7 @@ void main() async {
   await GameSettings.instance.init();
   await Guides.instance.init();
   await DailyChallenge.instance.init();
+  await AdService.instance.init();
 
   runApp(
     MultiProvider(
