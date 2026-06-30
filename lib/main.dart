@@ -40,6 +40,10 @@ void main() async {
   await DailyChallenge.instance.init();
   await AdService.instance.init();
 
+  // Registers itself with WidgetsBinding (kept alive); fires the app-open ad
+  // when the app returns to the foreground.
+  AppLifecycleListener(onResume: AdService.instance.showAppOpenIfReady);
+
   runApp(
     MultiProvider(
       providers: [

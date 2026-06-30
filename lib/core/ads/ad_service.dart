@@ -43,12 +43,29 @@ class AdService {
   bool enabled = true;
   bool _ready = false;
 
+  /// True while any full-screen ad (interstitial / rewarded / app-open) is on
+  /// screen, plus a short cooldown after — so ads never stack and an app-open
+  /// doesn't pop right after the user closes a rewarded ad.
+  bool _fullScreenShowing = false;
+  int _lastDismissMs = 0;
+
+  void _onFullScreenShown() => _fullScreenShowing = true;
+  void _onFullScreenGone() {
+    _fullScreenShowing = false;
+    _lastDismissMs = DateTime.now().millisecondsSinceEpoch;
+  }
+
+  bool get _busy =>
+      _fullScreenShowing ||
+      DateTime.now().millisecondsSinceEpoch - _lastDismissMs < 4000;
+
   Future<void> init() async {
     try {
       await MobileAds.instance.initialize();
       _ready = true;
       _loadInterstitial();
       _loadRewarded();
+      _loadAppOpen();
     } catch (e) {
       debugPrint('AdService init error: $e');
     }
@@ -84,11 +101,14 @@ class AdService {
     _exitsSinceAd = 0;
     _interstitial = null;
     ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) => _onFullScreenShown(),
       onAdDismissedFullScreenContent: (ad) {
+        _onFullScreenGone();
         ad.dispose();
         _loadInterstitial();
       },
       onAdFailedToShowFullScreenContent: (ad, _) {
+        _onFullScreenGone();
         ad.dispose();
         _loadInterstitial();
       },
@@ -128,18 +148,62 @@ class AdService {
     _rewarded = null;
     var earned = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) => _onFullScreenShown(),
       onAdDismissedFullScreenContent: (ad) {
+        _onFullScreenGone();
         ad.dispose();
         _loadRewarded();
         if (earned) onReward();
       },
       onAdFailedToShowFullScreenContent: (ad, _) {
+        _onFullScreenGone();
         ad.dispose();
         _loadRewarded();
         onUnavailable?.call();
       },
     );
     ad.show(onUserEarnedReward: (_, __) => earned = true);
+  }
+
+  // ── App-open ─────────────────────────────────────────────────────────────────
+  AppOpenAd? _appOpen;
+
+  void _loadAppOpen() {
+    if (!_ready || !enabled) return;
+    AppOpenAd.load(
+      adUnitId: AdIds.appOpen,
+      request: const AdRequest(),
+      adLoadCallback: AppOpenAdLoadCallback(
+        onAdLoaded: (ad) => _appOpen = ad,
+        onAdFailedToLoad: (_) => _appOpen = null,
+      ),
+    );
+  }
+
+  /// Shows the app-open ad when returning to the foreground, unless another
+  /// full-screen ad just ran. Called from the app's lifecycle listener.
+  void showAppOpenIfReady() {
+    if (!enabled || _busy) return;
+    final ad = _appOpen;
+    if (ad == null) {
+      _loadAppOpen();
+      return;
+    }
+    _appOpen = null;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) => _onFullScreenShown(),
+      onAdDismissedFullScreenContent: (ad) {
+        _onFullScreenGone();
+        ad.dispose();
+        _loadAppOpen();
+      },
+      onAdFailedToShowFullScreenContent: (ad, _) {
+        _onFullScreenGone();
+        ad.dispose();
+        _loadAppOpen();
+      },
+    );
+    ad.show();
   }
 }
 
